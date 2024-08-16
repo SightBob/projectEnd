@@ -13,9 +13,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="pt-[8rem] bg-[#f3f3f3]">
-      <Navbar/>
         {children}
-      <p>footer</p>
+      <p>sdfdsfsfdfsfdsfd</p>
       </body>
     </html>
   );
