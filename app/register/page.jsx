@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react';
+import CustomDropdown from '@/components/CustomDropdown';
 
 const faculties = {
   "สำนักวิชาวิทยาศาสตร์": [
@@ -81,11 +82,10 @@ const Page = () => {
     }));
   };
 
-  const handleFacultyChange = (e) => {
-    const faculty = e.target.value;
+  const handleFacultyChange = (value) => {
     setFormData((prevData) => ({
       ...prevData,
-      faculty: faculty,
+      faculty: value,
       major: ''
     }));
   };
@@ -119,8 +119,8 @@ const Page = () => {
         <div className="flex justify-center space-x-8 mt-8 max-[666px]:flex-col max-[666px]:space-x-0">
           <div className="flex flex-col w-[300px]">
             <div className="flex justify-between items-center">
-            <label className="mt-4" htmlFor="username">ชื่อผู้ใช้</label>
-            {errors.username && <span className="text-red-500">{errors.username}</span>}
+              <label className="mt-4" htmlFor="username">ชื่อผู้ใช้</label>
+              {errors.username && <span className="text-red-500">{errors.username}</span>}
             </div>
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
@@ -131,10 +131,9 @@ const Page = () => {
             />
             
             <div className="flex justify-between items-center">
-            <label className="mt-4" htmlFor="email">อีเมล</label>
-            {errors.email && <span className="text-red-500">{errors.email}</span>}
+              <label className="mt-4" htmlFor="email">อีเมล</label>
+              {errors.email && <span className="text-red-500">{errors.email}</span>}
             </div>
-            
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
               type="email"
@@ -143,9 +142,9 @@ const Page = () => {
               onChange={handleChange}
             />
           
-          <div className="flex justify-between items-center">
-            <label className="mt-4" htmlFor="password">รหัสผ่าน</label>
-            {errors.password && <span className="text-red-500">{errors.password}</span>}
+            <div className="flex justify-between items-center">
+              <label className="mt-4" htmlFor="password">รหัสผ่าน</label>
+              {errors.password && <span className="text-red-500">{errors.password}</span>}
             </div>
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
@@ -155,11 +154,10 @@ const Page = () => {
               onChange={handleChange}
             />
           
-          <div className="flex justify-between items-center">
-          <label className="mt-4" htmlFor="confirmPassword">ยืนยันรหัสผ่าน</label>
-          {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword}</span>}
+            <div className="flex justify-between items-center">
+              <label className="mt-4" htmlFor="confirmPassword">ยืนยันรหัสผ่าน</label>
+              {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword}</span>}
             </div>
-         
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
               type="password"
@@ -167,16 +165,13 @@ const Page = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
             />
-         
           </div>
 
           <div className="flex flex-col w-[300px]">
-            
-          <div className="flex justify-between items-center">
-          <label className="mt-4" htmlFor="firstname">ชื่อจริง</label>
-          {errors.firstname && <span className="text-red-500">{errors.firstname}</span>}
+            <div className="flex justify-between items-center">
+              <label className="mt-4" htmlFor="firstname">ชื่อจริง</label>
+              {errors.firstname && <span className="text-red-500">{errors.firstname}</span>}
             </div>
-       
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
               type="text"
@@ -185,11 +180,10 @@ const Page = () => {
               onChange={handleChange}
             />
           
-          <div className="flex justify-between items-center">
-          <label className="mt-4" htmlFor="lastname">นามสกุล</label>
-          {errors.lastname && <span className="text-red-500">{errors.lastname}</span>}
+            <div className="flex justify-between items-center">
+              <label className="mt-4" htmlFor="lastname">นามสกุล</label>
+              {errors.lastname && <span className="text-red-500">{errors.lastname}</span>}
             </div>
-          
             <input
               className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full"
               type="text"
@@ -199,63 +193,26 @@ const Page = () => {
             />
             
             <div className="flex justify-between items-center">
-            <label className="mt-4" htmlFor="faculty">คณะ</label>
-            {errors.faculty && <span className="text-red-500">{errors.faculty}</span>}
+              <label className="mt-4" htmlFor="faculty">คณะ</label>
+              {errors.faculty && <span className="text-red-500">{errors.faculty}</span>}
             </div>
-          
-            <div className="relative">
-              <select
-                id="faculty"
-                className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full appearance-none"
-                value={formData.faculty}
-                onChange={handleFacultyChange}
-                style={{ direction: 'rtl' }}
-              >
-                <option value="" style={{ direction: 'ltr' }}>เลือกคณะ</option>
-                {Object.keys(faculties).map((faculty) => (
-                  <option key={faculty} value={faculty} style={{ direction: 'ltr' }}>
-                    {faculty}
-                  </option>
-                ))}
-              </select>
-             
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                </svg>
-              </div>
-            </div>
+            <CustomDropdown
+              options={Object.keys(faculties)}
+              value={formData.faculty}
+              onChange={handleFacultyChange}
+              placeholder="เลือกคณะ"
+            />
 
-  
             <div className="flex justify-between items-center">
-            <label className="mt-4" htmlFor="major">สาขาวิชา</label>
-            {errors.major && <span className="text-red-500">{errors.major}</span>}
+              <label className="mt-4" htmlFor="major">สาขาวิชา</label>
+              {errors.major && <span className="text-red-500">{errors.major}</span>}
             </div>
-         
-            <div className="relative">
-              <select
-                id="major"
-                className="mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full appearance-none"
-                value={formData.major}
-                onChange={handleChange}
-                disabled={!formData.faculty}
-                style={{ direction: 'rtl' }}
-              >
-                <option value="" style={{ direction: 'ltr' }}>เลือกสาขาวิชา</option>
-                {formData.faculty &&
-                  faculties[formData.faculty].map((major) => (
-                    <option key={major} value={major} style={{ direction: 'ltr' }}>
-                      {major}
-                    </option>
-                  ))}
-              </select>
-              
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                </svg>
-              </div>
-            </div>
+            <CustomDropdown
+              options={formData.faculty ? faculties[formData.faculty] : []}
+              value={formData.major}
+              onChange={(value) => handleChange({ target: { id: 'major', value } })}
+              placeholder="เลือกสาขาวิชา"
+            />
           </div>
         </div>
 

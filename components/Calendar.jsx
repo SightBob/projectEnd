@@ -9,7 +9,7 @@ const CalendarComponent = () => {
   const [date, setDate] = useState(new Date());
 
   return (
-    <div className="p-4 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4 w-[250px] max-lg:w-[50%] max-sm:w-full">
+    <div className="p-4 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4 w-[300px] max-lg:w-[50%] max-sm:w-full">
       <Calendar
         onChange={setDate}
         value={date}
