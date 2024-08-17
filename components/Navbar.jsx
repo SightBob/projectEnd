@@ -43,9 +43,9 @@ const Navbar = ({}) => {
           <Link href="login" className="px-6 cursor-pointer">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
-          <div className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
-            <Link href="" className="text-lg">สมัครสมาชิก</Link>
-          </div>
+          <Link href="register" className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
+            <h2 href="" className="text-lg">สมัครสมาชิก</h2>
+          </Link>
           </div>
         </div>
 
@@ -53,9 +53,9 @@ const Navbar = ({}) => {
           <Link href="login" className=" cursor-pointer max-sm:hidden">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
-          <div className="bg-[#ff3300] px-8 rounded-full py-2 text-white cursor-pointer max-sm:hidden">
+          <Link href="register" className="bg-[#ff3300] px-8 rounded-full py-2 text-white cursor-pointer max-sm:hidden">
             <h2 className="text-lg">สมัครสมาชิก</h2>
-          </div>
+          </Link>
 
           {/* menu */}
           <div className="xl:hidden">
