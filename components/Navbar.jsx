@@ -35,7 +35,7 @@ const Navbar = ({}) => {
 
         <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[430px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
           <Link className="text-lg text-[#ff3300] max-xl:mt-[3rem]" href="/">หน้าหลัก</Link> 
-          <Link className="text-lg" href="">กิจกรรม</Link>
+          <Link className="text-lg" href="sutevent">กิจกรรม</Link>
           <Link className="text-lg" href="">ค้นหากลุ่ม</Link> 
           <Link className="text-lg" href="">รายการโปรด</Link>
           <Link className="text-lg" href="">โพสต์</Link>
