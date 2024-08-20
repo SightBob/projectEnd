@@ -2,13 +2,13 @@ import CartInterest from "@/components/CartInterest"
 import Link from "next/link";
 
 const titleInterest = [
-    { name: "อาหาร", img: "food" },
-    { name: "เกม", img: "game" },
-    { name: "ชมรมนักศึกษา", img: "club" },
-    { name: "กีฬา", img: "sport" },
-    { name: "การศึกษา", img: "study" },
-    { name: "ท่องเที่ยว", img: "travel" },
-  ];
+  { name: "อาหาร", img: "food", alt: "ไอคอนอาหารแสดงถึงความสนใจด้านอาหารและการทำอาหาร" },
+  { name: "เกม", img: "game", alt: "ไอคอนจอยสติ๊กแสดงถึงความสนใจด้านเกมและวิดีโอเกม" },
+  { name: "ชมรมนักศึกษา", img: "club", alt: "ไอคอนกลุ่มคนแสดงถึงกิจกรรมชมรมนักศึกษา" },
+  { name: "กีฬา", img: "sport", alt: "ไอคอนอุปกรณ์กีฬาแสดงถึงความสนใจด้านกีฬาและการออกกำลังกาย" },
+  { name: "การศึกษา", img: "study", alt: "ไอคอนหนังสือหรือหมวกบัณฑิตแสดงถึงความสนใจด้านการศึกษาและวิชาการ" },
+  { name: "ท่องเที่ยว", img: "travel", alt: "ไอคอนกระเป๋าเดินทางหรือลูกโลกแสดงถึงความสนใจด้านการท่องเที่ยว" },
+];
 
 const Page = ({}) => {
   return (<div className="min-h-[calc(100vh_-_8rem)] w-full pb-[3rem]"> 
@@ -19,8 +19,13 @@ const Page = ({}) => {
     <div className="flex justify-center w-fit max-sm:w-[90%] mx-auto mt-4">
         <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-2">
         {titleInterest.map((interest, index) => (
-            <CartInterest key={index} title={interest.name} name_img={interest.img} />
-        ))}
+              <CartInterest 
+                key={index} 
+                title={interest.name} 
+                name_img={interest.img}
+                alt_img={interest.alt}
+              />
+            ))}
         </div>
     </div>
     <div className="bg-[#FD8D64] px-12 mt-4 py-2 rounded-md w-fit mx-auto text-white cursor-pointer">

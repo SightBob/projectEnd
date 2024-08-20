@@ -5,11 +5,15 @@ import Image from "next/image";
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+
 
 const Navbar = ({}) => {
+
   const pathName = usePathname()
   const [ openMenu, setOpenMenu ] = useState(false);
- 
+
+  const { data: session} = useSession();
   const ClickOpenMenu = () => {
     setOpenMenu(!openMenu)
   } 
@@ -33,13 +37,16 @@ const Navbar = ({}) => {
           <h1 className="text-2xl">SUT EVENTS</h1>
         </Link>
 
-        <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[430px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
+        <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[470px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
           <Link className="text-lg text-[#ff3300] max-xl:mt-[3rem]" href="/">หน้าหลัก</Link> 
           <Link className="text-lg" href="sutevent">กิจกรรม</Link>
           <Link className="text-lg" href="">ค้นหากลุ่ม</Link> 
           <Link className="text-lg" href="">รายการโปรด</Link>
           <Link className="text-lg" href="">โพสต์</Link>
-          <div className="flex items-center space-x-8 sm:hidden">
+          
+          {!session ?(
+            <>
+            <div className="flex items-center space-x-8 sm:hidden">
           <Link href="login" className="px-6 cursor-pointer">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
@@ -47,15 +54,44 @@ const Navbar = ({}) => {
             <h2 href="" className="text-lg">สมัครสมาชิก</h2>
           </Link>
           </div>
+            </>
+          ) : (
+            <div className="flex flex-col items-center space-y-6 sm:hidden">
+              <Link href="profile" className="px-6 cursor-pointer">
+              <h2 className="text-lg">โปรไฟล์</h2>
+            </Link>
+            <Link href="" onClick={() => signOut()} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
+              <h2 className="text-lg">ออกจากระบบ</h2>
+            </Link>
+            </div>
+          )}
+
         </div>
 
         <div className="flex items-center space-x-5">
-          <Link href="login" className=" cursor-pointer max-sm:hidden">
+
+        {!session ?(
+            <>
+          <Link href="login" className="cursor-pointer max-sm:hidden">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
           <Link href="register" className="bg-[#ff3300] px-8 rounded-full py-2 text-white cursor-pointer max-sm:hidden">
             <h2 className="text-lg">สมัครสมาชิก</h2>
           </Link>
+            </>
+          ) : (
+            <div className="flex items-center space-x-2 max-sm:hidden">
+            <Link href="profile" className="px-6 cursor-pointer">
+              <h2 className="text-lg">โปรไฟล์</h2>
+            </Link>
+            <Link href="" onClick={() => signOut()} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
+              <h2 className="text-lg">ออกจากระบบ</h2>
+            </Link>
+            </div>
+          )}
+
+
+
 
           {/* menu */}
           <div className="xl:hidden">

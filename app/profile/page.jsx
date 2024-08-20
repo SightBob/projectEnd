@@ -11,13 +11,7 @@ const Page = () => {
             style={{ backgroundImage: "url('/assets/img_main/cover-cat.png')" }} // ใส่ path รูป cover ที่นี่
             ></div>
           <div className="absolute left-10 bottom-[-80px] flex items-center">
-            {/* <Image 
-              src="/assets/img_main/Profile-cat.png" // ใส่ path รูปโปรไฟล์ที่นี่
-              alt="Profile Picture" 
-              width={150} 
-              height={150} 
-              className="rounded-full border-4 border-white object-cover"
-            /> */}
+            
              <div className="size-[8rem] relative">
           <Image
             layout="fill"

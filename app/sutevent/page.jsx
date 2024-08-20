@@ -6,7 +6,7 @@ import CartEvent from "@/components/CartEvent";
 const Page = ({}) => {
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)] ">
-      <div className="container flex space-x-3 max-md:flex-col">
+      <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
         <div className="w-[350px] border max-md:w-full">
         <div className="w-full  rounded-full bg-white mb-4">
         <div className="search-container flex items-center rounded-md p-2">
@@ -31,10 +31,10 @@ const Page = ({}) => {
               />
             </div>
         </div>
-        <div className=" max-md:flex max-md:items-center max-md:space-x-3 max-sm:flex-col ">
+        <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0">
           <CalendarComponent />
           
-          <div class="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px] ">
+          <div class="justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px] max-md:py-6">
             <div className="w-full flex justify-between">
             <div className="">หมวดหมู่</div>
             <div className="">ล้างทั้งหมด</div>
@@ -133,7 +133,7 @@ const Page = ({}) => {
           </div>
         </div>
         </div>
-        <div className="w-full grid grid-cols-4 gap-3  max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:place-items-center">
+        <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
           <CartEvent />
           <CartEvent />
           <CartEvent />
