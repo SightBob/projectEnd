@@ -91,7 +91,7 @@ const Page = ({}) => {
             </div>
           </div>
         </div>
-        <div className="w-full grid grid-cols-4 gap-3  max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:place-items-center">
+        <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
           <CartEvent />
           <CartEvent />
           <CartEvent />
