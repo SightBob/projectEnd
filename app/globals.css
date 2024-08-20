@@ -15,7 +15,3 @@
 ::-webkit-scrollbar {
     display: none;
 }
-.sticky-category {
-    position: sticky;
-    top: 10px;
-}
