@@ -9,24 +9,21 @@ export async function POST(req) {
 
         await dbConnect();
 
-        return NextResponse.json({
-            username, password
-        })
-        // const user = await User.findOne({ username });
+        const user = await User.findOne({ username });
 
-        // if (!user) {
-        //     return NextResponse.json({ message: "User not found" }, { status: 404 });
-        // }
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
 
-        // const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-        // if (!isPasswordCorrect) {
-        //     return NextResponse.json({ message: "Incorrect password" }, { status: 401 });
-        // }
+        if (!isPasswordCorrect) {
+            return NextResponse.json({ message: "Incorrect password" }, { status: 401 });
+        }
 
-        // return NextResponse.json({ 
-        //     message: "Login successful",
-        // }, { status: 200 });
+        return NextResponse.json({ 
+            message: "Login successful",
+        }, { status: 200 });
 
     } catch (error) {
         console.error("Login failed:", error);

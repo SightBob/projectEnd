@@ -103,12 +103,12 @@ export default function Home() {
 
 
         <div className="flex justify-between space-x-3 mt-5 max-sm:space-x-0">
-        <div className="w-full">
+        <div className="mx-auto">
         <div className="text-[#FF6600] flex justify-between items-center px-2">
           <h3 className="text-xl max-[1214px]:text-lg">กิจกรรมที่คุณอาจสนใจ</h3>
           <Link className='flex items-center space-x-2 text-xl max-[1214px]:text-lg' href="#">ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg></span></Link>
         </div>
-          <div className="grid grid-cols-3 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-md:grid-cols-2 max-lg:w-full max-[510px]:grid-cols-1 place-items-center">
+          <div className="grid grid-cols-3 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-md:grid-cols-3 max-lg:w-full max-[510px]:grid-cols-1">
             <CartEvent/>
             <CartEvent/>
             <CartEvent/>
