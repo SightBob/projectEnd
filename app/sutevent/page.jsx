@@ -1,9 +1,41 @@
+'use client'
 import Image from "next/image";
 import Link from "next/link";
-
+import { useState } from "react";
 import CalendarComponent from "@/components/Calendar";
 import CartEvent from "@/components/CartEvent";
+
 const Page = ({}) => {
+
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  const toggleCategory = (category) => {
+    setSelectedCategories((prevSelected) =>
+      prevSelected.includes(category)
+        ? prevSelected.filter((c) => c !== category)
+        : [...prevSelected, category]
+    );
+  };
+
+  const categories = [
+    "กีฬา",
+    "ชมรม",
+    "ทะเล",
+    "ธรรมชาติอื่นๆ",
+    "เฟสติวัล & ไนท์ไลฟ์",
+    "แอดเวนเจอร์",
+    "วัฒนธรรม",
+    "กิจกรรมนักช้อป",
+    "กิจกรรมทั่วไป",
+    "กิจกรรมครอบครัว",
+    "สายมู",
+    "ฟู้ดทัวร์",
+    "Wellness",
+    "ศิลปะและงานฝีมือ",
+    "โรงแรม",
+    "อื่นๆ",
+  ];
+
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)] ">
       <div className="container flex space-x-3 max-md:flex-col">
@@ -34,104 +66,30 @@ const Page = ({}) => {
         <div className=" max-md:flex max-md:items-center max-md:space-x-3 max-sm:flex-col ">
           <CalendarComponent />
           
-          <div class="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px] ">
-            <div className="w-full flex justify-between">
-            <div className="">หมวดหมู่</div>
-            <div className="">ล้างทั้งหมด</div>
+          <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
+              <div className="w-full flex justify-between">
+                <div className="">หมวดหมู่</div>
+                <div className="" onClick={() => setSelectedCategories([])}>
+                  ล้างทั้งหมด
+                </div>
+              </div>
+              {categories.map((category) => (
+                <span
+                  key={category}
+                  className={`ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] m-0 border-none flex items-center h-[32px] cursor-pointer ${
+                    selectedCategories.includes(category)
+                      ? "bg-[#fb9048] text-white"
+                      : "bg-[#F2F2F2] text-[#767676]"
+                  }`}
+                  onClick={() => toggleCategory(category)}
+                >
+                  <p className="text-[14px] leading-[20px] font-[400]">
+                    {category}
+                  </p>
+                </span>
+              ))}
             </div>
-            <span
-              class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined"
-              ant-click-animating-without-extra-node="false"
-            >
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                กีฬา
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                ภูเขา
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                ทะเล
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                ธรรมชาติอื่นๆ
-              </p>
-            </span>
-            <span
-              class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined"
-              ant-click-animating-without-extra-node="false"
-            >
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                เฟสติวัล &amp; ไนท์ไลฟ์
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                แอดเวนเจอร์
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                วัฒนธรรม
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                กิจกรรมนักช้อป
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                กิจกรรมทั่วไป
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                กิจกรรมครอบครัว
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                กีฬา
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                สายมู
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                ฟู้ดทัวร์
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                Wellness
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                ศิลปะและงานฝีมือ
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                โรงแรม
-              </p>
-            </span>
-            <span class="ant-tag px-[8px] py-[4px] gap-[8px] rounded-[4px] bg-[#F2F2F2] m-0 border-none flex items-center h-[32px] cursor-pointer undefined">
-              <p class="text-[14px] text-[#767676] leading-[20px] font-[400]">
-                อื่นๆ
-              </p>
-            </span>
           </div>
-        </div>
         </div>
         <div className="w-full grid grid-cols-4 gap-3  max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:place-items-center">
           <CartEvent />
