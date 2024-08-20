@@ -23,6 +23,8 @@ const Navbar = ({}) => {
 
   }, [pathName]);
 
+  const isActive = (path) => pathName === path ? "text-[#ff3300]" : "";
+
   return (
     <header className="bg-[rgba(255,255,255,0.5)] backdrop-blur-[20px] w-full fixed top-0 left-0 z-[100]  border border-solid border-[rgba(255,255,255,0.30)]">
       <nav className="container mx-auto flex justify-between items-center h-[7rem]">
@@ -38,11 +40,11 @@ const Navbar = ({}) => {
         </Link>
 
         <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[470px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
-          <Link className="text-lg text-[#ff3300] max-xl:mt-[3rem]" href="/">หน้าหลัก</Link> 
-          <Link className="text-lg" href="sutevent">กิจกรรม</Link>
-          <Link className="text-lg" href="">ค้นหากลุ่ม</Link> 
-          <Link className="text-lg" href="">รายการโปรด</Link>
-          <Link className="text-lg" href="">โพสต์</Link>
+          <Link className={`text-lg max-xl:mt-[3rem] ${isActive("/")}`} href="/">หน้าหลัก</Link> 
+          <Link className={`text-lg ${isActive("/sutevent")}`} href="/sutevent">กิจกรรม</Link>
+          <Link className={`text-lg ${isActive("/searchgroup")}`} href="/searchgroup">ค้นหากลุ่ม</Link> 
+          <Link className={`text-lg ${isActive("/favorites")}`} href="/favorites">รายการโปรด</Link>
+          <Link className={`text-lg ${isActive("/post")}`} href="/post">โพสต์</Link>
           
           {!session ?(
             <>
