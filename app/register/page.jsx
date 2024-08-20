@@ -2,6 +2,11 @@
 
 import React, { useState } from 'react';
 import CustomDropdown from '@/components/CustomDropdown';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react'
+// import { useSession } from 'next-auth/react';
+// import { redirect } from 'next/navigation';
 
 const faculties = {
   "สำนักวิชาวิทยาศาสตร์": [
@@ -61,6 +66,12 @@ const faculties = {
 };
 
 const Page = () => {
+
+  const Router = useRouter();
+  
+  // const { data: session } = useSession();
+  // if(session) redirect('/');
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -105,10 +116,43 @@ const Page = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       console.log('Form submitted successfully:', formData);
+      
+      try {
+        const resUser = await axios.post('/api/auth/register', formData);
+
+        if (resUser.status === 201 && resUser.data.newUser) {
+          const result = await signIn('credentials', {
+            id: resUser.data.newUser._id,
+            username: formData.username,
+            password: formData.password,
+            redirect: false
+          });
+          if (result.ok) {
+             Router.push('/interest');
+          } else {
+            setErrors(prev => ({ ...prev, general: 'เข้าสู่ระบบไม่สำเร็จหลังจากลงทะเบียน กรุณาลองใหม่อีกครั้ง' }));
+          }
+        } else {
+          setErrors(prev => ({ ...prev, general: 'การลงทะเบียนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' }));
+        }
+
+      } catch (error) {
+        if (error.response?.status === 409) {
+          if (error.response.data.field === 'email') {
+            setErrors(prev => ({ ...prev, email: 'อีเมลนี้มีอยู่ในระบบแล้ว' }));
+          }
+            if (error.response.data.field === 'username') {
+            setErrors(prev => ({ ...prev, username: 'ชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว' }));
+          }
+        } else {
+          setErrors(prev => ({ ...prev, general: 'เกิดข้อผิดพลาดในการลงทะเบียน กรุณาลองใหม่อีกครั้ง' }));
+        }
+      }
+
     }
   };
 
@@ -118,7 +162,7 @@ const Page = () => {
       <form onSubmit={handleSubmit} className="mx-auto flex flex-col items-center">
         <div className="flex justify-center space-x-8 mt-8 max-[666px]:flex-col max-[666px]:space-x-0">
           <div className="flex flex-col w-[300px]">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="username">ชื่อผู้ใช้</label>
               {errors.username && <span className="text-red-500">{errors.username}</span>}
             </div>
@@ -130,7 +174,7 @@ const Page = () => {
               onChange={handleChange}
             />
             
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="email">อีเมล</label>
               {errors.email && <span className="text-red-500">{errors.email}</span>}
             </div>
@@ -142,7 +186,7 @@ const Page = () => {
               onChange={handleChange}
             />
           
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="password">รหัสผ่าน</label>
               {errors.password && <span className="text-red-500">{errors.password}</span>}
             </div>
@@ -154,7 +198,7 @@ const Page = () => {
               onChange={handleChange}
             />
           
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="confirmPassword">ยืนยันรหัสผ่าน</label>
               {errors.confirmPassword && <span className="text-red-500">{errors.confirmPassword}</span>}
             </div>
@@ -168,7 +212,7 @@ const Page = () => {
           </div>
 
           <div className="flex flex-col w-[300px]">
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="firstname">ชื่อจริง</label>
               {errors.firstname && <span className="text-red-500">{errors.firstname}</span>}
             </div>
@@ -180,7 +224,7 @@ const Page = () => {
               onChange={handleChange}
             />
           
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="lastname">นามสกุล</label>
               {errors.lastname && <span className="text-red-500">{errors.lastname}</span>}
             </div>
@@ -192,7 +236,7 @@ const Page = () => {
               onChange={handleChange}
             />
             
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="faculty">คณะ</label>
               {errors.faculty && <span className="text-red-500">{errors.faculty}</span>}
             </div>
@@ -203,7 +247,7 @@ const Page = () => {
               placeholder="เลือกคณะ"
             />
 
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-end">
               <label className="mt-4" htmlFor="major">สาขาวิชา</label>
               {errors.major && <span className="text-red-500">{errors.major}</span>}
             </div>
