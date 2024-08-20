@@ -39,7 +39,7 @@ const Page = ({}) => {
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)] ">
       <div className="container flex space-x-3 max-md:flex-col">
-        <div className="w-[350px] border max-md:w-full">
+        <div className="w-[350px] border max-md:w-full sticky-category">
         <div className="w-full  rounded-full bg-white mb-4">
         <div className="search-container flex items-center rounded-md p-2">
               <svg
