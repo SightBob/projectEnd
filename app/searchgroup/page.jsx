@@ -8,7 +8,7 @@ const Page = () => {
         <div className="w-[350px] border max-md:w-full">
         <div className="w-full  rounded-full bg-white mb-4">
         </div>
-        <div className=" max-md:flex max-md:items-center max-md:space-x-3 max-sm:flex-col ">
+        <div className="max-md:flex max-md:items-center max-md:space-x-3 max-sm:flex-col ">
           <CalendarComponent />
           
           </div>
