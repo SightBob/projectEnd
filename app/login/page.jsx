@@ -21,7 +21,7 @@ const Page = () => {
     setError('');
 
     try {
-      const response = await axios.post('/api/login', { username, password });
+      const response = await axios.post('/api/auth/login', { username, password });
 
       if (response.status === 200) {
         // ใช้ NextAuth signIn function เพื่อสร้าง session
