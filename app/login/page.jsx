@@ -14,41 +14,48 @@ const Page = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const [usernameError, setUsernameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [generalError, setGeneralError] = useState('');
   if(session) router.push('/');
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
+    setUsernameError('');
+    setPasswordError('');
+    setGeneralError('');
+  
     try {
-      const response = await axios.post('/api/login', { username, password });
-
+      const response = await axios.post('/api/auth/login', { username, password });
+  
       if (response.status === 200) {
-        // ใช้ NextAuth signIn function เพื่อสร้าง session
         const result = await signIn('credentials', {
           redirect: false,
           username,
           password,
         });
-
+  
         if (result.error) {
-          setError(result.error);
+          setGeneralError(result.error);
         } else {
-          router.push('/'); // หรือหน้าที่ต้องการหลังจาก login สำเร็จ
+          router.push('/');
         }
-      } else {
-        setError(response.data.message);
       }
     } catch (error) {
       if (error.response) {
-        // ข้อผิดพลาดจาก server
-        setError(error.response.data.message);
+        const { field, message } = error.response.data;
+        if (field === 'username') {
+          setUsernameError(message);
+        } else if (field === 'password') {
+          setPasswordError(message);
+        } else {
+          setGeneralError(message);
+        }
       } else if (error.request) {
-        // ไม่ได้รับการตอบกลับจาก server
-        setError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+        setGeneralError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
       } else {
-        // ข้อผิดพลาดอื่นๆ
-        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
+        setGeneralError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
       }
     }
   };
@@ -57,9 +64,12 @@ const Page = () => {
     <div className="w-full flex h-[calc(100vh_-_8rem)] ">
       <div className="w-[50%] bg-white flex flex-col items-center justify-center max-md:w-full">
         <h2 className="text-3xl text-center">เข้าสู่ระบบ</h2>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
+        
         <form onSubmit={handleSubmit} className="max-w-[300px] w-full mx-auto mt-6 flex flex-col">
+          <div className="flex justify-between items-end">
           <label htmlFor="username">ชื่อผู้ใช้ หรือ อีเมล</label>
+          {usernameError && <p className="text-red-500 mt-2">{usernameError}</p>}
+          </div>
           <input
             id="username"
             className="px-3 mt-2 border rounded-md max-w-[300px] py-1 w-full"
@@ -68,7 +78,10 @@ const Page = () => {
             onChange={(e) => setUsername(e.target.value)}
             required
           />
+                  <div className="flex justify-between items-end">
           <label className="mt-5" htmlFor="password">รหัสผ่าน</label>
+          {passwordError && <p className="text-red-500 mt-2">{passwordError}</p>}
+          </div>
           <input
             id="password"
             className="px-3 border rounded-md max-w-[300px] py-1 w-full"
