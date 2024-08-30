@@ -1,6 +1,14 @@
+'use client'
+
 import Image from 'next/image';
 
+import { useSession } from "next-auth/react";
+
 const Page = () => {
+
+  const { data: session} = useSession();
+  console.log("Profile: ", session);
+
   return (
     <div className='Container w-full flex justify-center items-center h-[calc(100vh_-_8rem)]'>
       <div className="max-w-7xl h-full w-full mx-6 p-6 bg-white shadow-md rounded-lg">

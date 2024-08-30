@@ -42,7 +42,7 @@ const Navbar = ({}) => {
           <Link className="text-lg" href="sutevent">กิจกรรม</Link>
           <Link className="text-lg" href="">ค้นหากลุ่ม</Link> 
           <Link className="text-lg" href="">รายการโปรด</Link>
-          <Link className="text-lg" href="">โพสต์</Link>
+          <Link className="text-lg" href="post">โพสต์</Link>
           
           {!session ?(
             <>

@@ -5,8 +5,6 @@ import CustomDropdown from '@/components/CustomDropdown';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react'
-// import { useSession } from 'next-auth/react';
-// import { redirect } from 'next/navigation';
 
 const faculties = {
   "สำนักวิชาวิทยาศาสตร์": [
@@ -68,9 +66,6 @@ const faculties = {
 const Page = () => {
 
   const Router = useRouter();
-  
-  // const { data: session } = useSession();
-  // if(session) redirect('/');
 
   const [formData, setFormData] = useState({
     username: '',
@@ -132,7 +127,7 @@ const Page = () => {
             redirect: false
           });
           if (result.ok) {
-             Router.push('/interest');
+             Router.push('/Interest');
           } else {
             setErrors(prev => ({ ...prev, general: 'เข้าสู่ระบบไม่สำเร็จหลังจากลงทะเบียน กรุณาลองใหม่อีกครั้ง' }));
           }

@@ -30,13 +30,12 @@ export default function Home() {
           spaceBetween={50}
           slidesPerView={1}
           autoplay={{
-            delay: 2000, // ระยะเวลาระหว่างการเปลี่ยนสไลด์ (ในหน่วยมิลลิวินาที)
-            disableOnInteraction: true, // ให้ autoplay ทำงานต่อหลังจากที่ผู้ใช้มีปฏิสัมพันธ์
+            delay: 2000,
+            disableOnInteraction: true, 
           }}
 
           pagination={{ clickable: true }}
-          // onSwiper={(swiper) => console.log(swiper)}
-          // onSlideChange={() => console.log('slide change')}
+
         >
          <SwiperSlide>
             <div className="relative w-full h-full"> 
@@ -103,12 +102,12 @@ export default function Home() {
 
 
         <div className="flex justify-between space-x-3 mt-5 max-sm:space-x-0">
-        <div className="mx-auto">
+        <div className="w-full">
         <div className="text-[#FF6600] flex justify-between items-center px-2">
           <h3 className="text-xl max-[1214px]:text-lg">กิจกรรมที่คุณอาจสนใจ</h3>
-          <Link className='flex items-center space-x-2 text-xl max-[1214px]:text-lg' href="#">ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg></span></Link>
+          <Link className='flex items-center space-x-2 text-xl max-[1214px]:text-lg' href="/sutevent">ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/></svg></span></Link>
         </div>
-          <div className="grid grid-cols-3 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-md:grid-cols-3 max-lg:w-full max-[510px]:grid-cols-1">
+          <div className="grid grid-cols-4 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-md:grid-cols-2 max-lg:w-full max-[510px]:grid-cols-1 place-items-center">
             <CartEvent/>
             <CartEvent/>
             <CartEvent/>
@@ -128,7 +127,7 @@ export default function Home() {
             </div>
               <div className="h-[320px] overflow-scroll w-full">
                 
-              <CartActivity/>
+                <CartActivity/>
                 <CartActivity/>
                 <CartActivity/>
                 <CartActivity/>
