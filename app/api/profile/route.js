@@ -4,9 +4,9 @@ import User from "@/models/User";
 
 export async function GET(req) {
   try {
-    // ตรวจสอบว่ามีการส่ง ID ผู้ใช้เข้ามาหรือไม่
+   
     const url = new URL(req.url);
-    const uid = url.searchParams.get('uid'); // ใช้ URL Search Params เพื่อดึงค่าจาก query string
+    const uid = url.searchParams.get('uid'); 
 
     if (!uid) {
       return new NextResponse(JSON.stringify({ message: "User ID is required" }), { status: 400 });

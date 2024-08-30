@@ -11,8 +11,6 @@ const Page = () => {
     { id: 3, name: "Event 3" },
     { id: 4, name: "Event 4" },
   
-
-
   ]);
 
   const handleRemoveEvent = (id) => {
@@ -21,7 +19,7 @@ const Page = () => {
 
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)]">
-      <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
+      <div className="container flex space-x-3 max-sm:space-x-0 max-md:flex-col-reverse">
         {/* Favorite Items Grid */}
         <div className="w-full">
           <div className="text-orange-400 text-[30px] max-md:text-center max-md:mt-5">รายการโปรด</div>
