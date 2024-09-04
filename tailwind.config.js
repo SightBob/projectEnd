@@ -17,6 +17,16 @@ module.exports = {
       center: true,
       padding: '1rem',
     },
+    extend: {
+      height: {
+        '128': '32rem', 
+        '144': '36rem', 
+        '104': '26rem',  
+        '112': '28rem',  
+        '120': '30rem',  
+        '128': '32rem', 
+      },
+    },
   },
   plugins: [],
 };
