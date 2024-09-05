@@ -39,14 +39,14 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
         <form onSubmit={handleSubmit}>
           <div className="mb-4 flex justify-between">
             <div className="w-1/2 pr-2">
-              <label className="block mb-1">ชื่อผู้ใช้</label>
+              <label className="block mb-1 ">ชื่อผู้ใช้</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="border rounded w-full p-2"
-                readOnly
+                className="border rounded w-full p-2  bg-slate-200"
+                disabled
               />
             </div>
             <div className="w-1/2 pl-2">
