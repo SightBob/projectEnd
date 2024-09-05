@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const Modal = ({ isOpen, onClose, post, onSave }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = React.useState({
     title: '',
     start_date: '',
     start_time: '',
-    end_date: '',
-    end_time: '',
+    end_date: '', // New field for end date
+    end_time: '', // New field for end time
     location: '',
     description: '',
-    picture: null, // Change to null for file input
+    picture: '',
     link_other: '',
     username: '',
   });
@@ -25,20 +25,9 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, picture: e.target.files[0] }); // Store the file
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Prepare form data for submission
-    const data = new FormData();
-    for (const key in formData) {
-      data.append(key, formData[key]);
-    }
-
-    await onSave(data); // Pass FormData to onSave
+    onSave(formData);
   };
 
   if (!isOpen) return null;
@@ -46,6 +35,7 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto mt-10">
+     
         <form onSubmit={handleSubmit}>
           <div className="mb-4 flex justify-between">
             <div className="w-1/2 pr-2">
@@ -141,11 +131,12 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-1">รูปภาพ (Upload)</label>
+            <label className="block mb-1">รูปภาพ (URL)</label>
             <input
-              type="file"
+              type="text"
               name="picture"
-              onChange={handleFileChange}
+              value={formData.picture}
+              onChange={handleChange}
               className="border rounded w-full p-2"
               required
             />

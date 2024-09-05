@@ -38,12 +38,17 @@ export async function GET(req) {
 export async function PUT(req) {
     try {
         await dbConnect();
-        const { id, ...updateData } = await req.json();
+        const { id, ...updateData } = await req.json(); // รับข้อมูลที่ส่งมา
         const updatedPost = await Post.findByIdAndUpdate(id, updateData, { new: true });
+        
+        if (!updatedPost) {
+            return NextResponse.json({ error: "โพสต์ไม่พบ" }, { status: 404 });
+        }
+
         return NextResponse.json(updatedPost, { status: 200 });
     } catch (error) {
-        console.error("error", error);
-        return NextResponse.json({ error: "error post" }, { status: 500 });
+        console.error("เกิดข้อผิดพลาด:", error);
+        return NextResponse.json({ error: "เกิดข้อผิดพลาดในการอัปเดตโพสต์" }, { status: 500 });
     }
 }
 
