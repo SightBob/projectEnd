@@ -22,7 +22,7 @@ const EventDetail = () => {
       <div className="flex">
         {/* Event Detail Section */}
         <div className="flex-1">
-          <h1 className="text-orange-400 text-3xl font-bold mb-4">เปิดโลกชวนชมรม</h1>
+          {/* <h1 className="text-orange-400 text-3xl font-bold mb-4">เปิดโลกชวนชมรม</h1> */}
           
           {/* Cover Image */}
           <div className="relative w-full h-[450px] mb-4 ">
@@ -56,6 +56,7 @@ const EventDetail = () => {
 
           {/* Event Details */}
           <div className="bg-white p-6 rounded-lg shadow-md">
+          {/* <h1 className="text-orange-400 text-2xl font-bold mb-4">เปิดโลกชวนชมรมนักศึกษา</h1> */}
             <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
             <p>17-26 กรกฏาคม 2567</p>
             <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
