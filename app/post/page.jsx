@@ -5,34 +5,50 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
 const Page = ({}) => {
-
     const { data: session} = useSession();
 
     const [formData, setFormData] = useState({
         title: '',
-        date: '',
-        time: '',
+        start_date: '',
+        start_time: '',
+        end_date: '',
+        end_time: '',
         location: '',
         description: '',
         image: null,
         additionalLink: '',
         tags: []
     });
-    
+
+    const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
+
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: files ? files[0] : value
-        }));
+
+        if (name === 'image' && files.length > 0) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prevState => ({
+                    ...prevState,
+                    image: reader.result 
+                }));
+            };
+            reader.readAsDataURL(files[0]);
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value
+            }));
+        }
     };
 
-    const handleAddTag = () => {
-        if (currentTag.trim() !== '' && !tags.includes(currentTag.trim())) {
-            setTags([...tags, currentTag.trim()]);
+    const handleAddTag = (e) => {
+        const selectedTag = e.target.value;
+        if (selectedTag !== '' && !tags.includes(selectedTag)) {
+            setTags([...tags, selectedTag]);
             setCurrentTag('');
         }
     };
@@ -41,58 +57,57 @@ const Page = ({}) => {
         setTags(tags.filter(tag => tag !== tagToRemove));
     };
 
-    const handleTagInputChange = (e) => {
-        setCurrentTag(e.target.value);
-    };
-
-    const handleTagInputKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAddTag();
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', { ...formData, tags });
+        console.log('Form submitted:', { ...formData, tags, uuid: session.user.uuid });
         const res = await axios.post('/api/post/', { ...formData, tags, uuid: session.user.uuid } )
-
         console.log(res.data)
     };
 
     return (
         <div className="max-h-screen bg-gray-100 ">
-            <div className="container flex justify-between space-x-5">
-                <div className="min-w-[300px] h-full space-y-3">
-                    <div className="w-full py-3 rounded-md bg-[#E6AF2E] text-center cursor-pointer">
+            <div className="container flex justify-between space-x-5 max-md:flex-col max-md:space-x-0">
+                <div className="min-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
+                    <div className="w-full py-3 rounded-md bg-[#E6AF2E] text-center cursor-pointer max-md:col-span-1">
                         <h2 className="text-black font-semibold">เพิ่มกิจกรรม</h2>
                     </div>
-                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer">
+                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer max-md:col-span-1">
                         <h2 className="text-black font-semibold">เปิดรับสมัครสมาชิก</h2>
                     </div>
-                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer">
+                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer max-md:col-span-1">
                         <h2 className="text-black font-semibold">กิจกรรมของฉัน</h2>
                     </div>
                 </div>
-                <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md">
-                    <div className="flex items-center space-x-4">
-                        <div className="mb-4 w-2/4">
+                <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
+                    <div className="flex items-center space-x-4 max-[500px]:flex-col max-[500px]:space-x-0">
+                        <div className="mb-4 w-2/4 max-[500px]:w-full">
                             <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
                             <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
                         </div>
+                        <div className="mb-4 w-2/4 max-[500px]:w-full">
+                            <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
+                            <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                        </div>
+                  
+                    </div>
+                    <div className="flex items-center space-x-4">
                         <div className="mb-4 w-2/4">
-                            <label htmlFor="date" className="block text-gray-700 font-semibold mb-2">วันที่</label>
-                            <input type="date" id="date" name="date" value={formData.date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
+                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                        </div>
+                        <div className="mb-4 w-2/4">
+                            <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
+                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
                         <div className="mb-4 w-2/4">
-                            <label htmlFor="time" className="block text-gray-700 font-semibold mb-2">เวลา</label>
-                            <input type="time" id="time" name="time" value={formData.time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
+                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
                         </div>
                         <div className="mb-4 w-2/4">
-                            <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
-                            <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
+                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
                         </div>
                     </div>
                     <div className="mb-0">
@@ -100,7 +115,7 @@ const Page = ({}) => {
                         <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
                     </div>
 
-                        <div className="mb-4">
+                    <div className="mb-4">
                         <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                             {tags.map((tag, index) => (
@@ -112,27 +127,15 @@ const Page = ({}) => {
                                 </span>
                             ))}
                         </div>
-                        <div className="flex">
-                            <input
-                                type="text"
-                                id="tags"
-                                value={currentTag}
-                                onChange={handleTagInputChange}
-                                onKeyDown={handleTagInputKeyDown}
-                                className="flex-grow px-3 py-2 border rounded-l-md"
-                                placeholder="Add a tag"
-                            />
-                            <button
-                                type="button"
-                                onClick={handleAddTag}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-r-md"
-                            >
-                                Add
-                            </button>
-                        </div>
+                        <select onChange={handleAddTag} value={currentTag} className="px-3 py-2 border rounded-md">
+                            <option value="">Select a tag</option>
+                            {availableTags.map((tag, index) => (
+                                <option key={index} value={tag}>{tag}</option>
+                            ))}
+                        </select>
                     </div>
 
-                    <div className="mb-2">
+                    <div className="mb-6">
                         <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">อัปโหลดภาพ</label>
                         <input type="file" id="image" name="image" onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" accept="image/*" />
                     </div>

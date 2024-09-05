@@ -18,6 +18,9 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
   },
+  faculty: {
+    type: String,
+  },
   major: {
     type: String,
   },

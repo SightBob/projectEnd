@@ -1,17 +1,21 @@
-// app/page/page-detail.jsx
+
 "use client";
 
 import Image from 'next/image';
 import Link from 'next/link';
 import CalendarComponent from '@/components/Calendar'; // ตรวจสอบว่าคุณมีคอมโพเนนต์นี้
 
+import { useState } from 'react';
+
 const EventDetail = () => {
-  // สมมุติข้อมูลของผู้ใช้และเวลาโพสต์
+
   const user = {
     id: 'user123',
     name: 'สมชาย สมชาย',
     postTime: 'วันที่ 1 กันยายน 2567 เวลา 10:30 น.'
   };
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   return (
     <div className="container mx-auto my-8">
@@ -69,7 +73,7 @@ const EventDetail = () => {
         {/* Calendar Section */}
         <div className="w-[350px] ml-4">
           <div className="w-full">
-            <CalendarComponent />
+          <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
           </div>
           
           {/* QR Code Section */}

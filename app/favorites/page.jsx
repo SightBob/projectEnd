@@ -10,9 +10,6 @@ const Page = () => {
     { id: 2, name: "Event 2" },
     { id: 3, name: "Event 3" },
     { id: 4, name: "Event 4" },
-  
-
-
   ]);
 
   const handleRemoveEvent = (id) => {
@@ -33,7 +30,7 @@ const Page = () => {
         </div>
 
         {/* Calendar and Activities Section */}
-        <div className="w-[350px] max-md:w-full flex flex-col space-y-4">
+        <div className="w-[350px] max-md:w-full flex flex-col space-y-4 mt-11">
           {/* Calendar Component */}
           <div className="w-full">
             <CalendarComponent />
