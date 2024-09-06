@@ -1,38 +1,69 @@
-
 "use client";
 
 import Image from 'next/image';
 import Link from 'next/link';
-import CalendarComponent from '@/components/Calendar'; // ตรวจสอบว่าคุณมีคอมโพเนนต์นี้
+import CalendarComponent from '@/components/Calendar';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const EventDetail = () => {
+import { format, addYears } from 'date-fns';
+import { th } from 'date-fns/locale';
 
-  const user = {
-    id: 'user123',
-    name: 'สมชาย สมชาย',
-    postTime: 'วันที่ 1 กันยายน 2567 เวลา 10:30 น.'
-  };
+import { QRCodeSVG } from 'qrcode.react';
+
+import LoadingSpinner from '@/components/LoadingSpinner';
+
+const EventDetail = ({ params }) => {
+  
+  const [eventData, setEventData] = useState(null);
+  const [error, setError] = useState(null);
+
+  function formatThaiDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const buddhistYear = addYears(date, 543);
+    
+    return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
+  }
+
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        const res = await axios.get("/api/data/getId", { 
+          params: { id: params.id }
+        });
+        setEventData(res.data.post);
+        console.log(res.data.post);
+      } catch (error) {
+        console.error("Error fetching event detail: ", error);
+        setError("Failed to load event data");
+      }
+    };
+
+    fetchEventData();
+  }, [params.id]);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  if (error) return <div>Error: {error}</div>;
+  if (!eventData) return <LoadingSpinner/>;
 
   return (
     <div className="container mx-auto my-8">
       <div className="flex">
         {/* Event Detail Section */}
         <div className="flex-1">
-          {/* <h1 className="text-orange-400 text-3xl font-bold mb-4">เปิดโลกชวนชมรม</h1> */}
+          <h1 className="text-orange-400 text-3xl font-bold mb-4">{eventData.title}</h1>
           
           {/* Cover Image */}
           <div className="relative w-full h-[450px] mb-4 ">
             <Image 
               className="object-fill rounded-lg" 
               layout="fill" 
-              objectFit="fill" 
+              objectFit="cover" 
               alt="Event Cover" 
-              // src="https://oreg.rmutt.ac.th/wp-content/uploads/2019/01/40275-Converted-01.png" 
-              src="/assets/img_inter/club.png "
+              src={eventData.picture || "/default-image.jpg"}
             />
           </div>
 
@@ -48,21 +79,19 @@ const EventDetail = () => {
               />
             </div>
             <div>
-              <p className="text-xl font-semibold">{user.name}</p>
-              <p className="text-sm text-gray-600">ID: {user.id}</p>
-              <p className="text-sm text-gray-500">{user.postTime}</p>
+              <p className="text-xl font-semibold">{eventData.organizer_name || 'Unknown Organizer'}</p>
+              <p className="text-sm text-gray-500">{formatThaiDate(eventData.created_at)}</p>
             </div>
           </div>
 
           {/* Event Details */}
           <div className="bg-white p-6 rounded-lg shadow-md">
-          {/* <h1 className="text-orange-400 text-2xl font-bold mb-4">เปิดโลกชวนชมรมนักศึกษา</h1> */}
             <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
-            <p>17-26 กรกฏาคม 2567</p>
+            <p>{formatThaiDate(eventData.start_date)} - {formatThaiDate(eventData.end_date)}</p>
             <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
-            <p>ลานอเนกประสงค์</p>
+            <p>{eventData.location}</p>
             <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta cupiditate ipsa praesentium distinctio provident nisi odio corporis obcaecati quaerat illo delectus ad placeat culpa ratione totam, dolorum rerum magni debitis!</p>
+            <p>{eventData.description}</p>
           </div>
 
           {/* Back Link */}
@@ -79,14 +108,15 @@ const EventDetail = () => {
           
           {/* QR Code Section */}
           <div className="mt-10 text-center">
-            <p className="text-lg font-semibold mb-2 ">สมัครเข้าร่วมได้ที่นี่</p>
-            <Image 
-              src="/assets/img_inter/QR.png" 
-              alt="QR Code" 
-              width={200} 
-              height={200} 
-              className="mx-auto object-contain"
-            />
+            <p className="text-lg font-semibold mb-2">ดูรายละเอียดเพิ่มเติม</p>
+            <QRCodeSVG 
+            className="mx-auto"
+            value={eventData.link_other}
+            size={200}
+            bgColor={"#ffffff"}
+            fgColor={"#000000"}
+            level={"L"}
+          />
           </div>
         </div>
       </div>

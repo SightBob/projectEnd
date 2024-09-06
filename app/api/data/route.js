@@ -3,28 +3,38 @@ import Post from '@/models/Post';
 import { NextResponse } from 'next/server';
 
 export async function GET(req) {
-
   try {
-    
     const { searchParams } = new URL(req.url);
     const date = searchParams.get('date');
 
     await dbConnect();
 
-    const getPost = await Post.find({ start_date: date });
+    let getPost;
 
-    if(!getPost){
+    if (date) {
+      getPost = await Post.find({ start_date: date });
+    }
+
+    if (!getPost || getPost.length === null) {
+      getPost = await Post.find();
+    }
+
+    if (getPost.length === 0) {
       return NextResponse.json({
-        message: "no activity",
-      })
+        message: "No activities found",
+        getPost: []
+      });
     }
 
     return NextResponse.json({
       getPost,
-    })
+    });
 
   } catch (error) {
-    console.log("error: ", error);
+    console.error("Error:", error);
+    return NextResponse.json({
+      message: "An error occurred while fetching data",
+      error: error.message
+    }, { status: 500 });
   }
-
 }

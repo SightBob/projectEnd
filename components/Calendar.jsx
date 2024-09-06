@@ -19,7 +19,7 @@ const CalendarComponent = ({ onDateChange, selectedDate }) => {
         className="border-none mx-auto"
         locale={th}
       />
-      <p className="text-center text-gray-500">Selected date: {selectedDate.toDateString()}</p>
+      <p className="text-center text-gray-500">Selected date: {selectedDate ? selectedDate.toDateString() : "0/0/0000"}</p>
     </div>
   );
 };

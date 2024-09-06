@@ -46,7 +46,7 @@ export default function Home() {
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        setIsLoading(false); // Set loading to false after fetching (success or error)
+        setIsLoading(false); 
       }
     };
   
@@ -123,7 +123,7 @@ export default function Home() {
 
       <div className="flex lg:hidden space-x-4 mt-4 max-sm:flex-col max-sm:space-x-0 max-sm:items-center">
         <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
-        <div className="bg-[rgba(255,102,0,0.7)] min-w-[300px] rounded-lg p-3 mt-2 h-fit max-lg:hidden">
+        <div className="bg-[rgba(255,102,0,0.7)] w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:w-[50%] max-sm:max-w-[450px] max-sm:w-[98%]">
   <div className="flex justify-between items-center pb-1">
     <h3 className="text-2xl font-semibold text-white max-[1214px]:text-xl">กิจกรรม</h3>
     <div className="bg-white rounded-full px-2 py-1">
