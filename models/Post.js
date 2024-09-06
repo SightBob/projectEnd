@@ -6,19 +6,15 @@ const PostSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true
   },
   description: {
     type: String,
-    required: true
   },
   location: {
     type: String,
-    required: true
   },
   picture: {
     type: String,
-    default: null
   },
   category: {
     type: Object,
@@ -29,8 +25,16 @@ const PostSchema = new mongoose.Schema({
     default: 0
   },
   start_date: {
-    type: Date,
-    required: true
+    type: String,
+  },
+  start_time: {
+    type: String,
+  },
+  end_date: {
+    type: String,
+  },
+  end_time: {
+    type: String,
   },
   likes_count: {
     type: Number,

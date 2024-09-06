@@ -1,12 +1,52 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CalendarComponent from "@/components/Calendar";
 import CartEvent from "@/components/CartEvent";
-const Page = ({}) => {
+import axios from "axios";
 
+const Page = ({}) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [allEvents, setAllEvents] = useState([]);
+  const [filteredEvents, setFilteredEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  function getLocalDateString(date) {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await axios.get('/api/data');
+        setAllEvents(res.data.getPost);
+        setFilteredEvents(res.data.getPost);
+      } catch (error) {
+        console.error('Error fetching all data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const dateToFilter = getLocalDateString(selectedDate);
+      const filtered = allEvents.filter(event => event.start_date === dateToFilter);
+      setFilteredEvents(filtered);
+    } else {
+      setFilteredEvents(allEvents);
+    }
+  }, [selectedDate, allEvents]);
 
   const toggleCategory = (category) => {
     setSelectedCategories((prevSelected) =>
@@ -16,6 +56,11 @@ const Page = ({}) => {
     );
   };
 
+  const clearSelectedDate = () => {
+    setSelectedDate(null);
+  };
+
+  
   const categories = [
     "กีฬา",
     "เกม",
@@ -38,33 +83,17 @@ const Page = ({}) => {
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)] ">
       <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
-        <div className="w-[350px] border max-md:w-full">
-        <div className="w-full  rounded-full bg-white mb-4">
-        <div className="search-container flex items-center rounded-md p-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className="w-6 h-6 text-gray-500 mr-2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m21 21-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="ค้นหากิจกรรม..."
-                className="w-full border-none outline-none"
-              />
-            </div>
-        </div>
-        <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0">
-          <CalendarComponent />
-          <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
+        <div className="w-[350px] max-md:w-full">
+          {/* ... (ส่วนอื่นๆ ของ JSX) */}
+          <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0">
+            <button 
+              onClick={clearSelectedDate}
+              className="mt-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md mb-4"
+            >
+              ล้างวันที่ที่เลือก
+            </button>
+            <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
+            <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
               <div className="w-full flex justify-between">
                 <div className="">หมวดหมู่</div>
                 <div className="" onClick={() => setSelectedCategories([])}>
@@ -90,21 +119,18 @@ const Page = ({}) => {
           </div>
         </div>
         <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
-          <CartEvent />
+          {isLoading ? (
+            <p>กำลังโหลดข้อมูล...</p>
+          ) : filteredEvents.length > 0 ? (
+            filteredEvents.map((item, index) => (
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} />
+            ))
+          ) : (
+            <p>ไม่พบข้อมูลกิจกรรม</p>
+          )}
         </div>
       </div>
-      </div>
+    </div>
   );
 };
 

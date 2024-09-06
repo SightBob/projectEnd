@@ -6,9 +6,7 @@ const Page = () => {
   <div className="w-full flex min-h-[calc(100vh_-_8rem)] ">
   <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
     <div className="w-[350px] border max-md:w-full">
-    <div className="w-full  rounded-full bg-white mb-4">
-        </div>
-        <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0">
+        <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0 mt-10">
         <CalendarComponent />
           </div>
         </div>

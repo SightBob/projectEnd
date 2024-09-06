@@ -15,6 +15,8 @@ const Page = () => {
           if (response.ok) {
             const data = await response.json();
             setUser(data);
+
+            console.log(data);
           } else {
             console.error('Failed to fetch user data');
           }

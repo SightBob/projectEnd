@@ -1,14 +1,12 @@
-const { NextResponse } = require("next/server");
-
+import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/ConnectDB";
 import Post from "@/models/Post";
 
-export async function POST(req){
+export async function POST(req) {
     try {
-        
-        const { uuid ,additionalLink, date, description, image, location, tags, time, title} = await req.json();
+        await dbConnect();
 
-        await dbConnect()
+        const { uuid, additionalLink, start_date, start_time, end_date, end_time,description, image, location, tags, title } = await req.json();
 
         const newpost = await Post.create({
             organizer_id: uuid,
@@ -17,17 +15,16 @@ export async function POST(req){
             location,
             picture: image,
             category: tags,
-            start_date: date,
+            start_date,
+            start_time,
+            end_date,
+            end_time,
             link_other: additionalLink
-        })
+        });
 
-        if(newpost){
-            return NextResponse.json(
-                { newpost }
-            );
-        }
-        
+        return NextResponse.json({ newpost }, { status: 201 });
     } catch (error) {
-        console.log("error", error);
+        console.error("เกิดข้อผิดพลาด:", error);
+        return NextResponse.json({ error: "เกิดข้อผิดพลาดในการสร้างโพสต์" }, { status: 500 });
     }
-} 
+}
