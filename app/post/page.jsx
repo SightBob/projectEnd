@@ -61,7 +61,30 @@ const Page = ({}) => {
         e.preventDefault();
         console.log('Form submitted:', { ...formData, tags, uuid: session.user.uuid });
         const res = await axios.post('/api/post/', { ...formData, tags, uuid: session.user.uuid } )
-        console.log(res.data)
+
+        if (res.status === 201) {
+            // รีเซ็ตฟอร์มใน DOM
+            e.target.reset();
+
+            // รีเซ็ตสถานะของฟอร์มใน React
+            setFormData({
+                title: '',
+                start_date: '',
+                start_time: '',
+                end_date: '',
+                end_time: '',
+                location: '',
+                description: '',
+                image: null,
+                additionalLink: '',
+                tags: []
+            });
+            setTags([]);
+
+            // แสดงการแจ้งเตือน
+            alert('โพสต์สำเร็จแล้ว!');
+        }
+
     };
 
     return (
