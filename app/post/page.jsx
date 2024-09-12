@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
-const Page = ({}) => {
-    const { data: session} = useSession();
+import CartEvent from '@/components/CartEvent';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
+const Page = () => {
+    const { data: session } = useSession();
+    const router = useRouter();
     const [formData, setFormData] = useState({
         title: '',
         start_date: '',
@@ -24,6 +28,8 @@ const Page = ({}) => {
 
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
+    const [activeSection, setActiveSection] = useState('form');
+    const [DataByUserid, setDataByUserid] = useState([]);
 
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
@@ -59,14 +65,16 @@ const Page = ({}) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form submitted:', { ...formData, tags, uuid: session.user.uuid });
-        const res = await axios.post('/api/post/', { ...formData, tags, uuid: session.user.uuid } )
+
+        const postType = activeSection === 'event' ? 'event' : 'info';
+
+        console.log('Form submitted:', { ...formData, tags, uuid: session?.user?.uuid, type: postType });
+        const res = await axios.post('/api/post/', { ...formData, tags, uuid: session?.user?.uuid, type: postType });
 
         if (res.status === 201) {
-            // รีเซ็ตฟอร์มใน DOM
+
             e.target.reset();
 
-            // รีเซ็ตสถานะของฟอร์มใน React
             setFormData({
                 title: '',
                 start_date: '',
@@ -81,27 +89,52 @@ const Page = ({}) => {
             });
             setTags([]);
 
-            // แสดงการแจ้งเตือน
             alert('โพสต์สำเร็จแล้ว!');
         }
-
     };
 
+    useEffect(() => {
+        const fetchMyData = async () => {
+            try {
+                const res = await axios.get("/api/data/userId", { params: { Userid: session.user.uuid } });
+                console.log(res.data.getPost);
+
+                setDataByUserid(res.data.getPost);
+            } catch (error) {
+                console.log("Error fetch my data: ", error);
+            }
+        }
+
+        fetchMyData()
+    }, [activeSection === "posts"]);
+
     return (
-        <div className="max-h-screen bg-gray-100 ">
+        <div className="max-h-screen bg-gray-100">
+            {session?.user?.role ? (
             <div className="container flex justify-between space-x-5 max-md:flex-col max-md:space-x-0">
                 <div className="min-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
-                    <div className="w-full py-3 rounded-md bg-[#E6AF2E] text-center cursor-pointer max-md:col-span-1">
+                    <div 
+                        className={`w-full py-3 rounded-md ${activeSection === 'form' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
+                        onClick={() => setActiveSection('form')}
+                    >
                         <h2 className="text-black font-semibold">เพิ่มกิจกรรม</h2>
                     </div>
-                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer max-md:col-span-1">
-                        <h2 className="text-black font-semibold">เปิดรับสมัครสมาชิก</h2>
+                    <div 
+                        className={`w-full py-3 rounded-md ${activeSection === 'event' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
+                        onClick={() => setActiveSection('event')}
+                    >
+                        <h2 className="text-black font-semibold">เพิ่มโพสต์เปิดรับสมาชิก</h2>
                     </div>
-                    <div className="w-full py-3 rounded-md bg-[#FADF63] text-center cursor-pointer max-md:col-span-1">
-                        <h2 className="text-black font-semibold">กิจกรรมของฉัน</h2>
+                    <div 
+                        className={`w-full py-3 rounded-md ${activeSection === 'posts' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
+                        onClick={() => setActiveSection('posts')}
+                    >
+                        <h2 className="text-black font-semibold">โพสต์ของฉัน</h2>
                     </div>
                 </div>
-                <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
+
+                {activeSection === 'form' && (
+                    <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
                     <div className="flex items-center space-x-4 max-[500px]:flex-col max-[500px]:space-x-0">
                         <div className="mb-4 w-2/4 max-[500px]:w-full">
                             <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
@@ -137,7 +170,7 @@ const Page = ({}) => {
                         <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
                         <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
                     </div>
-
+    
                     <div className="mb-4">
                         <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>
                         <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -157,7 +190,7 @@ const Page = ({}) => {
                             ))}
                         </select>
                     </div>
-
+    
                     <div className="mb-6">
                         <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">อัปโหลดภาพ</label>
                         <input type="file" id="image" name="image" onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" accept="image/*" />
@@ -166,10 +199,112 @@ const Page = ({}) => {
                         <label htmlFor="additionalLink" className="block text-gray-700 font-semibold mb-2">ลิ้งรายละเอียดเพิ่มเติม <span className='font-light'>(แปลงลิ้งเป็นภาพ Qr code ให้ผู้สนใจแสกน)</span></label>
                         <input type="url" id="additionalLink" name="additionalLink" value={formData.additionalLink} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                     </div>
-
+    
                     <button type="submit" className="bg-green-500 text-white px-14 py-2 rounded-md">ยืนยัน</button>
                 </form>
+                )}
+
+                {activeSection === 'event' && (
+                     <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
+                     <div className="flex items-center space-x-4 max-[500px]:flex-col max-[500px]:space-x-0">
+                         <div className="mb-4 w-2/4 max-[500px]:w-full">
+                             <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
+                             <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                         <div className="mb-4 w-2/4 max-[500px]:w-full">
+                             <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
+                             <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                   
+                     </div>
+                     <div className="flex items-center space-x-4">
+                         <div className="mb-4 w-2/4">
+                             <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
+                             <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                         <div className="mb-4 w-2/4">
+                             <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
+                             <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                     </div>
+                     <div className="flex items-center space-x-4">
+                         <div className="mb-4 w-2/4">
+                             <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
+                             <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                         <div className="mb-4 w-2/4">
+                             <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
+                             <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                         </div>
+                     </div>
+                     <div className="mb-0">
+                         <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
+                         <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
+                     </div>
+     
+                     <div className="mb-4">
+                         <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>
+                         <div className="flex flex-wrap items-center gap-2 mb-2">
+                             {tags.map((tag, index) => (
+                                 <span key={index} className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center">
+                                     {tag}
+                                     <button type="button" onClick={() => handleRemoveTag(tag)} className="ml-1 text-red-500 font-bold">
+                                         &times;
+                                     </button>
+                                 </span>
+                             ))}
+                         </div>
+                         <select onChange={handleAddTag} value={currentTag} className="px-3 py-2 border rounded-md">
+                             <option value="">Select a tag</option>
+                             {availableTags.map((tag, index) => (
+                                 <option key={index} value={tag}>{tag}</option>
+                             ))}
+                         </select>
+                     </div>
+     
+                     <div className="mb-6">
+                         <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">อัปโหลดภาพ</label>
+                         <input type="file" id="image" name="image" onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" accept="image/*" />
+                     </div>
+                     <div className="mb-4">
+                         <label htmlFor="additionalLink" className="block text-gray-700 font-semibold mb-2">ลิ้งรายละเอียดเพิ่มเติม <span className='font-light'>(แปลงลิ้งเป็นภาพ Qr code ให้ผู้สนใจแสกน)</span></label>
+                         <input type="url" id="additionalLink" name="additionalLink" value={formData.additionalLink} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
+                     </div>
+     
+                     <button type="submit" className="bg-green-500 text-white px-14 py-2 rounded-md">ยืนยัน</button>
+                 </form>
+                )}
+                
+                {activeSection === 'posts' && (
+                    <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3">
+                        <h1>โพสต์ทั้งหมด</h1>
+                        <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center min-h-[calc(100vh_-_8rem)] max-sm:gap-4 max-[440px]:grid-cols-1">
+                        { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (
+                            <CartEvent id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location}  />
+                        )) : "no data"}
+                        </div>
+                    </div>
+                )}
             </div>
+               ) : (
+                <div className="text-center py-10 relative top-0 left-0 right-0 bottom-0 bg-gray-300 min-h-[calc(100vh_-_8rem)] flex justify-center items-center">
+                    <div className="max-w-[350px] h-[400px] w-full bg-white flex flex-col items-center justify-center rounded-md">
+                    <div className="rounded-full overflow-hidden">
+                    <Image 
+                        src="/assets/img_main/profile.png" 
+                        layout="responsive"
+                        width={250} 
+                        height={250} 
+                        alt="Profile picture"
+                    />
+                    </div>
+                    <h2 className='mt-8'>กรุณาเข้าสู่ระบบเพื่อเข้าถึงหน้านี้</h2>
+                    <button onClick={() => router.push('/login')} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                        ไปยังหน้าเข้าสู่ระบบ
+                    </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

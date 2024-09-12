@@ -6,6 +6,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const date = searchParams.get('date');
+    const info = searchParams.get('type');
 
     await dbConnect();
 
@@ -16,7 +17,9 @@ export async function GET(req) {
     }
 
     if (!getPost || getPost.length === null) {
-      getPost = await Post.find();
+      getPost = await Post.find(
+          { type: info }
+        ).sort({ start_date: -1 });
     }
 
     if (getPost.length === 0) {

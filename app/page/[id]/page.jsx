@@ -13,6 +13,7 @@ import { th } from 'date-fns/locale';
 import { QRCodeSVG } from 'qrcode.react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useSession } from 'next-auth/react';
 
 const EventDetail = ({ params }) => {
   
@@ -27,10 +28,16 @@ const EventDetail = ({ params }) => {
     return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
   }
 
+  // const registerEvent = async (e) => {
+  //     e.preventDefault();
+
+  //     if()
+  // }
+
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const res = await axios.get("/api/data/getId", { 
+        const res = await axios.get("/api/data/PostId", { 
           params: { id: params.id }
         });
         setEventData(res.data.post);
@@ -94,10 +101,6 @@ const EventDetail = ({ params }) => {
             <p>{eventData.description}</p>
           </div>
 
-          {/* Back Link */}
-          <div className="mt-4">
-            <Link href="/" className="text-blue-500 underline">Back to Event List</Link>
-          </div>
         </div>
 
         {/* Calendar Section */}
@@ -106,6 +109,13 @@ const EventDetail = ({ params }) => {
           <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
           </div>
           
+          { eventData.type === "event" ? <>
+          <div className="mt-8 cursor-pointer">
+            <div className='px-12 py-2 rounded-full bg-blue-300 text-center w-fit mx-auto'>เข้าร่วมกิจกรรม</div>
+          </div>
+          </> : 
+          "" }
+
           {/* QR Code Section */}
           <div className="mt-10 text-center">
             <p className="text-lg font-semibold mb-2">ดูรายละเอียดเพิ่มเติม</p>

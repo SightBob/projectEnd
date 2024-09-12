@@ -31,21 +31,22 @@ const Navbar = ({}) => {
 
         <Link href="/" className="flex items-center space-x-2">
         <div className="size-[5rem] relative">
-          <Image
-            layout="fill"
+        <Image
             src="/assets/img_main/logo.png"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            alt="Logo"
           />
           </div>
           <h1 className="text-2xl">SUT EVENTS</h1>
         </Link>
 
         <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[470px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
-          <Link className={`text-lg max-xl:mt-[3rem] ${isActive("/")}`} href="/">หน้าหลัก</Link> 
-          <Link className={`text-lg ${isActive("/sutevent")}`} href="/sutevent">กิจกรรม</Link>
-          <Link className={`text-lg ${isActive("/searchgroup")}`} href="/searchgroup">ค้นหากลุ่ม</Link> 
-          <Link className={`text-lg ${isActive("/favorites")}`} href="/favorites">รายการโปรด</Link>
-          <Link className={`text-lg ${isActive("/post")}`} href="/post">โพสต์</Link>
-          
+          <Link className={`text-lg max-xl:mt-[3rem] ${isActive("/")}`} href={`${session?.user?.role === 'admin' ? "/dashboard" : "/"}`}>{session?.user?.role === 'admin' ? "แดชบอร์ด" : "หน้าหลัก"}</Link> 
+          <Link className={`text-lg ${isActive("/sutevent")}`} href={`${session?.user?.role === 'admin' ? "/post-activity" : "/sutevent"}`}>กิจกรรม</Link>
+          <Link className={`text-lg ${isActive("/searchgroup")}`} href={`${session?.user?.role === 'admin' ? "/push-notification" : "/searchgroup"}`}>{session?.user?.role === 'admin' ? "การแจ้งเตือน" : "ค้นหากลุ่ม"}</Link> 
+          {session?.user?.role === 'admin' ? "" : <><Link className={`text-lg ${isActive("/favorites")}`} href="/favorites">รายการโปรด</Link><Link className={`text-lg ${isActive("/post")}`} href="/post">โพสต์</Link></>} 
+
           {!session ?(
             <>
             <div className="flex items-center space-x-8 sm:hidden">
@@ -62,7 +63,7 @@ const Navbar = ({}) => {
               <Link href="profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
-            <Link href="" onClick={() => signOut()} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
+            <Link href="" onClick={() => signOut({ callbackUrl: '/' })} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
               <h2 className="text-lg">ออกจากระบบ</h2>
             </Link>
             </div>
@@ -86,7 +87,7 @@ const Navbar = ({}) => {
             <Link href="profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
-            <Link href="" onClick={() => signOut()} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
+            <Link href="" onClick={() => signOut({ callbackUrl: '/' })} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
               <h2 className="text-lg">ออกจากระบบ</h2>
             </Link>
             </div>

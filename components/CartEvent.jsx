@@ -5,17 +5,17 @@ import Link from "next/link";
 
 const CartEvent = ({ id, img, title, start_date, start_time, location}) => {
   return (
-    <div className="col-span-1 max-w-[350px] max-h-[410px] p-4 max-sm:p-2 rounded-lg bg-white relative max-[440px]:max-w-[100%] max-[440px]:p-4 max-[440px]:max-h-auto">
-      <div className="absolute top-4 right-4 size-10 rounded-full border grid place-items-center cursor-pointer z-10">
+    <div className="col-span-1 max-h-[410px] w-full p-3 max-sm:p-2 rounded-lg bg-white relative max-[440px]:max-w-[100%] max-[440px]:p-4 max-[440px]:max-h-auto">
+      <div className="absolute top-4 right-4 size-10 rounded-full border grid place-items-center cursor-pointer z-10 bg-white">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" class="size-6 text-[#F64F72]" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
         </svg>
       </div>
       <div className="relative w-full h-[250px] max-[440px]:h-[200px]">
-        <Image className="object-cover" layout="fill" objectFit="contain" alt="image event" src={img ? img : "https://oreg.rmutt.ac.th/wp-content/uploads/2019/01/40275-Converted-01.png"} />
+        <Image className="object-cover rounded-lg" layout="fill" objectFit="cover" alt="image event" src={img ? img : "https://oreg.rmutt.ac.th/wp-content/uploads/2019/01/40275-Converted-01.png"} />
       </div>
       <div className="text-[#FF6600] mt-2">
-        <h3 className="line-clamp-1 text-2xl max-[1521px]:text-xl">{title ? title : "เปิดโลกชวนชมรมเปิดบูธกิจกรรม"}</h3>
+        <h3 className="line-clamp-1 text-2xl max-[1521px]:text-xl w-full">{title ? title : "เปิดโลกชวนชมรมเปิดบูธกิจกรรม"}</h3>
         <h5 className="line-clamp-1 text-lg max-[1521px]:text-lg">{start_date ? start_date : "วันที่ 17-26 กรกฏาคม 2567"} เวลา {start_time ? start_time : "12.00 -13.00"}</h5>
         <p className="line-clamp-1 text-sm">{location ? location : "สถานที่ ลานอเนกประสงค์ อาคารเรียวรวม1"}</p>
       </div>
