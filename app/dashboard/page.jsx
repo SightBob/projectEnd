@@ -27,6 +27,7 @@ ChartJS.register(
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -40,8 +41,8 @@ const Dashboard = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/getdata'); // Adjust the endpoint as necessary
-        setUsers(response.data);
+        const response = await axios.get('/api/getUsers'); // Adjust the endpoint as necessary
+        setTotalUsers(response.data.totalUsers || 0); // Set total users from response
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -52,9 +53,16 @@ const Dashboard = () => {
   }, []);
 
   const totalActivities = posts.length; // Count total activities based on posts
- 
 
-  // Calculate posts within the last 24 hours
+  // Calculate posts count for each month
+  const monthlyPostCounts = Array(12).fill(0); // Initialize an array for 12 months
+
+  posts.forEach(post => {
+    const postDate = new Date(post.created_at); // Use created_at date
+    const month = postDate.getMonth(); // Get month (0-11)
+    monthlyPostCounts[month] += 1; // Increment the count for the corresponding month
+  });
+
   const now = new Date();
   const recentPosts = posts.filter(post => {
     const postDate = new Date(post.start_date); // Adjust according to your date field
@@ -68,7 +76,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: 'กิจกรรมที่จัดขึ้น',
-        data: [6,12, 19, 3, 5, 2, 3, 10, 15, 22, 13, 7], // Adjust data as needed
+        data: monthlyPostCounts, // Use the calculated monthly counts
         backgroundColor: 'rgba(255, 159, 64, 0.6)',
       },
     ],
@@ -131,7 +139,7 @@ const Dashboard = () => {
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl">ผู้ใช้งานทั้งหมด</h2>
-          <p className="text-4xl font-bold">0</p> {/* Display total users */}
+          <p className="text-4xl font-bold">{totalUsers}</p> {/* Display total users */}
           <p className="text-sm text-gray-500">ข้อมูลผู้ใช้งานทั้งหมดในเว็บ</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -188,7 +196,7 @@ const Dashboard = () => {
                 return (
                   <tr key={post._id}>
                     <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{post._id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{post.username}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{user ? user.username : 'Unknown'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{post.title}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{`${post.start_date} ${post.start_time}`}</td>
                   </tr>
