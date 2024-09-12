@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
 
-const Navbar = ({}) => {
+const Navbar = ({ toggleChat }) => {
 
   const pathName = usePathname()
   const [ openMenu, setOpenMenu ] = useState(false);
@@ -24,6 +24,8 @@ const Navbar = ({}) => {
   }, [pathName]);
 
   const isActive = (path) => pathName === path ? "text-[#ff3300]" : "";
+
+  
 
   return (
     <header className="bg-[rgba(255,255,255,0.5)] backdrop-blur-[20px] w-full fixed top-0 left-0 z-[100]  border border-solid border-[rgba(255,255,255,0.30)]">
@@ -49,6 +51,7 @@ const Navbar = ({}) => {
           {!session ?(
             <>
             <div className="flex items-center space-x-8 sm:hidden">
+            
           <Link href="login" className="px-6 cursor-pointer">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
@@ -59,6 +62,7 @@ const Navbar = ({}) => {
             </>
           ) : (
             <div className="flex flex-col items-center space-y-6 sm:hidden">
+              <img src="/public/assets/img_main/Chat.png" alt="Chat Icon" className="w-6 h-6" />
               <Link href="profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
@@ -83,6 +87,12 @@ const Navbar = ({}) => {
             </>
           ) : (
             <div className="flex items-center space-x-2 max-sm:hidden">
+              <img
+          src="/assets/img_main/Chat.png"
+          alt="Chat Icon"
+          className="w-[50px] h-[50px] cursor-pointer"
+          onClick={toggleChat}
+        />
             <Link href="profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>

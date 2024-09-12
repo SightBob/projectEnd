@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import CalendarComponent from '@/components/Calendar';
-
+import ChatContainer from '@/components/ChatContainer';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -13,19 +13,12 @@ import { th } from 'date-fns/locale';
 import { QRCodeSVG } from 'qrcode.react';
 
 import LoadingSpinner from '@/components/LoadingSpinner';
-
-const EventDetail = ({ params }) => {
-  
+const EventDetail = ({ params, contactId }) => {
   const [eventData, setEventData] = useState(null);
   const [error, setError] = useState(null);
-
-  function formatThaiDate(isoString) {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    const buddhistYear = addYears(date, 543);
-    
-    return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
-  }
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showChat, setShowChat] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState(null);
 
   useEffect(() => {
     const fetchEventData = async () => {
@@ -44,7 +37,22 @@ const EventDetail = ({ params }) => {
     fetchEventData();
   }, [params.id]);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const handleClick = () => {
+    if (eventData) {
+      console.log('Organizer ID:', eventData.organizer_id);
+      console.log('ทำงานนะจ๊ะ');
+      setSelectedContactId(eventData.organizer_id);
+      setShowChat(true);
+    }
+  };
+
+  function formatThaiDate(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const buddhistYear = addYears(date, 543);
+    
+    return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
+  }
 
   if (error) return <div>Error: {error}</div>;
   if (!eventData) return <LoadingSpinner/>;
@@ -82,7 +90,12 @@ const EventDetail = ({ params }) => {
               <p className="text-xl font-semibold">{eventData.organizer_name || 'Unknown Organizer'}</p>
               <p className="text-sm text-gray-500">{formatThaiDate(eventData.created_at)}</p>
             </div>
+            <div className='px-3 ' onClick={handleClick} style={{ cursor: 'pointer' }}>
+            <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg"  fill="none" viewBox="0 0 24 24"><g stroke="#1C274C"><path stroke-width="1.5" d="M12 22a10 10 0 1 0-8.96-5.55c.18.36.24.77.14 1.15l-.6 2.23a1.3 1.3 0 0 0 1.6 1.59l2.22-.6c.38-.1.8-.04 1.15.14A9.96 9.96 0 0 0 12 22Z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h0m4 0h0m4 0h0" opacity=".5"/></g></svg>
+            </div>
           </div>
+
+          
 
           {/* Event Details */}
           <div className="bg-white p-6 rounded-lg shadow-md">
@@ -120,8 +133,19 @@ const EventDetail = ({ params }) => {
           </div>
         </div>
       </div>
+
+        {/* ChatContainer */}
+    {showChat && (
+      <div className="fixed bottom-4 right-4 z-50">
+        <ChatContainer 
+          onClose={() => setShowChat(false)} 
+          selectedContactId={selectedContactId}
+        />
+      </div>
+    )}
     </div>
   );
 };
+
 
 export default EventDetail;
