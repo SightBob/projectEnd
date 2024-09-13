@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import ChatContainer from "@/components/ChatContainer";
+import Footer from "@/components/Footer";
 
 export default function ClientLayout({ children }) {
   const [isChatVisible, setIsChatVisible] = useState(false);
@@ -20,6 +21,7 @@ export default function ClientLayout({ children }) {
       <Navbar toggleChat={toggleChat} />
       {children}
       {isChatVisible && <ChatContainer onClose={closeChat} />}
+      <Footer/>
     </>
   );
 }
