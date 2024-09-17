@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+const { NextResponse } = require("next/server");
 import { dbConnect } from "@/lib/ConnectDB";
-import Message from '@/models/Message'; // สมมติว่าคุณมี Message model
+import Message from '@/models/Message';
 
 export async function GET(request) {
   await dbConnect();
@@ -19,7 +19,7 @@ export async function GET(request) {
         { sender: senderId, receiver: receiverId },
         { sender: receiverId, receiver: senderId }
       ]
-    }).sort({ timestamp: 1 }); // เรียงตามเวลาจากเก่าไปใหม่
+    }).sort({ timestamp: 1 });
 
     return NextResponse.json({ messages });
   } catch (error) {
