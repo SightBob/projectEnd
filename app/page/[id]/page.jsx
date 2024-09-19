@@ -20,7 +20,7 @@ const EventDetail = ({ params }) => {
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const res = await axios.get("/api/data/getId", { 
+        const res = await axios.get("/api/data/PostId", { 
           params: { id: params.id }
         });
         setEventData(res.data.post);

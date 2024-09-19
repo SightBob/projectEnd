@@ -5,11 +5,11 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
     title: '',
     start_date: '',
     start_time: '',
-    end_date: '', // New field for end date
-    end_time: '', // New field for end time
+    end_date: '',
+    end_time: '',
     location: '',
     description: '',
-    picture: '',
+    picture: '', // This will now store the file or URL
     link_other: '',
     username: '',
   });
@@ -22,11 +22,29 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prevState => ({
+          ...prevState,
+          picture: reader.result // Store the base64 image data
+        }));
+      };
+      reader.readAsDataURL(file); // Convert the file to base64 string
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Handle form submission logic
     onSave(formData);
   };
 
@@ -35,17 +53,16 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto mt-10">
-     
         <form onSubmit={handleSubmit}>
           <div className="mb-4 flex justify-between">
             <div className="w-1/2 pr-2">
-              <label className="block mb-1 ">ชื่อผู้ใช้</label>
+              <label className="block mb-1">ชื่อผู้ใช้</label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="border rounded w-full p-2  bg-slate-200"
+                className="border rounded w-full p-2 bg-slate-200"
                 disabled
               />
             </div>
@@ -131,15 +148,18 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
             />
           </div>
           <div className="mb-4">
-            <label className="block mb-1">รูปภาพ (URL)</label>
+            <label className="block mb-1">รูปภาพ (Upload)</label>
             <input
-              type="text"
+              type="file"
               name="picture"
-              value={formData.picture}
-              onChange={handleChange}
+              onChange={handleFileChange}
               className="border rounded w-full p-2"
+              accept="image/*"
               required
             />
+            {formData.picture && (
+              <img src={formData.picture} alt="Preview" className="mt-2 max-w-full h-auto" />
+            )}
           </div>
           <div className="mb-4">
             <label className="block mb-1">Link Form</label>

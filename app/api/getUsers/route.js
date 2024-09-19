@@ -5,8 +5,14 @@ import User from "@/models/User";
 export async function GET(req) {
     try {
         await dbConnect();
-        const totalUsers = await User.countDocuments();
-        return NextResponse.json({ totalUsers }, { status: 200 });
+        
+        // ดึงข้อมูล preferred_categories ของผู้ใช้ทั้งหมด
+        const users = await User.find({}, 'preferred_categories');
+
+        // นับจำนวนผู้ใช้ทั้งหมด
+        const totalUsers = users.length;
+
+        return NextResponse.json({ totalUsers, users }, { status: 200 });
     } catch (error) {
         console.error("Error fetching users:", error);
         return NextResponse.json({ error: "Error fetching users" }, { status: 500 });
