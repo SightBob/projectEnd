@@ -27,3 +27,33 @@ export async function GET(request) {
     return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
   }
 }
+
+export async function POST(request) {
+  await dbConnect();
+
+  try {
+    const { senderId, receiverId, currentUserId } = await request.json();
+
+    if (!senderId || !receiverId || !currentUserId) {
+      return NextResponse.json({ error: "senderId, receiverId, and currentUserId are required" }, { status: 400 });
+    }
+
+    // ตรวจสอบว่า currentUserId ตรงกับ receiverId
+    if (currentUserId !== receiverId) {
+      return NextResponse.json({ error: "Unauthorized to mark these messages as read" }, { status: 403 });
+    }
+
+    const result = await Message.updateMany(
+      { sender: senderId, receiver: receiverId, read: false },
+      { $set: { read: true } }
+    );
+
+    return NextResponse.json({ 
+      message: 'Messages marked as read successfully',
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    return NextResponse.json({ error: "Failed to mark messages as read" }, { status: 500 });
+  }
+}

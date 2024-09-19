@@ -15,28 +15,46 @@ const ContactList = ({ onSelectContact, onClose }) => {
     }
   }, [session]);
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      if (!currentUserId) return;
-      try {
-        const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
-        console.log(`Fetching contacts for user: ${currentUserId}`);
-        console.log('Response:', response.data);
-        setContacts(response.data.contacts);
-      } catch (error) {
-        console.error("Error fetching contacts:", error.response || error);
-      }
-    };
+  const fetchContacts = async () => {
+    if (!currentUserId) return;
+    try {
+      const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
+      console.log(`Fetching contacts for user: ${currentUserId}`);
+      console.log('Response:', response.data);
+      setContacts(response.data.contacts);
+    } catch (error) {
+      console.error("Error fetching contacts:", error.response || error);
+    }
+  };
 
+  useEffect(() => {
     fetchContacts();
+    const intervalId = setInterval(fetchContacts, 30000);
+    return () => clearInterval(intervalId);
   }, [currentUserId]);
 
-  // ฟังก์ชันสำหรับกรองรายชื่อตามคำค้นหา
   const filteredContacts = contacts.filter(contact =>
     contact.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
     contact.lastname.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const formatTime = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' });
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+  };
 
   return (
     <div className="fixed bottom-4 right-4 max-w-md w-[400px] h-[70%] bg-white shadow-lg rounded-lg overflow-hidden z-[200]">
@@ -88,17 +106,26 @@ const ContactList = ({ onSelectContact, onClose }) => {
             className="flex flex-row items-center border-b-2 border-gray-200 pb-2 cursor-pointer"
             onClick={() => onSelectContact(contact)}
           >
-            <Image
-              src={contact.profileImage || "/assets/img_main/usericon.png"}
-              alt={`${contact.username} avatar`}
-              width={40}
-              height={40}
-              className="w-10 h-10 rounded-full"
-            />
+            <div className="relative">
+              <Image
+                src={contact.profileImage || "/assets/img_main/usericon.png"}
+                alt={`${contact.username} avatar`}
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-full"
+              />
+            </div>
             <div className="flex flex-col px-3 w-full">
-              <div className="text-lg">{`${contact.firstname} ${contact.lastname}`}</div>
-              <div className="text-sm text-gray-500">{contact.username}</div>
-              <div className="text-xs text-gray-400">แสดงข้อความล่าสุด</div>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-medium">{`${contact.firstname} ${contact.lastname}`}</span>
+                <span className="text-xs text-gray-400">{formatTime(contact.lastMessageTime)}</span>
+              </div>
+              <div className="text-sm text-gray-600 truncate">
+                {contact.unreadCount > 0 
+                  ? <span className="font-semibold text-blue-600">{`${contact.unreadCount}+ ข้อความใหม่`}</span>
+                  : contact.lastMessage
+                }
+              </div>
             </div>
           </div>
         ))}

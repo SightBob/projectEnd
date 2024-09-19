@@ -34,9 +34,32 @@ const Chat = ({ contact, onBack, onClose }) => {
     }
   };
 
+  const markMessagesAsRead = async () => {
+    try {
+      const response = await axios.post('/api/getMessages', {
+        senderId: contact._id,
+        receiverId: currentUserId,
+        currentUserId: currentUserId
+      });
+      console.log('Messages marked as read:', response.data);
+      setMessages(prevMessages => 
+        prevMessages.map(msg => 
+          msg.sender === contact._id ? {...msg, read: true} : msg
+        )
+      );
+      // เพิ่มการเรียก fetchContacts เพื่ออัปเดต unreadCount
+      if (typeof onSelectContact === 'function') {
+        onSelectContact(contact);
+      }
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+    }
+  };
+
   useEffect(() => {
     if (currentUserId && contact._id) {
       fetchMessages();
+      markMessagesAsRead();
     }
   }, [currentUserId, contact._id]);
 
@@ -122,7 +145,7 @@ const Chat = ({ contact, onBack, onClose }) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
-
+  
   return (
     <div className="fixed bottom-4 right-4 max-w-md w-[400px] h-[70%] bg-white shadow-lg rounded-lg overflow-hidden z-[200] flex flex-col">
       <div className="flex items-center justify-between p-4 bg-blue-500">
