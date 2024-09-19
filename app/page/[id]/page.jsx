@@ -25,16 +25,16 @@ const EventDetail = ({ params }) => {
       });
       if (res.data && res.data.post) {
         setEventData(res.data.post.getPost);
-        setOrganizerName(res.data.organizer || 'Unknown Organizer');
+        setOrganizerName(res.data.post.getPost.organizer_id || 'Unknown Organizer');
         console.log(res.data.post.getPost);
       } else {
         throw new Error("No event data in response");
       }
-    } catch (error) {
-      console.error("Error fetching event detail: ", error);
-      setError(error.message || "Failed to load event data");
-    }
-  };
+      } catch (error) {
+        console.error("Error fetching event detail: ", error);
+        setError(error.message || "Failed to load event data");
+      }
+    };
   
   useEffect(() => {
     fetchEventData();
