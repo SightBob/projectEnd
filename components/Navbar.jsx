@@ -64,7 +64,7 @@ const Navbar = ({ toggleChat }) => {
           ) : (
             <div className="flex flex-col items-center space-y-6 sm:hidden">
               <img src="/public/assets/img_main/Chat.png" alt="Chat Icon" className="w-6 h-6" />
-              <Link href="profile" className="px-6 cursor-pointer">
+              <Link href="/profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
             <Link href="" onClick={() => signOut({ callbackUrl: '/' })} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">
@@ -79,10 +79,10 @@ const Navbar = ({ toggleChat }) => {
 
         {!session ?(
             <>
-          <Link href="login" className="cursor-pointer max-sm:hidden">
+          <Link href="/login" className="cursor-pointer max-sm:hidden">
             <h2 className="text-lg">เข้าสู่ระบบ</h2>
           </Link>
-          <Link href="register" className="bg-[#ff3300] px-8 rounded-full py-2 text-white cursor-pointer max-sm:hidden">
+          <Link href="/register" className="bg-[#ff3300] px-8 rounded-full py-2 text-white cursor-pointer max-sm:hidden">
             <h2 className="text-lg">สมัครสมาชิก</h2>
           </Link>
             </>
@@ -94,7 +94,7 @@ const Navbar = ({ toggleChat }) => {
           className="w-[50px] h-[50px] cursor-pointer"
           onClick={toggleChat}
         />
-            <Link href="profile" className="px-6 cursor-pointer">
+            <Link href="/profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
             <Link href="" onClick={() => signOut({ callbackUrl: '/' })} className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer">

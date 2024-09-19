@@ -114,6 +114,7 @@ export default function Home() {
                   src="/assets/img_main/banner-1.png"
                   fill
                   style={{ objectFit: 'cover' }}
+                  alt="promote banner advertise"
                 />
               </div>
             </SwiperSlide>
@@ -123,6 +124,7 @@ export default function Home() {
                   src="/assets/img_main/banner-1.png"
                   fill
                   style={{ objectFit: 'cover' }}
+                   alt="promote banner advertise"
                 />
               </div>
             </SwiperSlide>
@@ -132,6 +134,7 @@ export default function Home() {
                   src="/assets/img_main/banner-1.png"
                   fill
                   style={{ objectFit: 'cover' }}
+                   alt="promote banner advertise"
                 />
               </div>
             </SwiperSlide>
@@ -141,6 +144,7 @@ export default function Home() {
                   src="/assets/img_main/banner-1.png"
                   fill
                   style={{ objectFit: 'cover' }}
+                   alt="promote banner advertise"
                 />
               </div>
             </SwiperSlide>
@@ -153,13 +157,14 @@ export default function Home() {
 
       <div className="flex lg:hidden space-x-4 mt-4 max-sm:flex-col max-sm:space-x-0 max-sm:items-center">
         <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
-        <div className="bg-[rgba(255,102,0,0.7)] w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:w-[50%] max-sm:max-w-[450px] max-sm:w-[98%]">
+        <div className="bg-[rgba(255,102,0,0.7)] w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:w-[50%] max-sm:max-w-[450px] max-sm:w-[98%] ">
           <div className="flex justify-between items-center pb-1">
             <h3 className="text-2xl font-semibold text-white max-[1214px]:text-xl">กิจกรรม</h3>
             <div className="bg-white rounded-full px-2 py-1">
               <h4>{selectedDate.toDateString()}</h4>
             </div>
           </div>
+          <div className="max-h-[320px] overflow-y-scroll">
           {isLoading ? (
             <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
               <div className="loading-spinner"></div>
@@ -180,6 +185,7 @@ export default function Home() {
               ไม่พบข้อมูลกิจกรรม
             </div>
           )}
+          </div>
         </div>
       </div>
 
@@ -188,14 +194,14 @@ export default function Home() {
           <div className="text-[#FF6600] flex justify-between items-center px-2">
             <h3 className="text-xl max-[1214px]:text-lg">กิจกรรมที่คุณอาจสนใจ</h3>
             <Link className='flex items-center space-x-2 text-xl max-[1214px]:text-lg' href="/sutevent">
-              ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.5" className="size-6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg></span>
+              ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-6" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg></span>
             </Link>
           </div>
           <div className="grid grid-cols-4 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-md:grid-cols-2 max-lg:w-full max-[510px]:grid-cols-1 place-items-center">
             {dataInterest.length > 0 ?
               (
                 dataInterest.map((item, index) => (
-                  <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} />
+                  <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid}  />
                 ))
               )
               : <><div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
@@ -203,13 +209,14 @@ export default function Home() {
               </div></>}
           </div>
         </div>
-        <div className="bg-[rgba(255,102,0,0.7)] min-w-[300px] rounded-lg p-3 mt-2 h-fit max-lg:hidden">
-          <div className="flex justify-between items-center pb-1">
+        <div className="bg-[rgba(255,102,0,0.7)] max-w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:hidden">
+          <div className="flex justify-between items-center pb-1 w-full">
             <h3 className="text-2xl font-semibold text-white max-[1214px]:text-xl">กิจกรรม</h3>
             <div className="bg-white rounded-full px-2 py-1">
               <h4>{selectedDate.toDateString()}</h4>
             </div>
           </div>
+          <div className="max-h-[320px] min-w-[320px] overflow-y-scroll">
           {isLoading ? (
             <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
               <div className="loading-spinner"></div>
@@ -230,6 +237,7 @@ export default function Home() {
               ไม่พบข้อมูลกิจกรรม
             </div>
           )}
+          </div>
         </div>
       </div>
     </main>

@@ -6,6 +6,8 @@ import CalendarComponent from "@/components/Calendar";
 import CartEvent from "@/components/CartEvent";
 import axios from "axios";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSession } from "next-auth/react";
+
 
 const Page = ({}) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -13,6 +15,8 @@ const Page = ({}) => {
   const [allEvents, setAllEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data: session, status } = useSession();
 
   function getLocalDateString(date) {
     if (!date) return null;
@@ -127,7 +131,7 @@ const Page = ({}) => {
            </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} />
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid}  />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>

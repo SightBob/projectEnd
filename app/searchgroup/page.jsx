@@ -7,7 +7,10 @@ import CartEvent from "@/components/CartEvent";
 import axios from "axios";
 import LoadingSpinner from "@/components/LoadingSpinner";
 
+import { useSession } from "next-auth/react";
+
 const Page = ({}) => {
+  const { data: session, status } = useSession();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [allEvents, setAllEvents] = useState([]);
@@ -127,7 +130,7 @@ const Page = ({}) => {
               </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} />
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>

@@ -57,13 +57,18 @@ const PostSchema = new mongoose.Schema({
     enum: ['info', 'event'],
     default: 'info'
   },
+  member: {
+    type: String,
+    enum: ['yes', 'no'],
+    default: 'no'
+  },
   isRecruiting: {
     type: Boolean,
     default: false
   },
   maxParticipants: {
     type: Number,
-    default: 0
+    default: "0"
   },
   participants: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -82,15 +87,15 @@ const PostSchema = new mongoose.Schema({
   collection: 'Posts_col'
 });
 
-// Virtual for likes count
+
 PostSchema.virtual('likes_count').get(function() {
   return this.likes.length;
 });
 
-// Virtual for current participants count
 PostSchema.virtual('current_participants').get(function() {
   return this.participants.length;
 });
+
 
 // Index for efficient querying
 PostSchema.index({ start_date: 1, category: 1, type: 1 });
