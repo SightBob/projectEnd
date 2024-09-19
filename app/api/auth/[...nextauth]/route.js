@@ -15,48 +15,52 @@ export const authOptions = {
         try {
           await dbConnect();
 
-          // ค้นหาผู้ใช้จาก username
           const user = await User.findOne({ username });
 
           if (user) {
-            //   ตรวจสอบรหัสผ่าน
-            const isValid = await bcrypt.compare(
-              credentials.password,
-              user.password
-            );
+            const isValid = await bcrypt.compare(password, user.password);
 
             if (isValid) {
               return {
                 uuid: user._id,
                 name: user.username,
                 email: user.email,
+                role: user.role, 
               };
+            } else {
+              throw new Error("Invalid password");
             }
+          } else {
+            throw new Error("User not found");
           }
-
         } catch (error) {
-          console.log("Error: ", error);
+          console.log("Error in authorize: ", error);
+          throw new Error("Authorization failed");
         }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
+
       if (user) {
         token.uuid = user.uuid;
+        token.role = user.role; 
       }
       return token;
     },
     async session({ session, token }) {
+      // เพิ่ม uuid และ role ไปที่ session
       if (token) {
         session.user.uuid = token.uuid;
+        session.user.role = token.role; 
       }
       return session;
     },
   },
   session: {
     strategy: "jwt",
-    maxAge: 2 * 60 * 60,
+    maxAge: 2 * 60 * 60, 
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {

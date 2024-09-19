@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import CalendarComponent from "@/components/Calendar";
 import CartEvent from "@/components/CartEvent";
 import axios from "axios";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { useSession } from "next-auth/react";
+
 
 const Page = ({}) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -12,6 +15,8 @@ const Page = ({}) => {
   const [allEvents, setAllEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data: session, status } = useSession();
 
   function getLocalDateString(date) {
     if (!date) return null;
@@ -25,8 +30,9 @@ const Page = ({}) => {
     const fetchAllData = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get('/api/data');
+        const res = await axios.get('/api/data/date?type=info');
         setAllEvents(res.data.getPost);
+        console.log("res.data.getPost, :", res.data.getPost);
         setFilteredEvents(res.data.getPost);
       } catch (error) {
         console.error('Error fetching all data:', error);
@@ -120,10 +126,12 @@ const Page = ({}) => {
         </div>
         <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
           {isLoading ? (
-            <p>กำลังโหลดข้อมูล...</p>
+             <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
+             <LoadingSpinner/>
+           </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} />
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid}  />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>

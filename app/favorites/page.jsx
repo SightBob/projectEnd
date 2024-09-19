@@ -4,7 +4,14 @@ import CalendarComponent from "@/components/Calendar";
 import CartFavoritesEvent from "@/components/CartFavoritesEvent";
 import CartActivity from "@/components/CartActivity";
 
+import { useSession } from 'next-auth/react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation'; 
+
 const Page = () => {
+
+  const { data: session } = useSession();
+  const router = useRouter();
   const [events, setEvents] = useState([
     { id: 1, name: "Event 1" },
     { id: 2, name: "Event 2" },
@@ -19,7 +26,8 @@ const Page = () => {
 
   return (
     <div className="w-full flex min-h-[calc(100vh_-_8rem)]">
-      <div className="container flex space-x-3 max-sm:space-x-0 max-md:flex-col-reverse">
+      {session?.user?.role ? (
+      <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
         {/* Favorite Items Grid */}
         <div className="w-full">
           <div className="text-orange-400 text-[30px] max-md:text-center max-md:mt-5">รายการโปรด</div>
@@ -50,6 +58,25 @@ const Page = () => {
           </div>
         </div>
       </div>
+       ) : (
+        <div className="text-center py-10 relative top-0 left-0 right-0 bottom-0 bg-gray-300 min-h-[calc(100vh_-_8rem)] w-full flex justify-center items-center">
+            <div className="max-w-[350px] h-[400px] w-full bg-white flex flex-col items-center justify-center rounded-md">
+            <div className="rounded-full overflow-hidden">
+            <Image 
+                src="/assets/img_main/profile.png" 
+                layout="responsive"
+                width={250} 
+                height={250} 
+                alt="Profile picture"
+            />
+            </div>
+            <h2 className='mt-8'>กรุณาเข้าสู่ระบบเพื่อเข้าถึงหน้านี้</h2>
+            <button onClick={() => router.push('/login')} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                ไปยังหน้าเข้าสู่ระบบ
+            </button>
+            </div>
+        </div>
+    )}
     </div>
   );
 };

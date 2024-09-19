@@ -27,6 +27,7 @@ ChartJS.register(
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState([]);
+  const [totalUsers, setTotalUsers] = useState(0);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -40,8 +41,9 @@ const Dashboard = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/getdata'); // Adjust the endpoint as necessary
-        setUsers(response.data);
+        const response = await axios.get('/api/getUsers'); // Adjust the endpoint as necessary
+        setUsers(response.data.users || []);
+        setTotalUsers(response.data.totalUsers || 0); // Set total users from response
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -52,9 +54,16 @@ const Dashboard = () => {
   }, []);
 
   const totalActivities = posts.length; // Count total activities based on posts
- 
 
-  // Calculate posts within the last 24 hours
+  // Calculate posts count for each month
+  const monthlyPostCounts = Array(12).fill(0); // Initialize an array for 12 months
+
+  posts.forEach(post => {
+    const postDate = new Date(post.created_at); // Use created_at date
+    const month = postDate.getMonth(); // Get month (0-11)
+    monthlyPostCounts[month] += 1; // Increment the count for the corresponding month
+  });
+
   const now = new Date();
   const recentPosts = posts.filter(post => {
     const postDate = new Date(post.start_date); // Adjust according to your date field
@@ -68,7 +77,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: 'กิจกรรมที่จัดขึ้น',
-        data: [6,12, 19, 3, 5, 2, 3, 10, 15, 22, 13, 7], // Adjust data as needed
+        data: monthlyPostCounts, // Use the calculated monthly counts
         backgroundColor: 'rgba(255, 159, 64, 0.6)',
       },
     ],
@@ -85,14 +94,54 @@ const Dashboard = () => {
       },
     },
   };
+  const categoryLabels = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
+  const categoryCounts = Array(categoryLabels.length).fill(0); // สร้างอาเรย์นับหมวดหมู่
+  
+  posts.forEach(post => {
+    post.category.forEach(cat => {
+      const index = categoryLabels.indexOf(cat);
+      if (index !== -1) {
+        categoryCounts[index] += 1; // เพิ่มจำนวนโพสต์ในหมวดหมู่ที่เจอ
+      }
+    });
+  });
+  
 
+  const titleInterest = [
+    { name: "อาหาร", img: "food", alt: "ไอคอนอาหาร" },
+    { name: "เกม", img: "game", alt: "ไอคอนจอยสติ๊ก" },
+    { name: "ชมรมนักศึกษา", img: "club", alt: "ไอคอนกลุ่มคน" },
+    { name: "กีฬา", img: "sport", alt: "ไอคอนกีฬา" },
+    { name: "การศึกษา", img: "study", alt: "ไอคอนหนังสือ" },
+    { name: "ท่องเที่ยว", img: "travel", alt: "ไอคอนกระเป๋าเดินทาง" },
+  ];
+  
+
+// Tally user preferences
+const preferenceCounts = Array(titleInterest.length).fill(0);
+
+users.forEach(user => {
+  if (user.preferred_categories) {
+    user.preferred_categories.forEach(preferred => {
+      const index = titleInterest.findIndex(category => category.name === preferred);
+      if (index !== -1) {
+        preferenceCounts[index] += 1; // Count user preferences
+      }
+    });
+  }
+});
+
+
+
+
+  
   const pieData = {
-    labels: ['อาหาร', 'เกม', 'กีฬา'],
+    labels: titleInterest.map(item => item.name), // Labels from titleInterest
     datasets: [
       {
-        label: 'Top 3 สิ่งที่คุณสนใจมากที่สุด',
-        data: [60, 30, 10], // Adjust data as needed
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+        label: 'Top สิ่งที่ผู้ใช้งานสนใจ',
+        data: preferenceCounts, // Data from tallying preferences
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
       },
     ],
   };
@@ -110,7 +159,7 @@ const Dashboard = () => {
     },
     layout: {
       padding: {
-        top: 25,
+        top: 5,
       },
     },
   };
@@ -131,7 +180,7 @@ const Dashboard = () => {
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl">ผู้ใช้งานทั้งหมด</h2>
-          <p className="text-4xl font-bold">0</p> {/* Display total users */}
+          <p className="text-4xl font-bold">{totalUsers}</p> {/* Display total users */}
           <p className="text-sm text-gray-500">ข้อมูลผู้ใช้งานทั้งหมดในเว็บ</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
@@ -156,13 +205,44 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-1">
-          <h3 className="text-xl font-semibold mb-4">กล่องใหม่</h3>
-          <p>เนื้อหาของกล่องนี้</p>
-        </div>
+  <h3 className="text-xl font-semibold mb-4">จำนวนโพสต์ตามหมวดหมู่</h3>
+  <div className="w-full h-64 md:h-104 lg:h-120 flex items-center justify-center">
+    <Pie 
+      data={{
+        labels: categoryLabels, 
+        datasets: [
+          {
+            label: 'จำนวนโพสต์ในแต่ละหมวดหมู่',
+            data: categoryCounts, 
+            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+          },
+        ],
+      }} 
+      options={{
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 18,
+              },
+            },
+          },
+        },
+        layout: {
+          padding: {
+            top: 5,
+          },
+        },
+      }}
+    />
+  </div>
+</div>
+
 
         {/* Pie Chart */}
         <div className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-1">
-          <h3 className="text-xl font-semibold mb-4">Top 3 สิ่งที่คุณสนใจมากที่สุด</h3>
+          <h3 className="text-xl font-semibold mb-4">Top สิ่งที่คุณสนใจมากที่สุด</h3>
           <div className="w-full h-64 md:h-104 lg:h-120 flex items-center justify-center ">
             <Pie data={pieData} options={pieOptions} />
           </div>

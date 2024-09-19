@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Page = () => {
@@ -12,14 +12,20 @@ const Page = () => {
   const { data: session } = useSession();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [generalError, setGeneralError] = useState('');
-  if(session) router.push('/');
 
-  
+  useEffect(() => {
+    if (session) {
+      if (session.user.role === 'user') {
+        router.push('/');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [session, router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUsernameError('');
@@ -39,7 +45,11 @@ const Page = () => {
         if (result.error) {
           setGeneralError(result.error);
         } else {
-          router.push('/');
+          if (session.user.role === 'user') {
+            router.push('/');
+          } else {
+            router.push('/dashboard');
+          }
         }
       }
     } catch (error) {
@@ -109,4 +119,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default Page;

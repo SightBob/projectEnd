@@ -8,6 +8,7 @@ import { format, addYears } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { QRCodeSVG } from 'qrcode.react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { useSession } from 'next-auth/react';
 
 const EventDetail = ({ params }) => {
   const [eventData, setEventData] = useState(null);
@@ -15,22 +16,27 @@ const EventDetail = ({ params }) => {
   const [showChat, setShowChat] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [organizerName, setOrganizerName] = useState('');
+  const { data: session } = useSession();
 
-  useEffect(() => {
-    const fetchEventData = async () => {
-      try {
-        const res = await axios.get("/api/data/getId", { 
-          params: { id: params.id }
-        });
-        setEventData(res.data.post);
-        setOrganizerName(res.data.organizer); 
-        console.log(res.data.post);
+  const fetchEventData = async () => {
+    try {
+      const res = await axios.get("/api/data/PostId", { 
+        params: { id: params.id }
+      });
+      if (res.data && res.data.post) {
+        setEventData(res.data.post.getPost);
+        setOrganizerName(res.data.post.getPost.organizer_id || 'Unknown Organizer');
+        console.log(res.data.post.getPost);
+      } else {
+        throw new Error("No event data in response");
+      }
       } catch (error) {
         console.error("Error fetching event detail: ", error);
-        setError("Failed to load event data");
+        setError(error.message || "Failed to load event data");
       }
     };
   
+  useEffect(() => {
     fetchEventData();
   }, [params.id]);
 
@@ -43,6 +49,39 @@ const EventDetail = ({ params }) => {
     }
   };
 
+  const joinEvent = async () => {
+    if (!session) {
+      alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วมหรือยกเลิกการเข้าร่วมกิจกรรม");
+      return;
+    }
+  
+    try {
+      const response = await axios.post('/api/data/event', {
+        eventId: params.id,
+        userId: session?.user?.uuid
+      });
+  
+      if (response.data.success) {
+        if (response.data.action === 'registered') {
+          alert("คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว");
+        } else if (response.data.action === 'unregistered') {
+          alert("คุณได้ยกเลิกการเข้าร่วมกิจกรรมเรียบร้อยแล้ว");
+        }
+        // Fetch updated event data
+        await fetchEventData();
+      } else {
+        alert(response.data.message || "ไม่สามารถดำเนินการได้");
+      }
+    } catch (error) {
+      console.error("Error processing event registration:", error);
+      if (error.response) {
+        alert(error.response.data.message || "เกิดข้อผิดพลาดในการดำเนินการ");
+      } else {
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
+      }
+    }
+  };
+
   function formatThaiDate(isoString) {
     if (!isoString) return '';
     const date = new Date(isoString);
@@ -51,7 +90,26 @@ const EventDetail = ({ params }) => {
     return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
   }
 
-  if (error) return <div className="text-red-500 text-center mt-4">Error: {error}</div>;
+  // useEffect(() => {
+  //   const fetchEventData = async () => {
+  //     try {
+  //       const res = await axios.get("/api/data/PostId", { 
+  //         params: { id: params.id }
+  //       });
+  //       setEventData(res.data.post.getPost);
+  //       console.log(res.data.post.getPost);
+  //     } catch (error) {
+  //       console.error("Error fetching event detail: ", error);
+  //       setError("Failed to load event data");
+  //     }
+  //   };
+
+  //   fetchEventData();
+  // }, [params.id]);
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  if (error) return <div>Error: {error}</div>;
   if (!eventData) return <LoadingSpinner/>;
 
   return (
@@ -71,80 +129,90 @@ const EventDetail = ({ params }) => {
               />
             </div>
 
-            {/* Organizer Profile */}
-            <div className="flex items-center mb-4">
-              <div className="relative w-16 h-16 mr-4">
-                <Image
-                  className="rounded-full border-4 border-white object-cover"
-                  fill
-                  alt="Organizer Profile"
-                  src="/assets/img_main/Profile-cat.png"
-                />
-              </div>
+          {/* Organizer Profile */}
+
+          {/* Organizer Profile */}
+          <div className="flex items-center mb-4">
+            <div className="relative w-16 h-16 mr-4">
+              <Image
+                className="rounded-full border-4 border-white object-cover"
+                fill
+                alt="Organizer Profile"
+                src="/assets/img_main/Profile-cat.png"
+              />
+            </div>
+            <div className="flex flex-col">
               <div className="flex items-center">
-              <div>
                 <p className="text-xl font-semibold">{organizerName || 'Unknown Organizer'}</p>
-                <p className="text-sm text-gray-500">{formatThaiDate(eventData.created_at)}</p>
-              </div>
-              <div className='px-3' onClick={handleClick} style={{ cursor: 'pointer' }}>
-              <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <g stroke="#1C274C">
-                  <path strokeWidth="1.5" d="M12 22a10 10 0 1 0-8.96-5.55c.18.36.24.77.14 1.15l-.6 2.23a1.3 1.3 0 0 0 1.6 1.59l2.22-.6c.38-.1.8-.04 1.15.14A9.96 9.96 0 0 0 12 22Z"/>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h0m4 0h0m4 0h0" opacity=".5"/>
-                </g>
-              </svg>
-            </div>
-              </div>
-            
-            </div>
-            
-
-            {/* Event Details */}
-            <div className="flex">
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold mb-4">{eventData.title}</h1>
-                <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
-                <p>{formatThaiDate(eventData.start_date)} - {formatThaiDate(eventData.end_date)}</p>
-                <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
-                <p>{eventData.location}</p>
-                <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-                <p>{eventData.description}</p>
-              </div>
-
-              {/* QR Code and "ดูรายละเอียดเพิ่มเติม" on the Right */}
-              <div className="flex flex-col items-end ml-4">
-                <div className="mb-4">
-                  <p className="text-lg font-semibold mb-2">ดูรายละเอียดเพิ่มเติม</p>
-                  <QRCodeSVG
-                    className="mx-auto"
-                    value={eventData.link_other || "https://default-link.com"}
-                    size={150}
-                    bgColor={"#ffffff"}
-                    fgColor={"#000000"}
-                    level={"L"}
-                  />
+                <div className='px-3' onClick={handleClick} style={{ cursor: 'pointer' }}>
+                  <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <g stroke="#1C274C">
+                      <path strokeWidth="1.5" d="M12 22a10 10 0 1 0-8.96-5.55c.18.36.24.77.14 1.15l-.6 2.23a1.3 1.3 0 0 0 1.6 1.59l2.22-.6c.38-.1.8-.04 1.15.14A9.96 9.96 0 0 0 12 22Z"/>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h0m4 0h0m4 0h0" opacity=".5"/>
+                    </g>
+                  </svg>
                 </div>
-                <button 
-                  className="bg-orange-400 text-white px-7 py-2 rounded-lg hover:bg-orange-500"
-                  onClick={() => {
-                    console.log("เข้าร่วมกิจกรรม");
-                    // Add logic for joining the event here
-                  }}
-                >
-                  เข้าร่วมกิจกรรม
-                </button>
               </div>
+              <p className="text-sm text-gray-500">{formatThaiDate(eventData.created_at)}</p>
             </div>
+          </div>
+            
+
+          {/* Event Details */}
+      <div className="flex">
+        <div className="flex-1 ">
+          <h1 className="text-2xl font-bold mb-4">{eventData.title}</h1>
+          <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
+          <p>{formatThaiDate(eventData.start_date)} - {formatThaiDate(eventData.end_date)}</p>
+          <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
+          <p>{eventData.location}</p>
+          <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
+          <p>{eventData.description}</p>
+        </div>
+
+        {/* QR Code and "ดูรายละเอียดเพิ่มเติม" on the Left */}
+        <div className="flex flex-col items-start ml-4">
+          <div className="mb-4">
+            <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่มเติม</p>
+            <QRCodeSVG
+              className="mx-auto"
+              value={eventData.link_other || "https://default-link.com"}
+              size={150}
+              bgColor={"#ffffff"}
+              fgColor={"#000000"}
+              level={"L"}
+            />
+          </div>
+              <p className="text-sm text-gray-500 mt-2">
+              </p>
+              { eventData.member === 'yes' ? <>
+          <div className="flex flex-col items-center">
+          ผู้เข้าร่วม: {eventData.current_participants} / {eventData.maxParticipants}
+              <button 
+            className="bg-orange-400 text-white px-7 py-2 rounded-lg hover:bg-orange-500 mt-2"
+            onClick={joinEvent}
+            // disabled={eventData.current_participants === eventData.maxParticipants}
+          >
+            {eventData.current_participants === eventData.maxParticipants 
+              ? "คนเข้าร่วมเต็มแล้ว" 
+              : eventData.participants.includes(session?.user?.uuid)
+                ? 'คุณเข้าร่วมแล้ว' 
+                : 'เข้าร่วมกิจกรรม'
+            }
+          </button>
+          </div>
+              </> : "" }
+        </div>
+      </div>
           </div>
         </div>
 
-        {/* Right Section - 25% */}
         <div className="flex-[1]">
-          {/* This space is reserved for future content */}
+        <div className="bg-white p-6 rounded-lg shadow-md h-full ml-3">
+          </div>
         </div>
       </div>
 
-      {/* ChatContainer */}
       {showChat && (
         <div className="fixed bottom-4 right-4 z-50">
           <ChatContainer 
