@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from "@/lib/ConnectDB";
 import User from '@/models/User';
+import Message from '@/models/Message';
 import mongoose from 'mongoose';
 
 export async function GET(request) {
@@ -41,33 +42,52 @@ export async function GET(request) {
     const contactDetails = await User.find({ _id: { $in: contactIds } });
 
     console.log('Number of contacts fetched:', contactDetails.length);
-    console.log('Contact details:');
-    contactDetails.forEach((contact, index) => {
-      console.log(`Contact ${index + 1}:`);
-      console.log(`  ID: ${contact._id}`);
-      console.log(`  Username: ${contact.username}`);
-      console.log(`  First Name: ${contact.firstname}`);
-      console.log(`  Last Name: ${contact.lastname}`);
-      console.log(`  Email: ${contact.email}`);
-      console.log(`  Profile Image: ${contact.profileImage || 'Not set'}`);
-      console.log('---');
-    });
 
-    const contacts = contactDetails.map(contact => ({
-      _id: contact._id.toString(),
-      username: contact.username,
-      firstname: contact.firstname,
-      lastname: contact.lastname,
-      email: contact.email,
-      profileImage: contact.profileImage
+    const contactsWithDetails = await Promise.all(contactDetails.map(async (contact) => {
+      const lastMessage = await Message.findOne({
+        $or: [
+          { sender: userId, receiver: contact._id },
+          { sender: contact._id, receiver: userId }
+        ]
+      }).sort({ timestamp: -1 });
+
+      console.log(`Calculating unreadCount for ${contact.username}`);
+      const unreadCount = await Message.countDocuments({
+  sender: contact._id,
+  receiver: userId,
+  read: false  // เปลี่ยนจาก { $ne: true } เป็น false
+});
+      console.log(`Unread count for ${contact.username}: ${unreadCount}`);
+
+      console.log(`Contact: ${contact.username}`);
+      console.log(`  Last Message: ${lastMessage ? lastMessage.text : 'No messages'}`);
+      console.log(`  Unread Count: ${unreadCount}`);
+
+      return {
+        _id: contact._id.toString(),
+        username: contact.username,
+        firstname: contact.firstname,
+        lastname: contact.lastname,
+        email: contact.email,
+        profileImage: contact.profileImage,
+        lastMessage: lastMessage ? lastMessage.text : '',
+        lastMessageTime: lastMessage ? lastMessage.timestamp : null,
+        unreadCount
+      };
     }));
 
+    contactsWithDetails.sort((a, b) => {
+      if (!a.lastMessageTime) return 1;
+      if (!b.lastMessageTime) return -1;
+      return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+    });
+
     console.log('-------- Processed Contacts --------');
-    console.log(JSON.stringify(contacts, null, 2));
+    console.log(JSON.stringify(contactsWithDetails, null, 2));
 
     console.log('-------- API Call Completed Successfully --------');
 
-    return NextResponse.json({ contacts });
+    return NextResponse.json({ contacts: contactsWithDetails });
   } catch (error) {
     console.error("-------- Error in API Call --------");
     console.error("Error details:", error);
