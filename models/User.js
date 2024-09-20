@@ -39,7 +39,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  },
+  },  
+ 
+
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

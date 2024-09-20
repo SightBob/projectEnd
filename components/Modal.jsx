@@ -155,7 +155,7 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
               onChange={handleFileChange}
               className="border rounded w-full p-2"
               accept="image/*"
-              required
+          
             />
             {formData.picture && (
               <img src={formData.picture} alt="Preview" className="mt-2 max-w-full h-auto" />

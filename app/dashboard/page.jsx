@@ -59,7 +59,7 @@ const Dashboard = () => {
   const monthlyPostCounts = Array(12).fill(0); // Initialize an array for 12 months
 
   posts.forEach(post => {
-    const postDate = new Date(post.created_at); // Use created_at date
+    const postDate = new Date(post.start_date); // Use created_at date
     const month = postDate.getMonth(); // Get month (0-11)
     monthlyPostCounts[month] += 1; // Increment the count for the corresponding month
   });
