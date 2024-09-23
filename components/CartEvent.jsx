@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const CartEvent = ({ id, img, title, start_date, start_time, location, type="",  member="", maxParticipants="", current_participants=""}) => {
+const CartEvent = ({ id, img, title, start_date, start_time, location, type="",  member="", maxParticipants="", current_participants="",views=0}) => {
   return (
     <div className="col-span-1 max-h-[410px] w-full p-3 max-sm:p-2 rounded-lg bg-white relative max-[440px]:max-w-[100%] max-[440px]:p-4 max-[440px]:max-h-auto">
       { type === "edit" ? <></> : <div className="absolute top-4 right-4 size-10 rounded-full border grid place-items-center cursor-pointer z-10 bg-white">
@@ -79,7 +79,7 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
           <div className="flex flex-col items-center justify-center">
             
            <div className="flex items-center space-x-2 justify-center">
-           <p>266</p>
+           <p>{views}</p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -104,7 +104,7 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
           </div> 
           : 
           <div className="flex items-center space-x-2 justify-center">
-          <p>266</p>
+          <p>{views}</p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

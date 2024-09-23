@@ -32,7 +32,7 @@ const Navbar = ({ toggleChat }) => {
       <nav className="container mx-auto flex justify-between items-center h-[7rem]">
 
         <Link href="/" className="flex items-center space-x-2">
-        <div className="size-[5rem] relative">
+        <div className="size-[5rem] relative max-sm:size-[40px]">
         <Image
             src="/assets/img_main/logo.png"
             fill
@@ -40,9 +40,8 @@ const Navbar = ({ toggleChat }) => {
             alt="Logo"
           />
           </div>
-          <h1 className="text-2xl">SUT EVENTS</h1>
+          <h1 className="text-2xl max-sm:text-sm">SUT EVENTS</h1>
         </Link>
-
         <div className={`flex space-x-8 max-xl:fixed max-xl:top-[7rem] max-xl:left-0 max-xl:w-full max-xl:bg-white max-xl:flex-col max-xl:items-center max-xl:space-x-0 max-xl:space-y-8 max-xl:transition-[height] duration-500 max-xl:overflow-hidden ${openMenu ? "max-sm:h-[470px] max-xl:h-[380px]" : "max-xl:h-[0px]" }  `}>
           <Link className={`text-lg max-xl:mt-[3rem] ${isActive("/")}`} href={`${session?.user?.role === 'admin' ? "/dashboard" : "/"}`}>{session?.user?.role === 'admin' ? "แดชบอร์ด" : "หน้าหลัก"}</Link> 
           <Link className={`text-lg ${isActive("/sutevent")}`} href={`${session?.user?.role === 'admin' ? "/post-activity" : "/sutevent"}`}>กิจกรรม</Link>
@@ -63,7 +62,7 @@ const Navbar = ({ toggleChat }) => {
             </>
           ) : (
             <div className="flex flex-col items-center space-y-6 sm:hidden">
-              <img src="/public/assets/img_main/Chat.png" alt="Chat Icon" className="w-6 h-6" />
+            
               <Link href="/profile" className="px-6 cursor-pointer">
               <h2 className="text-lg">โปรไฟล์</h2>
             </Link>
@@ -103,10 +102,19 @@ const Navbar = ({ toggleChat }) => {
             </div>
           )}
 
-
-
-
           {/* menu */}
+          <div className="flex space-x-4 items-center">
+          {/* ChatShowMobile */}
+          {session && (
+          <div className="hidden max-sm:block size-[35px]">
+            <img
+              src="/assets/img_main/Chat.png"
+              alt="Chat Icon"
+              className="cursor-pointer"
+              onClick={toggleChat}
+            />
+          </div>
+          )}
           <div className="xl:hidden">
             <div className="size-9 relative cursor-pointer" onClick={ClickOpenMenu}>
             <Image
@@ -115,6 +123,7 @@ const Navbar = ({ toggleChat }) => {
               alt=""
             />
             </div>
+          </div>
           </div>
         </div>
 

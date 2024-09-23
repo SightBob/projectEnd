@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useCallback} from "react";
 import CalendarComponent from "@/components/Calendar";
 import CartEvent from "@/components/CartEvent";
 import axios from "axios";
@@ -45,22 +45,65 @@ const Page = ({}) => {
   }, []);
 
   useEffect(() => {
+    let filtered = allEvents;
+    console.log("All events:", allEvents);
+    console.log("Selected categories:", selectedCategories);
+  
     if (selectedDate) {
       const dateToFilter = getLocalDateString(selectedDate);
-      const filtered = allEvents.filter(event => event.start_date === dateToFilter);
-      setFilteredEvents(filtered);
-    } else {
-      setFilteredEvents(allEvents);
+      filtered = filtered.filter(event => event.start_date === dateToFilter);
+      console.log("Filtered by date:", filtered);
     }
-  }, [selectedDate, allEvents]);
-
-  const toggleCategory = (category) => {
-    setSelectedCategories((prevSelected) =>
-      prevSelected.includes(category)
-        ? prevSelected.filter((c) => c !== category)
-        : [...prevSelected, category]
-    );
+  
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(event => {
+        console.log("Checking event:", event.title);
+        console.log("Event category:", event.category);
+        
+        return selectedCategories.some(selectedCategory => {
+          const normalizedSelectedCategory = normalizeString(selectedCategory);
+          console.log("Checking for category:", normalizedSelectedCategory);
+          
+          if (Array.isArray(event.category)) {
+            const result = event.category.some(cat => normalizeString(cat) === normalizedSelectedCategory);
+            console.log("Array check result:", result);
+            return result;
+          } else if (typeof event.category === 'object' && event.category !== null) {
+            const result = Object.keys(event.category).some(cat => {
+              const normalizedCat = normalizeString(cat);
+              const matchResult = normalizedCat === normalizedSelectedCategory && event.category[cat];
+              console.log(`Object check: ${normalizedCat} === ${normalizedSelectedCategory}, value: ${event.category[cat]}, result: ${matchResult}`);
+              return matchResult;
+            });
+            console.log("Object check final result:", result);
+            return result;
+          } else {
+            console.log("Category is neither array nor object:", event.category);
+            return false;
+          }
+        });
+      });
+    }
+  
+    console.log("Final filtered events:", filtered);
+    setFilteredEvents(filtered);
+  }, [selectedDate, selectedCategories, allEvents]);
+  
+  // Helper function to normalize strings
+  const normalizeString = (str) => {
+    return typeof str === 'string' ? str.toLowerCase().trim().replace(/\s+/g, ' ') : '';
   };
+
+  const toggleCategory = useCallback((category) => {
+    console.log("Toggling category:", category);
+    setSelectedCategories((prevSelected) => {
+      const newSelected = prevSelected.includes(category)
+        ? prevSelected.filter((c) => c !== category)
+        : [...prevSelected, category];
+      console.log("New selected categories:", newSelected);
+      return newSelected;
+    });
+  }, []);
 
   const clearSelectedDate = () => {
     setSelectedDate(null);
@@ -84,6 +127,7 @@ const Page = ({}) => {
     "ศิลปะและงานฝีมือ",
     "หอพัก",
     "อื่นๆ",
+    "การศึกษา"
   ];
 
   return (
@@ -102,7 +146,7 @@ const Page = ({}) => {
             <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
               <div className="w-full flex justify-between">
                 <div className="">หมวดหมู่</div>
-                <div className="" onClick={() => setSelectedCategories([])}>
+                <div className="cursor-pointer" onClick={() => setSelectedCategories([])}>
                   ล้างทั้งหมด
                 </div>
               </div>
@@ -126,12 +170,22 @@ const Page = ({}) => {
         </div>
         <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
           {isLoading ? (
-             <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
-             <LoadingSpinner/>
-           </div>
+            <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
+              <LoadingSpinner/>
+            </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid}  />
+              <CartEvent 
+                key={index} 
+                id={item._id} 
+                img={item.picture} 
+                title={item.title} 
+                start_date={item.start_date} 
+                start_time={item.start_time} 
+                location={item.location} 
+                userId={session?.user?.uuid}
+                views={item.views}  
+              />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>

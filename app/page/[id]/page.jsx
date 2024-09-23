@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import ChatContainer from '@/components/ChatContainer';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { format, addYears } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -17,7 +17,8 @@ const EventDetail = ({ params }) => {
   const [selectedContactId, setSelectedContactId] = useState(null);
   const [organizerName, setOrganizerName] = useState('');
   const { data: session } = useSession();
-
+  const [viewIncremented, setViewIncremented] = useState(false);
+  const viewIncrementedRef = useRef(false);
   const fetchEventData = async () => {
     try {
       const res = await axios.get("/api/data/PostId", { 
@@ -35,10 +36,24 @@ const EventDetail = ({ params }) => {
         setError(error.message || "Failed to load event data");
       }
     };
+
   
-  useEffect(() => {
-    fetchEventData();
-  }, [params.id]);
+    useEffect(() => {
+      fetchEventData();
+      if (!viewIncrementedRef.current) {
+        incrementViewCount();
+        viewIncrementedRef.current = true;
+      }
+    }, [params.id]);
+
+    const incrementViewCount = async () => {
+      try {
+        const response = await axios.post('/api/incrementViews', { id: params.id });
+        console.log('View count updated:', response.data);
+      } catch (error) {
+        console.error('Error incrementing view count:', error);
+      }
+    };
 
   const handleClick = () => {
     if (eventData) {

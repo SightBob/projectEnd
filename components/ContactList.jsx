@@ -57,7 +57,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 max-w-md w-[400px] h-[70%] bg-white shadow-lg rounded-lg overflow-hidden z-[200]">
+    <div className="fixed bottom-4 max-xs:bottom-0 right-4 max-xs:right-0 max-w-md w-[400px] h-[70%] max-xs:h-[100%] max-xs:w-[100%]  bg-white shadow-lg rounded-lg max-xs:rounded-none overflow-hidden z-[200]">
       <div className="flex items-center justify-between p-4 bg-blue-500">
         <div className="flex space-x-2">
           <Image
@@ -91,7 +91,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
             <input 
               type="text" 
               id="simple-search" 
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 focus:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 focus:bg-gray-200 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
               placeholder="Search contact..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
