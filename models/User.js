@@ -40,14 +40,7 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },  
-  notifications: [
-    {
-      title: String,
-      message: String,
-      isRead: { type: Boolean, default: false },
-      createdAt: { type: Date, default: Date.now }
-    }
-  ],
+ 
 
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,

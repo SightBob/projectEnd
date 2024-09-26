@@ -1,30 +1,36 @@
+// /app/api/notifications/route.js
+
 import { dbConnect } from '@/lib/ConnectDB';
 import Notification from '@/models/Notification';
-import User from '@/models/User';
-import mongoose from 'mongoose';
+import cron from 'node-cron';
 
-// POST method for sending notifications
-export async function POST(req) {
+export async function GET(req) {
+  await dbConnect();
+
   try {
-    const { title, message } = await req.json();
-    await dbConnect();
+    const notifications = await Notification.find({});
+    return new Response(JSON.stringify(notifications), { status: 200 });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch notifications' }), { status: 500 });
+  }
+}
 
-    // Create a new notification object
+export async function POST(req) {
+  await dbConnect();
+
+  try {
+    const { title, message, scheduledTime } = await req.json();
+
     const newNotification = {
       title,
       message,
-      isRead: false, // Mark as unread
+      isRead: false,
+      readed: [],
       createdAt: new Date(),
+      scheduledTime: new Date(scheduledTime),
     };
 
-    // Fetch all users and push the new notification to their notification array
-    const users = await User.find({});
-    for (let user of users) {
-      user.notifications.push(newNotification);
-      await user.save();
-    }
-
-    // Also save the notification in the Notification collection if needed
     await Notification.create(newNotification);
 
     return new Response(JSON.stringify({ success: true, notification: newNotification }), { status: 201 });
@@ -34,87 +40,43 @@ export async function POST(req) {
   }
 }
 
-export async function GET(req, res) {
+// Schedule a task to check for notifications to send
+cron.schedule('* * * * *', async () => {
+  await dbConnect();
+  const now = new Date();
   try {
-    await dbConnect();
+    const notificationsToSend = await Notification.find({
+      scheduledTime: { $lte: now },
+      isRead: false,
+    });
 
-    // Fetch all notifications from the Notification collection
-    const notifications = await Notification.find({});
-
-    // Return the notifications as JSON
-    return new Response(JSON.stringify(notifications), { status: 200 });
+    notificationsToSend.forEach(async (notification) => {
+      // Logic to send the notification
+      console.log(`Sending notification: ${notification.title}`);
+      // Mark as sent
+      notification.isRead = true;
+      await notification.save();
+    });
   } catch (error) {
-    console.error('Error fetching notifications:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch notifications' }), { status: 500 });
+    console.error('Error sending scheduled notifications:', error);
   }
-}
-
-export default async function handler(req, res) {
-  const { userId } = req.query;
-
-  if (!userId) {
-    return res.status(400).json({ error: 'User ID is required' });
-  }
-
-  try {
-    // Find user by userId and retrieve their notifications
-    const user = await User.findById(userId).select('notifications');
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    // Send back the notifications array
-    res.status(200).json(user.notifications);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch notifications' });
-  }
-}
-
-
+});
 
 export async function DELETE(req) {
+  await dbConnect();
+
   try {
-    await dbConnect();
+    const { id } = await req.json(); // Extract the ID from the request body
 
-    // ดึง id ของ notification ที่ต้องการลบจาก request body
-    const { id } = await req.json();
-
-    // ลบ notification จาก Notification collection
     const deletedNotification = await Notification.findByIdAndDelete(id);
 
     if (!deletedNotification) {
-      return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+      return new Response(JSON.stringify({ error: 'Notification not found' }), { status: 404 });
     }
 
-    // ลบ notification ออกจาก notifications array ใน User
-    await User.updateMany(
-      { notifications: id }, // ค้นหาทุก User ที่มีการแจ้งเตือนนี้ใน array
-      { $pull: { notifications: id } } // ลบการแจ้งเตือนนี้ออกจาก array
-    );
-
-    return NextResponse.json({ message: 'Notification deleted successfully' }, { status: 200 });
+    return new Response(JSON.stringify({ message: 'Notification deleted successfully' }), { status: 200 });
   } catch (error) {
     console.error('Error deleting notification:', error);
-    return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 });
-  }
-}
-
-export async function PATCH(req, res) {
-  const { id } = req.query;  // ดึง id ของ notification ที่ต้องการแก้ไข
-  const { title, message } = req.body;  // ข้อมูลที่แก้ไข
-
-  try {
-    await dbConnect();
-
-    // แก้ไขข้อมูล notification ที่มี id ตรงกับ id ที่ส่งมา
-    const updatedNotification = await Notification.findByIdAndUpdate(id, { title, message }, { new: true });
-
-    if (!updatedNotification) {
-      return res.status(404).json({ error: 'Notification not found' });
-    }
-
-    return res.status(200).json({ message: 'Notification updated successfully', notification: updatedNotification });
-  } catch (error) {
-    return res.status(500).json({ error: 'Failed to update notification' });
+    return new Response(JSON.stringify({ error: 'Failed to delete notification' }), { status: 500 });
   }
 }

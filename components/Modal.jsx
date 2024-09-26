@@ -158,7 +158,7 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
           
             />
             {formData.picture && (
-              <img src={formData.picture} alt="Preview" className="mt-2 max-w-full h-auto" />
+              <img src={formData.picture} alt="Preview" className="mt-2 max-w-80 h-auto" />
             )}
           </div>
           <div className="mb-4">

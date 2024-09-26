@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { format } from 'date-fns';
 
 const Navbar = ({ toggleChat }) => {
   const pathName = usePathname();
@@ -31,15 +30,26 @@ const Navbar = ({ toggleChat }) => {
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
       if (session) {
-        const url = `/api/notifications?userId=${session.user.id}`; // สร้าง URL ที่มี userId
-        console.log('Fetching URL:', url); // ตรวจสอบว่ามี userId ใน URL
+        const url = `/api/notifications?userId=${session.user.id}`;
+        console.log('Fetching URL:', url);
   
         try {
           const response = await fetch(url);
           const data = await response.json();
-          
-          setNotifications(data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-          setUnreadNotifications(data.filter(notification => !notification.isRead).length);
+  
+          // Get the current time
+          const now = new Date();
+  
+          // Filter notifications to only include those that are scheduled to be sent
+          const filteredNotifications = data.filter(notification => 
+            new Date(notification.scheduledTime) <= now
+          );
+  
+          // Sort notifications by scheduledTime
+          setNotifications(filteredNotifications.sort((a, b) => new Date(b.scheduledTime) - new Date(a.scheduledTime)));
+  
+          // Calculate unread notifications based on the readed array
+          setUnreadNotifications(filteredNotifications.filter(notification => !notification.readed.includes(session.user.uuid)).length);
         } catch (error) {
           console.error('Error fetching notifications:', error);
         }
@@ -47,13 +57,15 @@ const Navbar = ({ toggleChat }) => {
     };
     fetchUnreadNotifications();
   }, [session]);
-  
 
   const isActive = (path) => (pathName === path ? "text-[#ff3300]" : "");
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest(".notification-popup")) {
+      const notificationIcon = document.querySelector(".notification-icon");
+      const popup = document.querySelector(".notification-popup");
+
+      if (popup && !popup.contains(event.target) && !notificationIcon.contains(event.target)) {
         setIsNotificationPopupOpen(false);
       }
     };
@@ -64,65 +76,84 @@ const Navbar = ({ toggleChat }) => {
     };
   }, []);
 
-  const markAsRead = async (notificationId) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ isRead: true }),
-      });
-      setUnreadNotifications(prev => prev - 1);
-      setNotifications(prev => 
-        prev.map(notification =>
-          notification._id === notificationId ? { ...notification, isRead: true } : notification
-        )
-      );
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
-    }
-  };
-
-  const deleteNotification = async (notificationId) => {
-    try {
-      await fetch(`/api/notifications/${notificationId}`, {
-        method: 'DELETE',
-      });
-      setUnreadNotifications(prev => prev - 1);
-      setNotifications(prev => prev.filter(notification => notification._id !== notificationId));
-    } catch (error) {
-      console.error('Error deleting notification:', error);
-    }
-  };
-
-  const toggleExpand = (notificationId) => {
+  const toggleExpand = async (notificationId) => {
     if (expandedNotificationId === notificationId) {
       setExpandedNotificationId(null);
     } else {
       setExpandedNotificationId(notificationId);
-      if (notifications.find(notification => notification._id === notificationId)?.isRead === false) {
-        markAsRead(notificationId);
+
+      const notification = notifications.find(notification => notification._id === notificationId);
+      if (!notification?.readed.includes(session?.user?.uuid)) {
+        try {
+          const response = await fetch(`/api/notifications/${notificationId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: session?.user?.uuid }),
+          });
+
+          const updatedNotification = await response.json();
+
+          if (response.ok) {
+            setNotifications(prev =>
+              prev.map(noti =>
+                noti._id === notificationId
+                  ? { ...noti, readed: [...noti.readed, session?.user?.uuid] }
+                  : noti
+              )
+            );
+            // Decrease unread count since the notification is now read
+            setUnreadNotifications(prev => prev - 1);
+          } else {
+            console.error('Error updating notification:', updatedNotification.error);
+          }
+        } catch (error) {
+          console.error('Error marking notification as read:', error);
+        }
       }
     }
   };
 
   const NotificationItem = ({ notification, isExpanded, onToggleExpand }) => {
+    const { data: session } = useSession();
+    const isReadByUser = notification.readed.includes(session?.user?.uuid);
+  
+    const handleToggleExpand = async () => {
+      onToggleExpand(notification._id);
+  
+      if (!isReadByUser) {
+        try {
+          await fetch(`/api/notifications/${notification._id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId: session?.user?.uuid }),
+          });
+  
+          notification.readed.push(session?.user?.uuid);
+        } catch (error) {
+          console.error('Error marking notification as read:', error);
+        }
+      }
+    };
+  
     return (
-      <li className="py-2 text-lg">
+      <li className={`py-2 text-lg ${isReadByUser ? 'text-gray-500' : 'text-black'}`}>
         <div className="flex justify-between items-center">
-          <span onClick={() => onToggleExpand(notification._id)} className="cursor-pointer">
+          <span onClick={handleToggleExpand} className="cursor-pointer">
             {notification.title}
             <span className="text-gray-500 ml-2">
-              {format(new Date(notification.createdAt), 'dd/MM/yyyy HH:mm')}
+              {new Date(notification.scheduledTime).toLocaleDateString('th-TH', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
             </span>
           </span>
-  
-          <div>
-            <button onClick={() => deleteNotification(notification._id)}>
-              <img src="/assets/img_main/trash-icon.png" alt="Delete" className="w-5 h-5" />
-            </button>
-          </div>
         </div>
   
         {isExpanded && (
@@ -133,8 +164,6 @@ const Navbar = ({ toggleChat }) => {
       </li>
     );
   };
-  
-  
 
   return (
     <header className="bg-[rgba(255,255,255,0.5)] backdrop-blur-[20px] w-full fixed top-0 left-0 z-[100] border border-solid border-[rgba(255,255,255,0.30)]">
@@ -240,7 +269,7 @@ const Navbar = ({ toggleChat }) => {
                 <img
                   src="/assets/img_main/Notification.png"
                   alt="Notification Icon"
-                  className="w-[50px] h-[50px] cursor-pointer"
+                  className="w-[47px] h-[47px] cursor-pointer"
                   onClick={toggleNotificationPopup}
                 />
                 {unreadNotifications > 0 && (
@@ -252,16 +281,15 @@ const Navbar = ({ toggleChat }) => {
                   <div className="absolute right-0 mt-2 w-[40rem] bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-4 notification-popup">
                     <h3 className="text-lg font-bold">การเเจ้งเตือน</h3>
                     <ul>
-  {notifications.map((notification) => (
-    <NotificationItem
-      key={notification._id}
-      notification={notification}
-      isExpanded={expandedNotificationId === notification._id}
-      onToggleExpand={toggleExpand}
-    />
-  ))}
-</ul>
-
+                      {notifications.map((notification) => (
+                        <NotificationItem
+                          key={notification._id}
+                          notification={notification}
+                          isExpanded={expandedNotificationId === notification._id}
+                          onToggleExpand={toggleExpand}
+                        />
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
