@@ -110,7 +110,9 @@ const EventDetail = ({ params }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   if (error) return <div>Error: {error}</div>;
-  if (!eventData) return <LoadingSpinner/>;
+  if (!eventData) return <div className="min-h-screen grid place-items-center">
+    <LoadingSpinner/>
+  </div>;
 
   return (
     <div className="container mx-auto my-8">

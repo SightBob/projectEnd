@@ -130,7 +130,7 @@ const Page = ({}) => {
               </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} />
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} favorites={item.favorites} />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>

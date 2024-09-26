@@ -38,6 +38,7 @@ const Page = () => {
     const [currentTag, setCurrentTag] = useState('');
     const [activeSection, setActiveSection] = useState('form');
     const [DataByUserid, setDataByUserid] = useState([]);
+    
 
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
@@ -112,20 +113,25 @@ const Page = () => {
         }
     };
 
-    useEffect(() => {
-        const fetchMyData = async () => {
-            try {
-                const res = await axios.get("/api/data/userId", { params: { Userid: session.user.uuid } });
-                console.log("res.data.getPost: ",res.data.getPost);
-                setDataByUserid(res.data.getPost);
-                
-            } catch (error) {
-                console.log("Error fetch my data: ", error);
-            }
+    const fetchMyData = async () => {
+        try {
+            const res = await axios.get("/api/data/userId", { params: { Userid: session.user.uuid } });
+            console.log("res.data.getPost: ",res.data.getPost);
+            setDataByUserid(res.data.getPost);
+        } catch (error) {
+            console.log("Error fetch my data: ", error);
         }
+    }
 
-        fetchMyData()
-    }, [activeSection === "posts"]);
+    useEffect(() => {
+        if (activeSection === "posts" && session?.user?.uuid) {
+            fetchMyData();
+        }
+    }, [activeSection, session?.user?.uuid]);
+
+    const handleDelete = (deletedId) => {
+        setDataByUserid(prevData => prevData.filter(item => item._id !== deletedId));
+    };
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -320,7 +326,7 @@ const Page = () => {
                             <input 
                                 type="number" 
                                 id="maxParticipants" 
-                                name="maxMember" 
+                                name="maxParticipants" 
                                 value={formData.maxParticipants} 
                                 onChange={handleInputChange} 
                                 className="w-full px-3 py-2 border rounded-md" 
@@ -338,15 +344,30 @@ const Page = () => {
                  </form>
                 )}
                 
-                {activeSection === 'posts' && (
-                    <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3">
-                        <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center min-h-[calc(100vh_-_8rem)] max-sm:gap-4 max-[440px]:grid-cols-1">
-                        { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (
-                            <CartEvent id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} type="edit" member={item.member} maxParticipants={item.maxParticipants} current_participants={item.current_participants} userId={session?.user?.uuid}  />
-                        )) : "no data"}
-                        </div>
+                        {activeSection === 'posts' && (
+                <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3">
+                    <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center min-h-[calc(100vh_-_8rem)] max-sm:gap-4 max-[440px]:grid-cols-1">
+                    { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (
+                        <CartEvent 
+                            key={item._id}
+                            id={item._id} 
+                            img={item.picture} 
+                            title={item.title} 
+                            start_date={item.start_date} 
+                            start_time={item.start_time} 
+                            location={item.location} 
+                            type="edit" 
+                            member={item.member} 
+                            maxParticipants={item.maxParticipants} 
+                            current_participants={item.current_participants} 
+                            userId={session?.user?.uuid} 
+                            favorites={item.favorites} 
+                            onDelete={handleDelete}
+                        />
+                    )) : "no data"}
                     </div>
-                )}
+                </div>
+            )}
             </div>
                ) : (
                 <div className="text-center py-10 relative top-0 left-0 right-0 bottom-0 bg-gray-300 min-h-[calc(100vh_-_8rem)] flex justify-center items-center">

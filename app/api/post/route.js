@@ -31,3 +31,27 @@ export async function POST(req) {
         return NextResponse.json({ error: "เกิดข้อผิดพลาดในการสร้างโพสต์" }, { status: 500 });
     }
 }
+
+export async function DELETE(req) {
+    try {
+        await dbConnect();
+
+        const idPost = req.nextUrl.searchParams.get('id');
+
+        if (!idPost) {
+            return NextResponse.json({ error: "ไม่พบ ID ของโพสต์" }, { status: 400 });
+        }
+
+        const result = await Post.deleteOne({ '_id': idPost });
+
+        if (result.deletedCount === 0) {
+            return NextResponse.json({ error: "ไม่พบโพสต์ที่ต้องการลบ" }, { status: 404 });
+        }
+
+        // ส่ง 204 No Content เมื่อลบสำเร็จ
+        return new NextResponse(null, { status: 204 });
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาด:", error);
+        return NextResponse.json({ error: "เกิดข้อผิดพลาดในการลบโพสต์" }, { status: 500 });
+    }
+}

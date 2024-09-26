@@ -2,9 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import ProfileDropdown from '@/components/ProfileDropdown'; // Import your dropdown component
-
-
+import ProfileDropdown from '@/components/ProfileDropdown'; 
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const faculties = {
   "สำนักวิชาวิทยาศาสตร์": [
@@ -162,11 +161,14 @@ const Page = () => {
   };
   
   if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <div>Unauthorized</div>;
+    return (
+      <div className="flex justify-center items-center w-full bg-gray-100">
+      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-4xl relative mb-56 h-screen grid place-items-center">
+      <LoadingSpinner/>
+    </div>
+    </div>
+    )
+    ;
   }
 
   return (
@@ -229,7 +231,7 @@ const Page = () => {
                   onClick={handleEditToggle}
                 />
               </div>
-              <p className="text-gray-500">{formatDate(user.createdAt)}</p>
+              {/* <p className="text-gray-500">{formatDate(user.createdAt)}</p> */}
             </div>
           </div>
         </div>
