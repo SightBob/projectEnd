@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-
+import axios from 'axios';
 const Navbar = ({ toggleChat }) => {
   const pathName = usePathname();
   const [openMenu, setOpenMenu] = useState(false);
@@ -14,7 +14,8 @@ const Navbar = ({ toggleChat }) => {
   const [isNotificationPopupOpen, setIsNotificationPopupOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [expandedNotificationId, setExpandedNotificationId] = useState(null);
-
+  const [unreadPersonCount, setUnreadPersonCount] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const toggleNotificationPopup = () => {
     setIsNotificationPopupOpen(!isNotificationPopupOpen);
   };
@@ -27,6 +28,25 @@ const Navbar = ({ toggleChat }) => {
     setOpenMenu(false);
   }, [pathName]);
 
+  useEffect(() => {
+    if (session && session.user) {
+      setCurrentUserId(session.user.uuid);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    const fetchUnreadPersonCount = async () => {
+      try {
+        const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
+        setUnreadPersonCount(response.data.unreadPersonCount);
+      } catch (error) {
+        console.error('Error fetching unread person count:', error);
+      }
+    };
+      fetchUnreadPersonCount();
+  }, [session]);
+  
+  
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
       if (session) {
@@ -257,13 +277,19 @@ const Navbar = ({ toggleChat }) => {
             </>
           ) : (
             <div className="flex items-center space-x-2 max-sm:hidden">
+              <div className="relative">
               <img
                 src="/assets/img_main/Chat.png"
                 alt="Chat Icon"
                 className="w-[50px] h-[50px] cursor-pointer"
                 onClick={toggleChat}
               />
-
+               {unreadPersonCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-center">
+                  {unreadPersonCount}
+                </span>
+              )}
+              </div>
               {/* Notification Icon */}
               <div className="relative">
                 <img
