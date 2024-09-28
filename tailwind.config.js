@@ -11,7 +11,8 @@ module.exports = {
       md: '920px',    // Medium devices (tablets)
       lg: '1120px',   // Large devices (desktops)
       xl: '1280px',   // Extra large devices
-      '2xl': '1536px' // 2X Extra large devices
+      '2xl': '1536px',
+      'xs': '460px'
     },
     container: {
       center: true,

@@ -44,21 +44,52 @@ const Page = ({}) => {
   }, []);
 
   useEffect(() => {
+    console.log("Filtering events...");
+    console.log("Selected categories:", selectedCategories);
+    console.log("Selected date:", selectedDate);
+  
+    let filtered = allEvents;
+  
     if (selectedDate) {
       const dateToFilter = getLocalDateString(selectedDate);
-      const filtered = allEvents.filter(event => event.start_date === dateToFilter);
-      setFilteredEvents(filtered);
-    } else {
-      setFilteredEvents(allEvents);
+      filtered = filtered.filter(event => event.start_date === dateToFilter);
+      console.log("Events after date filtering:", filtered.length);
     }
-  }, [selectedDate, allEvents]);
+  
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(event => {
+        const eventCategories = Array.isArray(event.category) ? event.category : Object.keys(event.category).filter(key => event.category[key]);
+        console.log(`Event ${event.title} categories:`, eventCategories);
+        
+        const matchedCategories = selectedCategories.filter(category => 
+          eventCategories.includes(category)
+        );
+        console.log(`Matched categories for ${event.title}:`, matchedCategories);
+        
+        const allCategoriesMatch = matchedCategories.length === selectedCategories.length;
+        console.log(`All categories match for ${event.title}:`, allCategoriesMatch);
+        
+        return allCategoriesMatch;
+      });
+      console.log("Events after category filtering:", filtered.length);
+    }
+  
+    console.log("Final filtered events:", filtered);
+    setFilteredEvents(filtered);
+  }, [selectedDate, selectedCategories, allEvents]);
 
   const toggleCategory = (category) => {
-    setSelectedCategories((prevSelected) =>
-      prevSelected.includes(category)
+    setSelectedCategories((prevSelected) => {
+      const newSelected = prevSelected.includes(category)
         ? prevSelected.filter((c) => c !== category)
-        : [...prevSelected, category]
-    );
+        : [...prevSelected, category];
+      console.log("New selected categories:", newSelected);
+      return newSelected;
+    });
+  };
+
+  const normalizeString = (str) => {
+    return typeof str === 'string' ? str.toLowerCase().trim().replace(/\s+/g, ' ') : '';
   };
 
   const clearSelectedDate = () => {
@@ -68,21 +99,22 @@ const Page = ({}) => {
   
   const categories = [
     "กีฬา",
-    "ภูเขา",
-    "ทะเล",
-    "ธรรมชาติอื่นๆ",
-    "เฟสติวัล & ไนท์ไลฟ์",
-    "แอดเวนเจอร์",
-    "วัฒนธรรม",
-    "กิจกรรมนักช้อป",
+    "เกม",
+    "วิชาการ",
+    "ท่องเที่ยว",
+    "ชมรมนักศึกษา",
+    "สัตว์เลี้ยง",
+    "อาหาร",
+    "เวิกช็อป",
     "กิจกรรมทั่วไป",
     "กิจกรรมครอบครัว",
-    "สายมู",
-    "ฟู้ดทัวร์",
-    "Wellness",
+    "ศิลปะ",
+    "บูท",
+    "ออกกำลังกาย",
     "ศิลปะและงานฝีมือ",
-    "โรงแรม",
+    "หอพัก",
     "อื่นๆ",
+    "การศึกษา"
   ];
 
   return (
@@ -101,7 +133,7 @@ const Page = ({}) => {
             <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
               <div className="w-full flex justify-between">
                 <div className="">หมวดหมู่</div>
-                <div className="" onClick={() => setSelectedCategories([])}>
+                <div className="cursor-pointer" onClick={() => setSelectedCategories([])}>
                   ล้างทั้งหมด
                 </div>
               </div>
@@ -130,7 +162,7 @@ const Page = ({}) => {
               </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((item, index) => (
-              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} favorites={item.favorites} />
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} favorites={item.favorites}  views={item.views}  />
             ))
           ) : (
             <p>ไม่พบข้อมูลกิจกรรม</p>
