@@ -55,6 +55,8 @@ const EditBot = () => {
         });
         setStatusMessage({ type: 'success', message: "Chatbot message added successfully!" });
         setShowForm(false);
+
+        window.location.reload();
       } else {
         throw new Error(response.data.message || "Failed to add message");
       }
@@ -124,6 +126,7 @@ const EditBot = () => {
         });
         setEditingMessage(null);
         setStatusMessage({ type: 'success', message: "Message updated successfully!" });
+        window.location.reload();
       } else {
         throw new Error(response.data.message || "Failed to update message");
       }
