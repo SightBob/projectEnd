@@ -223,6 +223,13 @@ const Navbar = ({ toggleChat }) => {
           >
             {session?.user?.role === "admin" ? "การแจ้งเตือน" : "ค้นหากลุ่ม"}
           </Link>
+          {session?.user?.role === "admin" && (
+            <>
+              <Link className={`text-lg ${isActive("/editBot")}`} href="/editBot">
+                แชทบอท
+              </Link>
+            </>
+          )}
           {session?.user?.role !== "admin" && (
             <>
               <Link className={`text-lg ${isActive("/favorites")}`} href="/favorites">
