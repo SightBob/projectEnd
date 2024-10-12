@@ -92,7 +92,7 @@ const PushNotification = () => {
 
   return (
     <div className="container mx-auto my-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Push Notifications</h1>
+      <h1 className="text-3xl font-bold mb-8">การเเจ้งเตือน</h1>
 
       {/* Success Message */}
       {successMessage && (
@@ -102,12 +102,14 @@ const PushNotification = () => {
       )}
 
       {/* Button to toggle form visibility */}
-      <button
-        onClick={() => setShowForm(true)}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg mb-4"
-      >
-        Add Notification
-      </button>
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowForm(true)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+        >
+          Add Notification
+        </button>
+      </div>
 
       {/* Modal for NotificationForm */}
       <Modal isOpen={showForm} onClose={() => setShowForm(false)}>

@@ -9,22 +9,28 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
     end_time: '',
     location: '',
     description: '',
-    picture: '', // This will now store the file or URL
+    picture: '',
     link_other: '',
     username: '',
+    isRecruiting: false,
+    maxParticipants: '',
+    member: 'no', // Initialize member as 'no' by default
   });
 
   React.useEffect(() => {
     if (post) {
-      setFormData(post);
+      setFormData({
+        ...post,
+        isRecruiting: post.member === 'yes', // Set isRecruiting based on member
+      });
     }
   }, [post]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -33,19 +39,36 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prevState => ({
+        setFormData((prevState) => ({
           ...prevState,
-          picture: reader.result // Store the base64 image data
+          picture: reader.result,
         }));
       };
-      reader.readAsDataURL(file); // Convert the file to base64 string
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleCheckboxChange = () => {
+    setFormData((prevState) => {
+      const isRecruiting = !prevState.isRecruiting;
+      return {
+        ...prevState,
+        isRecruiting,
+        member: isRecruiting ? 'yes' : 'no', // Update member field based on recruiting state
+        maxParticipants: isRecruiting ? prevState.maxParticipants : '', // Reset maxParticipants if closing registration
+      };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic
-    onSave(formData);
+    
+    // Create a new form data object to avoid modifying original formData directly
+    const { isRecruiting, ...rest } = formData; // Destructure to remove isRecruiting
+    onSave({
+      ...rest,
+      member: isRecruiting ? 'yes' : 'no', // Set member based on recruiting state
+    });
   };
 
   if (!isOpen) return null;
@@ -155,7 +178,6 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
               onChange={handleFileChange}
               className="border rounded w-full p-2"
               accept="image/*"
-          
             />
             {formData.picture && (
               <img src={formData.picture} alt="Preview" className="mt-2 max-w-80 h-auto" />
@@ -172,9 +194,46 @@ const Modal = ({ isOpen, onClose, post, onSave }) => {
               required
             />
           </div>
+          {/* Member Registration Section */}
+          <div className="mb-4">
+            <label className="block mb-1">
+              เปิดรับสมัครสมาชิก
+              <input
+                type="checkbox"
+                name="isRecruiting"
+                checked={formData.isRecruiting}
+                onChange={handleCheckboxChange} // Use the new handler here
+                className="ml-2"
+              />
+            </label>
+            {formData.isRecruiting && (
+              <div className="mt-2">
+                <label className="block mb-1">จำนวนผู้เข้าร่วมสูงสุด</label>
+                <input
+                  type="number"
+                  name="maxParticipants"
+                  value={formData.maxParticipants}
+                  onChange={handleChange}
+                  className="border rounded w-full p-2"
+                  required={formData.isRecruiting} // Required only if recruiting
+                />
+              </div>
+            )}
+          </div>
           <div className="flex justify-end">
-            <button type="button" onClick={onClose} className="bg-gray-300 px-4 py-2 rounded mr-2">Cancel</button>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Save</button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded mr-2"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+            >
+              บันทึก
+            </button>
           </div>
         </form>
       </div>

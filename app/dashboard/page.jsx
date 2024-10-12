@@ -29,6 +29,9 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
 
+  const [currentPage, setCurrentPage] = useState(1); // current page state
+  const itemsPerPage = 5; // number of items per page
+
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -54,6 +57,21 @@ const Dashboard = () => {
   }, []);
 
   const totalActivities = posts.length; // Count total activities based on posts
+// Pagination Logic
+const totalPages = Math.ceil(posts.length / itemsPerPage); // Calculate total pages correctly
+
+const handlePageChange = (pageNumber) => {
+  setCurrentPage(pageNumber);
+};
+
+// Pagination Logic
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentPosts = posts
+  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) // เรียงจากใหม่ไปเก่าโดยใช้ created_at
+  .slice(indexOfFirstItem, indexOfLastItem); // Slice สำหรับหน้าปัจจุบัน
+
+
 
   // Calculate posts count for each month
   const monthlyPostCounts = Array(12).fill(0); // Initialize an array for 12 months
@@ -263,7 +281,7 @@ users.forEach(user => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {posts.map(post => {
+              {currentPosts.map(post => {
                 const user = users.find(user => user._id === post.organizer_id);
                 return (
                   <tr key={post._id}>
@@ -276,6 +294,20 @@ users.forEach(user => {
               })}
             </tbody>
           </table>
+        </div>
+
+    
+        {/* Pagination */}
+        <div className="mt-4 flex justify-center">
+          {Array.from({ length: totalPages }, (_, index) => (
+            <button
+              key={index + 1}
+              onClick={() => handlePageChange(index + 1)}
+              className={`mx-1 px-3 py-1 rounded-lg border ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white text-blue-500'}`}
+            >
+              {index + 1}
+            </button>
+          ))}
         </div>
       </div>
     </div>
