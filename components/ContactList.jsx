@@ -56,6 +56,17 @@ const ContactList = ({ onSelectContact, onClose }) => {
     }
   };
 
+  const handleChatbotClick = () => {
+    // ตรงนี้คุณสามารถเพิ่มลอจิกสำหรับการเปิดการสนทนากับแชทบอท
+    onSelectContact({ 
+      _id: 'chatbot',
+      username: 'Chatbot',
+      firstname: 'BOT',
+      lastname: 'Assistant',
+      profileImage: '/assets/img_main/bot.png'
+    });
+  };
+
   return (
     <div className="fixed bottom-4 max-[460px]:bottom-0 right-4 max-[460px]:right-0 max-w-md w-[400px] h-[70%] max-[460px]:h-[100%] max-[460px]:w-[100%]  bg-white shadow-lg rounded-lg max-[460px]:rounded-none overflow-hidden z-[200]">
       <div className="flex items-center justify-between p-4 bg-blue-500">
@@ -73,7 +84,24 @@ const ContactList = ({ onSelectContact, onClose }) => {
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" class="size-10" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
         </div>
       </div>
-      <div className="w-full py-3 ">
+
+       {/* เพิ่มส่วนของแชทบอท */}
+       <div className="border-b p-3 cursor-pointer hover:bg-gray-100" onClick={handleChatbotClick}>
+        <div className="flex items-center">
+          <Image
+            src="/assets/img_main/bot.png"
+            alt="Chatbot"
+            width={40}
+            height={40}
+            className="w-10 h-10 "
+          />
+          <div className="ml-3">
+            <span className="text-lg font-medium">BOT Assistant</span>
+            <div className="text-sm text-gray-600">ให้เราแนะนำคุณเบื้องต้น</div>
+          </div>
+        </div>
+      </div>
+      <div className="w-full py-3">
         <form className="flex items-center max-w-sm mx-auto max-[460px]:px-2">
           <label htmlFor="simple-search" className="sr-only">Search</label>
           <div className="relative w-full">

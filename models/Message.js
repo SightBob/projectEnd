@@ -6,7 +6,7 @@ const MessageSchema = new mongoose.Schema({
   sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   timestamp: { type: Date, default: Date.now },
-  read: { type: Boolean, default: false }  // เพิ่มฟิลด์นี้
+  read: { type: Boolean, default: false }  
 }, {
   timestamps: true,
   collection: 'Messages'

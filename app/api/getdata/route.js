@@ -63,3 +63,37 @@ export async function DELETE(req) {
         return NextResponse.json({ error: "error post delete" }, { status: 500 });
     }
 }
+
+export async function POST(req) {
+    const body = await req.json();
+    // Process the POST request
+    // Example: Save data to the database or perform other actions
+    const { title, start_date, start_time, end_date, end_time, location, description, image, additionalLink, tags, uuid, organizer_id, type, member, maxParticipants } = body;
+  
+    // Here you would typically interact with your database
+    const result = await savePostToDatabase({
+      title,
+      start_date,
+      start_time,
+      end_date,
+      end_time,
+      location,
+      description,
+      image,
+      additionalLink,
+      tags,
+      uuid,
+      organizer_id,
+      type,
+      member,
+      maxParticipants,
+    });
+  
+    return new Response(JSON.stringify(result), {
+      status: 201,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+  

@@ -42,6 +42,7 @@ export async function GET(request) {
     const contactDetails = await User.find({ _id: { $in: contactIds } });
 
     console.log('Number of contacts fetched:', contactDetails.length);
+    let unreadPersonCount = 0;
 
     const contactsWithDetails = await Promise.all(contactDetails.map(async (contact) => {
       const lastMessage = await Message.findOne({
@@ -59,6 +60,9 @@ export async function GET(request) {
 });
       console.log(`Unread count for ${contact.username}: ${unreadCount}`);
 
+      if (unreadCount > 0) {
+        unreadPersonCount++;
+      }
       console.log(`Contact: ${contact.username}`);
       console.log(`  Last Message: ${lastMessage ? lastMessage.text : 'No messages'}`);
       console.log(`  Unread Count: ${unreadCount}`);
@@ -81,13 +85,13 @@ export async function GET(request) {
       if (!b.lastMessageTime) return -1;
       return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
     });
-
+    console.log(`Total unread person count555555555555: ${unreadPersonCount}`);
     console.log('-------- Processed Contacts --------');
     console.log(JSON.stringify(contactsWithDetails, null, 2));
 
     console.log('-------- API Call Completed Successfully --------');
 
-    return NextResponse.json({ contacts: contactsWithDetails });
+    return NextResponse.json({ contacts: contactsWithDetails ,unreadPersonCount});
   } catch (error) {
     console.error("-------- Error in API Call --------");
     console.error("Error details:", error);

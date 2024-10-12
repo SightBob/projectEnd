@@ -2,27 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Modal from '@/components/Modal'; // Import the Modal component
+import Modal from '@/components/Modal';
+import PostFormModal from '@/components/PostFormModal';
 
 const PostActivity = () => {
   const [posts, setPosts] = useState([]);
   const [selectedPosts, setSelectedPosts] = useState(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddNewModalOpen, setIsAddNewModalOpen] = useState(false); // State for Add New modal
   const [currentPost, setCurrentPost] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 10;
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get('/api/getdata'); // Fetch posts with user data
-        // Sort posts by start date and time
-        const sortedPosts = response.data.sort((a, b) => {
-          const dateA = new Date(`${a.start_date}T${a.start_time}`);
-          const dateB = new Date(`${b.start_date}T${b.start_time}`);
-          return dateA - dateB; // Ascending order
-        });
+        const response = await axios.get('/api/getdata');
+        const sortedPosts = response.data.sort((a, b) => 
+          new Date(b.created_at) - new Date(a.created_at)
+        );
         setPosts(sortedPosts);
       } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลโพสต์:", error);
+        console.error("Error fetching posts:", error);
       }
     };
 
@@ -40,14 +41,23 @@ const PostActivity = () => {
   };
 
   const handleDelete = async () => {
+    if (selectedPosts.size === 0) {
+      alert("Please select posts to delete");
+      return;
+    }
+    const confirmDelete = window.confirm("Are you sure you want to delete the selected posts?");
+    if (!confirmDelete) {
+      return;
+    }
+
     try {
       await Promise.all([...selectedPosts].map(id => 
         axios.delete('/api/getdata', { data: { id } })
       ));
       setPosts(posts.filter(post => !selectedPosts.has(post._id)));
-      setSelectedPosts(new Set()); // Clear selected posts
+      setSelectedPosts(new Set());
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการลบโพสต์:", error);
+      console.error("Error deleting posts:", error);
     }
   };
 
@@ -63,28 +73,55 @@ const PostActivity = () => {
 
   const handleSave = async (updatedPost) => {
     try {
-      const response = await axios.put('/api/getdata', { id: updatedPost._id, ...updatedPost });
-      setPosts(posts.map(post => (post._id === updatedPost._id ? response.data : post)));
+      if (currentPost) {
+        const response = await axios.put('/api/getdata', { id: updatedPost._id, ...updatedPost });
+        setPosts(posts.map(post => (post._id === updatedPost._id ? response.data : post)));
+      } else {
+        const response = await axios.post('/api/getdata', updatedPost); // POST for new post
+        setPosts([response.data, ...posts]); // Add the new post to the list
+      }
       handleModalClose();
     } catch (error) {
-      console.error("เกิดข้อผิดพลาดในการอัปเดตโพสต์:", error);
+      console.error("Error updating or creating post:", error);
+    }
+  };
+
+  const handleAddNewClick = () => {
+    setIsAddNewModalOpen(true);
+  };
+
+  const handleAddNewModalClose = () => {
+    setIsAddNewModalOpen(false);
+  };
+
+  const handleAddNewSave = async (newPost) => {
+    try {
+      const response = await axios.post('/api/getdata', newPost);
+      setPosts([response.data, ...posts]);
+      handleAddNewModalClose();
+    } catch (error) {
+      console.error("Error creating new post:", error);
     }
   };
 
   const truncateText = (text, maxLength) => {
-    if (text.length > maxLength) {
-      return text.substring(0, maxLength) + '...';
-    }
-    return text;
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
+
+  // Pagination logic
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="container mx-auto my-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">จัดการกิจกรรม</h1>
+      <h1 className="text-3xl font-bold mb-8">Manage Activities</h1>
 
       <div className="flex justify-between items-center mb-4">
         <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg">Delete</button>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Add new</button>
+        <button onClick={handleAddNewClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Add New</button>
       </div>
 
       <div className="overflow-x-auto bg-white p-6 rounded-lg">
@@ -92,18 +129,18 @@ const PostActivity = () => {
           <thead>
             <tr>
               <th className="px-4 py-2 w-1/12"></th>
-              <th className="px-4 py-2 w-1/6">ชื่อผู้ใช้</th>
-              <th className="px-4 py-2 w-1/6">ชื่อกิจกรรม</th>
-              <th className="px-4 py-2 w-1/6">เวลา</th>
-              <th className="px-4 py-2 w-1/6">สถานที่</th>
-              <th className="px-4 py-2 w-1/6">รายละเอียด</th>
-              <th className="px-4 py-2 w-1/12">รูปภาพ</th>
-              <th className="px-4 py-2 w-1/6">link form</th>
+              <th className="px-4 py-2 w-1/6">Username</th>
+              <th className="px-4 py-2 w-1/6">Event Name</th>
+              <th className="px-4 py-2 w-1/6">Time</th>
+              <th className="px-4 py-2 w-1/6">Location</th>
+              <th className="px-4 py-2 w-1/6">Details</th>
+              <th className="px-4 py-2 w-1/12">Image</th>
+              <th className="px-4 py-2 w-1/6">Link Form</th>
               <th className="px-4 py-2 w-1/12">Action</th>
             </tr>
           </thead>
           <tbody>
-            {posts.map(post => (
+            {currentPosts.map(post => (
               <tr key={post._id}>
                 <td className="border px-4 py-2">
                   <input 
@@ -133,6 +170,19 @@ const PostActivity = () => {
             ))}
           </tbody>
         </table>
+
+        {/* Pagination controls */}
+        <div className="flex justify-center mt-4">
+          {[...Array(Math.ceil(posts.length / postsPerPage)).keys()].map(num => (
+            <button
+              key={num + 1}
+              onClick={() => paginate(num + 1)}
+              className={`mx-1 px-3 py-1 rounded ${currentPage === num + 1 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'}`}
+            >
+              {num + 1}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Modal for editing post */}
@@ -141,6 +191,14 @@ const PostActivity = () => {
         onClose={handleModalClose} 
         post={currentPost} 
         onSave={handleSave} 
+      />
+
+      {/* Modal for adding new post */}
+      <PostFormModal 
+        isOpen={isAddNewModalOpen} 
+        onClose={handleAddNewModalClose} 
+        onSave={handleAddNewSave} 
+        
       />
     </div>
   );
