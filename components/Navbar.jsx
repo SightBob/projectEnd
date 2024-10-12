@@ -84,12 +84,12 @@ const Navbar = ({ toggleChat }) => {
     const handleClickOutside = (event) => {
       const notificationIcon = document.querySelector(".notification-icon");
       const popup = document.querySelector(".notification-popup");
-
-      if (popup && !popup.contains(event.target) && !notificationIcon.contains(event.target)) {
+  
+      if (popup && notificationIcon && !popup.contains(event.target) && !notificationIcon.contains(event.target)) {
         setIsNotificationPopupOpen(false);
       }
     };
-
+  
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -162,9 +162,9 @@ const Navbar = ({ toggleChat }) => {
     return (
       <li className={`py-2 text-lg ${isReadByUser ? 'text-gray-500' : 'text-black'}`}>
         <div className="flex justify-between items-center">
-          <span onClick={handleToggleExpand} className="cursor-pointer">
+          <span onClick={handleToggleExpand} className="cursor-pointer max-sm:text-sm">
             {notification.title}
-            <span className="text-gray-500 ml-2">
+            <span className="text-gray-500 ml-2  max-sm:text-sm">
               {new Date(notification.scheduledTime).toLocaleDateString('th-TH', { 
                 year: 'numeric', 
                 month: '2-digit', 
@@ -189,7 +189,7 @@ const Navbar = ({ toggleChat }) => {
     <header className="bg-[rgba(255,255,255,0.5)] backdrop-blur-[20px] w-full fixed top-0 left-0 z-[100] border border-solid border-[rgba(255,255,255,0.30)]">
       <nav className="container mx-auto flex justify-between items-center h-[7rem]">
         <Link href="/" className="flex items-center space-x-2">
-          <div className="size-[5rem] relative">
+          <div className="size-[5rem] max-[460px]:size-[3.5rem] relative">
             <Image
               src="/assets/img_main/logo.png"
               fill
@@ -197,7 +197,7 @@ const Navbar = ({ toggleChat }) => {
               alt="Logo"
             />
           </div>
-          <h1 className="text-2xl max-sm:text-sm">SUT EVENTS</h1>
+          <h1 className="text-2xl max-sm:text-lg">SUT EVENTS</h1>
         </Link>
 
         <div
@@ -254,7 +254,6 @@ const Navbar = ({ toggleChat }) => {
             </div>
           ) : (
             <div className="flex flex-col items-center space-y-6 sm:hidden">
-              <img src="/assets/img_main/Chat.png" alt="Chat Icon" className="w-6 h-6" />
               <Link href="/profile" className="px-6 cursor-pointer">
                 <h2 className="text-lg">โปรไฟล์</h2>
               </Link>
@@ -281,6 +280,12 @@ const Navbar = ({ toggleChat }) => {
               >
                 <h2 className="text-lg">สมัครสมาชิก</h2>
               </Link>
+
+              <div className="flex xl:hidden" onClick={ClickOpenMenu}>
+              <div className={`text-black ${openMenu ? "open" : ""}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" class="size-8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+              </div>
+            </div>
             </>
           ) : (
             <div className="flex items-center space-x-2 max-sm:hidden">
@@ -288,7 +293,7 @@ const Navbar = ({ toggleChat }) => {
               <img
                 src="/assets/img_main/Chat.png"
                 alt="Chat Icon"
-                className="w-[50px] h-[50px] cursor-pointer"
+                className="size-[50px] max-[460px]:size-[33px] cursor-pointer"
                 onClick={toggleChat}
               />
                {unreadPersonCount > 0 && (
@@ -299,20 +304,20 @@ const Navbar = ({ toggleChat }) => {
               </div>
               {/* Notification Icon */}
               <div className="relative">
-                <img
+              <img
                   src="/assets/img_main/Notification.png"
                   alt="Notification Icon"
-                  className="w-[47px] h-[47px] cursor-pointer"
+                  className="size-[44px] max-[460px]:size-[30px] cursor-pointer notification-icon"
                   onClick={toggleNotificationPopup}
                 />
                 {unreadNotifications > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-center">
+                  <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-center flex items-center justify-center max-[460px]:-top-1.5 max-[460px]:-right-1.5 max-[460px]:w-5 max-[460px]:h-5 max-[460px]:text-[12px]">
                     {unreadNotifications}
                   </span>
                 )}
                 {isNotificationPopupOpen && (
-                  <div className="absolute right-0 mt-2 w-[40rem] bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-4 notification-popup">
-                    <h3 className="text-lg font-bold">การเเจ้งเตือน</h3>
+                  <div className="absolute right-0 mt-2 w-[35rem] max-md:w-[27rem] max-sm:w-[85vw] max-[460px]:w-[92vw] max-[460px]:right-[-2.5rem] bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-4 notification-popup">
+                    <h3 className="text-lg font-bold max-sm:text-[16px]">การเเจ้งเตือน</h3>
                     <ul>
                       {notifications.map((notification) => (
                         <NotificationItem
@@ -327,27 +332,25 @@ const Navbar = ({ toggleChat }) => {
                 )}
               </div>
 
-              <Link href="/profile" className="px-6 cursor-pointer">
+              <Link href="/profile" className="px-6 cursor-pointer max-sm:hidden">
                 <h2 className="text-lg">โปรไฟล์</h2>
               </Link>
               <Link
                 href=""
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer"
+                className="bg-[#ff3300] px-6 rounded-full py-2 text-white cursor-pointer max-sm:hidden"
               >
                 <h2 className="text-lg">ออกจากระบบ</h2>
               </Link>
+            <div className="flex xl:hidden" onClick={ClickOpenMenu}>
+              <div className={`text-black ${openMenu ? "open" : ""}`}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" class="size-8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+              </div>
+            </div>
             </div>
           )}
         </div>
 
-        <div className="flex sm:hidden" onClick={ClickOpenMenu}>
-          <div className={`menu-btn ${openMenu ? "open" : ""}`}>
-            <span className="menu-bar"></span>
-            <span className="menu-bar"></span>
-            <span className="menu-bar"></span>
-          </div>
-        </div>
       </nav>
     </header>
   );

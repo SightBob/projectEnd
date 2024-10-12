@@ -11,12 +11,17 @@ export async function GET(request) {
     await dbConnect();
 
     const getPost = await Post.findById(id);
-
-    return NextResponse.json({
-      post: {
-        getPost
-      },
-    }, { status: 200 });
+    
+    if(getPost) {
+      
+      const nameOrganizer = await User.findById(getPost.organizer_id);
+      return NextResponse.json({
+        post: {
+          getPost,
+          nameOrganizer
+        },
+      }, { status: 200 });
+    }
 
   } catch (error) {
     console.error("Error: ", error);
@@ -29,7 +34,6 @@ export async function GET(request) {
 
 export async function PUT(req, { params }) {
   try {
-
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
@@ -65,6 +69,11 @@ export async function PUT(req, { params }) {
       maxParticipants,  
       member
     };
+
+    // เพิ่มเงื่อนไขสำหรับ participants
+    if (member === "no") {
+      receivedData.participants = [];
+    }
 
     await dbConnect();
     const updatedPost = await Post.findByIdAndUpdate(id, receivedData, { new: true });

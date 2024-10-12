@@ -15,7 +15,8 @@ const EventDetail = ({ params }) => {
   const [error, setError] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [selectedContactId, setSelectedContactId] = useState(null);
-  const [organizerName, setOrganizerName] = useState('');
+  const [name, setName] = useState([]);
+  const [lastname, setLastname] = useState('');
   const { data: session } = useSession();
   const [viewIncremented, setViewIncremented] = useState(false);
   const viewIncrementedRef = useRef(false);
@@ -26,8 +27,8 @@ const EventDetail = ({ params }) => {
       });
       if (res.data && res.data.post) {
         setEventData(res.data.post.getPost);
-        setOrganizerName(res.data.post.getPost.organizer_id || 'Unknown Organizer');
-        console.log(res.data.post.getPost);
+        console.log("res.data.post.getPost: ",res.data.post.getPost);
+        setName(res.data.post.nameOrganizer);
       } else {
         throw new Error("No event data in response");
       }
@@ -105,22 +106,6 @@ const EventDetail = ({ params }) => {
     return format(buddhistYear, "วันที่ d MMMM yyyy เวลา HH:mm 'น.'", { locale: th });
   }
 
-  // useEffect(() => {
-  //   const fetchEventData = async () => {
-  //     try {
-  //       const res = await axios.get("/api/data/PostId", { 
-  //         params: { id: params.id }
-  //       });
-  //       setEventData(res.data.post.getPost);
-  //       console.log(res.data.post.getPost);
-  //     } catch (error) {
-  //       console.error("Error fetching event detail: ", error);
-  //       setError("Failed to load event data");
-  //     }
-  //   };
-
-  //   fetchEventData();
-  // }, [params.id]);
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -130,12 +115,12 @@ const EventDetail = ({ params }) => {
   </div>;
 
   return (
-    <div className="container mx-auto my-8">
+    <div className="container max-w-[1240px] mx-auto">
       <div className="flex">
         {/* Left Section - 75% */}
         <div className="flex-[3]">
           {/* Event Details Container */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="bg-white p-6 rounded-lg shadow-md max-sm:p-3">
             {/* Cover Image */}
             <div className="relative w-full h-[350px] mb-4">
               <Image
@@ -160,7 +145,7 @@ const EventDetail = ({ params }) => {
             </div>
             <div className="flex flex-col">
               <div className="flex items-center">
-                <p className="text-xl font-semibold">{organizerName || 'Unknown Organizer'}</p>
+                <p className="text-sm font-semibold">{name.firstname + " " + name.lastname || 'Unknown Organizer'}</p>
                 <div className='px-3' onClick={handleClick} style={{ cursor: 'pointer' }}>
                   <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <g stroke="#1C274C">
@@ -176,19 +161,25 @@ const EventDetail = ({ params }) => {
             
 
           {/* Event Details */}
-      <div className="flex">
+      <div className="flex max-sm:flex-col">
         <div className="flex-1 ">
           <h1 className="text-2xl font-bold mb-4">{eventData.title}</h1>
           <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
-          <p>{formatThaiDate(eventData.start_date)} - {formatThaiDate(eventData.end_date)}</p>
+          <p>
+            {formatThaiDate(eventData.start_date)}
+            {eventData.end_date && ` - ${formatThaiDate(eventData.end_date)}`}
+          </p>
           <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
           <p>{eventData.location}</p>
-          <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-          <p>{eventData.description}</p>
+          {eventData.description ? (
+            <>
+              <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
+              <p>{eventData.description}</p>
+            </>
+          ) : null}
         </div>
 
-        {/* QR Code and "ดูรายละเอียดเพิ่มเติม" on the Left */}
-        <div className="flex flex-col items-start ml-4">
+        <div className="flex flex-col items-start ml-4 max-sm:ml-0 max-sm:mt-6">
           <div className="mb-4">
             <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่มเติม</p>
             <QRCodeSVG
@@ -221,11 +212,6 @@ const EventDetail = ({ params }) => {
               </> : "" }
         </div>
       </div>
-          </div>
-        </div>
-
-        <div className="flex-[1]">
-        <div className="bg-white p-6 rounded-lg shadow-md h-full ml-3">
           </div>
         </div>
       </div>
