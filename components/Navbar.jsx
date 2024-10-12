@@ -288,7 +288,7 @@ const Navbar = ({ toggleChat }) => {
             </div>
             </>
           ) : (
-            <div className="flex items-center space-x-2 max-sm:hidden">
+            <div className="flex items-center space-x-2">
               <div className="relative">
               <img
                 src="/assets/img_main/Chat.png"
