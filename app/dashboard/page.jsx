@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Link from 'next/link';
 import { Bar, Pie } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -31,7 +32,10 @@ const Dashboard = () => {
 
   const [currentPage, setCurrentPage] = useState(1); // current page state
   const itemsPerPage = 5; // number of items per page
+  const popularPosts = posts.sort((a, b) => b.views - a.views).slice(0, 5); // เรียงโพสต์ตามยอด views และแสดงเพียง 5 อันดับแรก
 
+
+  
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -187,25 +191,85 @@ users.forEach(user => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Cards */}
         <div className="bg-white p-6 rounded-lg shadow-md relative">
-          <h2 className="text-2xl">ผู้ใช้งานปัจจุบัน</h2>
+          <h2 className="text-2xl font-semibold">ผู้ใช้งานปัจจุบัน</h2>
           <p className="text-4xl font-bold">0</p>
           <p className="text-sm text-gray-500">จำนวนผู้ใช้งานออนไลน์</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl">กิจกรรมใหม่ล่าสุด</h2>
+          <h2 className="text-2xl font-semibold">กิจกรรมใหม่ล่าสุด</h2>
           <p className="text-4xl font-bold">{newPostsCount}</p> {/* Display new posts count */}
           <p className="text-sm text-gray-500">โพสต์ภายใน 24 ชั่วโมง</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl">ผู้ใช้งานทั้งหมด</h2>
+          <h2 className="text-2xl font-semibold">ผู้ใช้งานทั้งหมด</h2>
           <p className="text-4xl font-bold">{totalUsers}</p> {/* Display total users */}
           <p className="text-sm text-gray-500">ข้อมูลผู้ใช้งานทั้งหมดในเว็บ</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-2xl">กิจกรรมทั้งหมด</h2>
+          <h2 className="text-2xl font-semibold">กิจกรรมทั้งหมด</h2>
           <p className="text-4xl font-bold">{totalActivities}</p> {/* Display total activities */}
-          <p className="text-sm text-gray-500">กิจกรรมทั้งหมดในเว็บ</p>
+          <p className="text-sm text-gray-500 ">กิจกรรมทั้งหมดในเว็บ</p>
         </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+  <h2 className="text-2xl font-semibold">กิจกรรมที่ได้รับความนิยม</h2>
+  <ul>
+    {popularPosts.map(post => (
+      <li key={post._id}>
+        <Link href={`/page/${post._id}`} >
+          <a className="text-sm ">{post.title} - {post.views} views</a> {/* เปลี่ยนจาก favorites เป็น views */}
+        </Link>
+      </li>
+      
+    ))}
+  </ul>
+  <p className="text-sm text-gray-500 pt-2">นับจากยอดผู้เข้าชม (Top 5 View)
+  </p>
+</div>
+<div className="bg-white p-6 rounded-lg shadow-md">
+  <h2 className="text-2xl font-semibold">กิจกรรมที่มีสมาชิกผู้เข้าร่วมสูงสุด </h2> 
+  <ul >
+    {posts
+      .filter(post =>  post.member === 'yes')
+      .sort((a, b) => b.participants.length - a.participants.length) // เรียงตามจำนวนสมาชิกใน participants
+      .slice(0, 5) // จำกัดผลลัพธ์แค่ 5 อันดับ
+      .map(post => (
+        <li  key={post._id}>
+          <Link href={`/page/${post._id}`} className="text-sm ">
+            {post.title} - สมาชิก {post.participants.length} คน 
+          </Link>
+        </li>
+      ))}
+  </ul>
+  <p className="text-sm text-gray-500 pt-2">นับจากจำนวนสมาชิก (Top 5 Participants
+  )</p>
+</div>
+
+<div className="bg-white p-6 rounded-lg shadow-md">
+  <h2 className="text-2xl font-semibold">กิจกรรมที่มีการกดถูกใจมากที่สุด</h2>
+  <ul>
+  {posts
+    .filter(post => post.member === 'yes') // กรองโพสต์ที่มีการเปิดรับสมาชิก
+    .sort((a, b) => b.favorites.length - a.favorites.length) // เรียงตามจำนวนผู้ที่กดถูกใจ
+    .slice(0, 5) // จำกัดผลลัพธ์แค่ 5 อันดับ
+    .map(post => (
+      <li key={post._id}>
+        <Link href={`/page/${post._id}`} className="text-sm">
+          {post.title} - กดถูกใจ {post.favorites.length} คน
+        </Link>
+      </li>
+    ))}
+</ul>
+
+  <p className="text-sm text-gray-500 pt-2">นับจากยอดการกดใจ (Top 5 Favorites)</p>
+</div>
+
+<div className="bg-white p-6 rounded-lg shadow-md">
+  <h2 className="text-2xl">จำนวนสำนักวิชาของผู้ใช้งาน</h2>
+
+</div>
+
+
+
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -281,18 +345,32 @@ users.forEach(user => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentPosts.map(post => {
-                const user = users.find(user => user._id === post.organizer_id);
-                return (
-                  <tr key={post._id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">{post._id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{post.username}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{post.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">{`${post.start_date} ${post.start_time}`}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
+  {currentPosts.map(post => {
+    const user = users.find(user => user._id === post.organizer_id);
+    return (
+      <tr
+        key={post._id}
+        onClick={() => window.location.href = `/page/${post._id}`} // Redirects on row click
+        className="cursor-pointer hover:bg-gray-100" // Changes cursor and adds hover effect
+      >
+        <td className="px-6 py-4 whitespace-nowrap text-base font-medium text-gray-900">
+          {post._id}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+          {post.username}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+          {post.title}
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-base text-gray-500">
+          {`${post.start_date} ${post.start_time}`}
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+
+
           </table>
         </div>
 

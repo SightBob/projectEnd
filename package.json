@@ -14,7 +14,7 @@
     "chart.js": "^4.4.4",
     "date-fns": "^3.6.0",
     "mongoose": "^8.5.3",
-    "next": "^14.2.5",
+    "next": "^14.2.13",
     "next-auth": "^4.24.7",
     "node-cron": "^3.0.3",
     "qrcode.react": "^4.0.1",

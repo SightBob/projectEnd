@@ -3,6 +3,7 @@ import { dbConnect } from "@/lib/ConnectDB";
 import Post from "@/models/Post";
 import User from "@/models/User"; // Import the User model
 
+// GET: Fetch posts with user data
 export async function GET(req) {
     try {
         await dbConnect();
@@ -31,10 +32,46 @@ export async function GET(req) {
         return NextResponse.json(postsWithUsernames, { status: 200 });
     } catch (error) {
         console.error("error", error);
-        return NextResponse.json({ error: "error post" }, { status: 500 });
+        return NextResponse.json({ error: "Error fetching posts" }, { status: 500 });
     }
 }
 
+// POST: Create a new post
+export async function POST(req) {
+    try {
+        await dbConnect();
+        const body = await req.json();
+        
+        const { title, start_date, start_time, end_date, end_time, location, description, image, additionalLink, tags, uuid, organizer_id, type, member, maxParticipants } = body;
+        
+        const newPost = new Post({
+            title,
+            start_date,
+            start_time,
+            end_date,
+            end_time,
+            location,
+            description,
+            image,
+            additionalLink,
+            tags,
+            uuid,
+            organizer_id,
+            type,
+            member,
+            maxParticipants,
+        });
+
+        const savedPost = await newPost.save();
+
+        return NextResponse.json(savedPost, { status: 201 });
+    } catch (error) {
+        console.error("error", error);
+        return NextResponse.json({ error: "Error creating post" }, { status: 500 });
+    }
+}
+
+// PUT: Update an existing post
 export async function PUT(req) {
     try {
         await dbConnect();
@@ -52,48 +89,15 @@ export async function PUT(req) {
     }
 }
 
+// DELETE: Delete a post
 export async function DELETE(req) {
     try {
         await dbConnect();
         const { id } = await req.json();
         await Post.findByIdAndDelete(id);
-        return NextResponse.json({ message: "post delete" }, { status: 200 });
+        return NextResponse.json({ message: "โพสต์ถูกลบ" }, { status: 200 });
     } catch (error) {
         console.error("error:", error);
-        return NextResponse.json({ error: "error post delete" }, { status: 500 });
+        return NextResponse.json({ error: "Error deleting post" }, { status: 500 });
     }
 }
-
-export async function POST(req) {
-    const body = await req.json();
-    // Process the POST request
-    // Example: Save data to the database or perform other actions
-    const { title, start_date, start_time, end_date, end_time, location, description, image, additionalLink, tags, uuid, organizer_id, type, member, maxParticipants } = body;
-  
-    // Here you would typically interact with your database
-    const result = await savePostToDatabase({
-      title,
-      start_date,
-      start_time,
-      end_date,
-      end_time,
-      location,
-      description,
-      image,
-      additionalLink,
-      tags,
-      uuid,
-      organizer_id,
-      type,
-      member,
-      maxParticipants,
-    });
-  
-    return new Response(JSON.stringify(result), {
-      status: 201,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-  }
-  
