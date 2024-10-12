@@ -56,6 +56,17 @@ const ContactList = ({ onSelectContact, onClose }) => {
     }
   };
 
+  const handleChatbotClick = () => {
+    // ตรงนี้คุณสามารถเพิ่มลอจิกสำหรับการเปิดการสนทนากับแชทบอท
+    onSelectContact({ 
+      _id: 'chatbot',
+      username: 'Chatbot',
+      firstname: 'BOT',
+      lastname: 'Assistant',
+      profileImage: '/assets/img_main/bot.png'
+    });
+  };
+
   return (
     <div className="fixed bottom-4 max-xs:bottom-0 right-4 max-xs:right-0 max-w-md w-[400px] h-[70%] max-xs:h-[100%] max-xs:w-[100%]  bg-white shadow-lg rounded-lg max-xs:rounded-none overflow-hidden z-[200]">
       <div className="flex items-center justify-between p-4 bg-blue-500">
@@ -77,6 +88,23 @@ const ContactList = ({ onSelectContact, onClose }) => {
             height={24}
             className="w-6 h-3"
           />
+        </div>
+      </div>
+
+       {/* เพิ่มส่วนของแชทบอท */}
+       <div className="border-b p-3 cursor-pointer hover:bg-gray-100" onClick={handleChatbotClick}>
+        <div className="flex items-center">
+          <Image
+            src="/assets/img_main/bot.png"
+            alt="Chatbot"
+            width={40}
+            height={40}
+            className="w-10 h-10 "
+          />
+          <div className="ml-3">
+            <span className="text-lg font-medium">BOT Assistant</span>
+            <div className="text-sm text-gray-600">ให้เราแนะนำคุณเบื้องต้น</div>
+          </div>
         </div>
       </div>
       <div className="w-full py-3">
