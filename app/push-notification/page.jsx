@@ -17,12 +17,48 @@ const PushNotification = () => {
     return text;
   };
 
-  // Fetch all notifications on load
+  // Fetch all notifications and create automatic notifications
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
+        // Fetch current notifications
         const response = await axios.get("/api/notifications");
         setNotifications(response.data);
+
+        // Fetch upcoming events
+        const eventsResponse = await axios.get("/api/post"); // Adjust this endpoint as needed
+        const events = eventsResponse.data;
+
+        // Get today's date and the date three days from now
+        const today = new Date();
+        const threeDaysFromNow = new Date(today);
+        threeDaysFromNow.setDate(today.getDate() + 3);
+
+        // Loop through events and create notifications for upcoming events
+        events.forEach(event => {
+          const eventStartDate = new Date(event.start_date);
+          if (eventStartDate <= threeDaysFromNow && eventStartDate >= today) {
+            const notificationTitle = `เชิญชวนเข้าร่วมกิจกรรม "${event.title}"`;
+            const notificationMessage = `ขอเชิญนักศึกษาและบุคลากรทุกท่านเข้าร่วมกิจกรรม "${event.title}"...`;
+
+            // Create notification data
+            const notificationData = {
+              title: notificationTitle,
+              message: notificationMessage,
+              scheduledTime: eventStartDate.toISOString(), // Set to the event start date for notification
+            };
+
+            // Send notification to database
+            axios.post("/api/notifications", notificationData)
+              .then(res => {
+                console.log("Automatic notification created:", res.data);
+                setNotifications(prev => [...prev, res.data.notification]); // Update notifications in state
+              })
+              .catch(err => {
+                console.error("Error creating automatic notification:", err);
+              });
+          }
+        });
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -44,7 +80,7 @@ const PushNotification = () => {
       // Display success message
       setSuccessMessage("Notification created successfully!");
 
-      // Optionally update the notifications list
+      // Update notifications list
       setNotifications([...notifications, response.data.notification]);
 
       // Close the form
