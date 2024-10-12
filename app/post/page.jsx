@@ -137,7 +137,7 @@ const Page = () => {
         <div className="min-h-screen bg-gray-100">
             {session?.user?.role ? (
             <div className="container flex justify-between space-x-5 max-md:flex-col max-md:space-x-0">
-                <div className="max-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
+                <div className="min-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
                     <div 
                         className={`w-full py-3 rounded-md ${activeSection === 'form' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
                         onClick={() => setActiveSection('form')}

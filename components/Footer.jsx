@@ -11,11 +11,10 @@ const Footer = ({}) => {
                   </div>
                   </div>
                   <div class="mt-4 space-y-1 max-lg:text-center">
-                    <p class="font-sans text-xs">©1997 by Eiichiro Oda/ SHUEISHA Inc.</p>
-                    <p class="font-sans text-xs">©2022 by Eiichiro Oda, Gosho Aoyama/ SHUEISHA Inc.</p>
-                    <p class="font-sans text-xs">©1997 EIICHIRO ODA</p>
-                    <p class="font-sans text-xs">©1997 EIICHIRO ODA / 2008 NEW WORLD All Rights Reserved.</p>
-                    <p class="font-sans text-xs">©1997 EIICHIRO ODA / 2019 WANO All Rights Reserved.</p>
+                    <p class="font-sans text-sm">111 มหาวิทยาลัยเทคโนโลยีสุรนารี <br />
+                    ต.สุรนารี อ.เมือง จ.นครราชสีมา 30000 <br />
+                    044-225789
+                    </p>
                   </div>
                 </div>    
                 <div class="flex text-xs max-lg:w-[300px] max-lg:flex-wrap max-lg:justify-center">

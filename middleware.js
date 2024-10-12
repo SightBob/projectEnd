@@ -6,7 +6,7 @@ export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
   // รายการ path ที่ต้องการให้เฉพาะ admin เข้าถึงได้
-  const adminPaths = ['/dashboard', '/push-notification', '/post-activity'];
+  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', , '/editBot'];
 
   // ตรวจสอบว่าเป็นหน้าที่ต้องการให้เฉพาะ admin เข้าถึงได้หรือไม่
   if (adminPaths.some(path => pathname.startsWith(path))) {
@@ -28,6 +28,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/push-notification/:path*',
-    '/post-activity/:path*'
+    '/post-activity/:path*',
+    '/editBot/:path*'
   ],
 }
