@@ -12,7 +12,10 @@ const CalendarComponent = ({ onDateChange, selectedDate }) => {
   }
  
   return (
-    <div className="p-4 max-w-md mx-auto bg-white rounded-xl space-y-4 w-[350px] max-lg:w-[100%] max-sm:w-full">
+    <div 
+      className={`p-4 mx-auto bg-white rounded-xl space-y-4 max-lg:w-[100%] max-sm:w-full max-w-[460px]`}
+
+    >
       <Calendar
         onChange={handleDateChange}
         value={selectedDate}
@@ -25,4 +28,3 @@ const CalendarComponent = ({ onDateChange, selectedDate }) => {
 };
 
 export default CalendarComponent;
-

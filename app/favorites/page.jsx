@@ -55,7 +55,7 @@ const Page = () => {
           {/* Favorite Items Grid */}
           <div className="w-full">
             <div className="text-orange-400 text-[30px] max-md:text-center max-md:mt-5">รายการโปรด</div>
-            <div className="w-full mt-4 grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
+            <div className="w-full mt-4 grid grid-cols-5 gap-3 max-xl:grid-cols-4 max-lg:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
               {isLoading ? (
                  <><div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
                  <LoadingSpinner />
@@ -81,26 +81,6 @@ const Page = () => {
                   <h2>ไม่พบรายการโปรด</h2>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Calendar and Activities Section */}
-          <div className="w-[350px] max-md:w-full flex flex-col space-y-4">
-            {/* Calendar Component */}
-            <div className="w-full">
-              <CalendarComponent />
-            </div>
-
-            {/* Nearby Activities */}
-            <div className="bg-[rgba(255,102,0,0.7)] w-full rounded-lg p-3 h-fit">
-              <div className="flex justify-between items-center pb-1">
-                <h3 className="text-2xl font-semibold text-white max-[1214px]:text-xl">กิจกรรมใกล้เคียง</h3>
-              </div>
-              <div className="h-[300px] overflow-scroll w-full">
-                <CartActivity />
-                <CartActivity />
-                <CartActivity />
-              </div>
             </div>
           </div>
         </div>

@@ -195,16 +195,16 @@ const EditEvent = ({ params }) => {
                     <div className="flex space-x-4 mb-4">
                         <div className="w-1/2">
                             <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
-                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="w-1/2">
                             <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
-                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
-                        <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
+                        <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3"></textarea>
                     </div>
                     <div className="mb-4">
                         <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>

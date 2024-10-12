@@ -57,7 +57,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
   };
 
   return (
-    <div className="fixed bottom-4 max-xs:bottom-0 right-4 max-xs:right-0 max-w-md w-[400px] h-[70%] max-xs:h-[100%] max-xs:w-[100%]  bg-white shadow-lg rounded-lg max-xs:rounded-none overflow-hidden z-[200]">
+    <div className="fixed bottom-4 max-[460px]:bottom-0 right-4 max-[460px]:right-0 max-w-md w-[400px] h-[70%] max-[460px]:h-[100%] max-[460px]:w-[100%]  bg-white shadow-lg rounded-lg max-[460px]:rounded-none overflow-hidden z-[200]">
       <div className="flex items-center justify-between p-4 bg-blue-500">
         <div className="flex space-x-2">
           <Image
@@ -69,18 +69,12 @@ const ContactList = ({ onSelectContact, onClose }) => {
           />
           <h2 className="text-white text-lg">Contacts</h2>
         </div>
-        <div className="flex items-end h-full cursor-pointer" onClick={onClose}>
-          <Image
-            src="/assets/img_main/line.png"
-            alt="Close"
-            width={24}
-            height={24}
-            className="w-6 h-3"
-          />
+        <div className="flex items-end h-full cursor-pointer text-black" onClick={onClose}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" class="size-10" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
         </div>
       </div>
-      <div className="w-full py-3">
-        <form className="flex items-center max-w-sm mx-auto">
+      <div className="w-full py-3 ">
+        <form className="flex items-center max-w-sm mx-auto max-[460px]:px-2">
           <label htmlFor="simple-search" className="sr-only">Search</label>
           <div className="relative w-full">
             <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">

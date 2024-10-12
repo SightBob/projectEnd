@@ -12,7 +12,6 @@ const PostSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true,
     trim: true
   },
   location: {
@@ -38,11 +37,9 @@ const PostSchema = new mongoose.Schema({
   },
   end_date: {
     type: String,
-    required: true
   },
   end_time: {
     type: String,
-    required: true
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,

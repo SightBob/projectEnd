@@ -54,7 +54,7 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
 
 
   return (
-    <div className="col-span-1 max-h-[410px] w-full p-3 max-sm:p-2 rounded-lg bg-white relative max-[440px]:max-w-[100%] max-[440px]:p-4 max-[440px]:max-h-auto">
+  <div className="col-span-1 max-h-[410px] w-full p-3 max-sm:p-2 rounded-lg bg-white relative min-w-[440px]:max-w-[100%] max-[440px]:p-2 max-[440px]:max-h-auto">
 { type === "edit" ? (
   <div 
     className="absolute top-4 right-4 size-10 rounded-full grid place-items-center cursor-pointer z-10 bg-red-500 text-white"

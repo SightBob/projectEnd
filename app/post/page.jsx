@@ -137,7 +137,7 @@ const Page = () => {
         <div className="min-h-screen bg-gray-100">
             {session?.user?.role ? (
             <div className="container flex justify-between space-x-5 max-md:flex-col max-md:space-x-0">
-                <div className="min-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
+                <div className="max-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
                     <div 
                         className={`w-full py-3 rounded-md ${activeSection === 'form' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
                         onClick={() => setActiveSection('form')}
@@ -186,16 +186,16 @@ const Page = () => {
                     <div className="flex items-center space-x-4">
                         <div className="mb-4 w-2/4">
                             <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
-                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="mb-4 w-2/4">
                             <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
-                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                     </div>
                     <div className="mb-0">
                         <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
-                        <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
+                        <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3"></textarea>
                     </div>
     
                     <div className="mb-4">
@@ -345,8 +345,8 @@ const Page = () => {
                 )}
                 
                         {activeSection === 'posts' && (
-                <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3">
-                    <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center min-h-[calc(100vh_-_8rem)] max-sm:gap-4 max-[440px]:grid-cols-1">
+                <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3 min-h-[100vh]">
+                    <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
                     { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (
                         <CartEvent 
                             key={item._id}
@@ -364,7 +364,11 @@ const Page = () => {
                             favorites={item.favorites} 
                             onDelete={handleDelete}
                         />
-                    )) : "no data"}
+                    )) : <>
+                     <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
+                        ไม่พบโพสต์ของคุณ
+                        </div>
+                    </>}
                     </div>
                 </div>
             )}

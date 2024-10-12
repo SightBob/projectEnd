@@ -135,15 +135,17 @@ const Page = ({}) => {
       <div className="container flex space-x-3 max-md:flex-col max-sm:space-x-0">
         <div className="w-[350px] max-md:w-full">
           {/* ... (ส่วนอื่นๆ ของ JSX) */}
-          <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0">
+          <div className="max-md:flex max-md:items-start max-sm:items-center max-md:space-x-3 max-sm:flex-col max-sm:space-x-0 border">
+            <div className="w-full max-sm:max-w-[460px]">
             <button 
               onClick={clearSelectedDate}
-              className="mt-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md mb-4"
+              className="mt-2 px-4 py-2 bg-[#FF6600] text-white rounded-md mb-2 "
             >
-              ล้างวันที่ที่เลือก
+              ล้างวันที่เลือก
             </button>
             <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
-            <div className="CategoriesTag justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 max-md:mt-0 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
+            </div>
+            <div className="CategoriesTag max-md:mt-14 justify-start items-start gap-2 inline-flex flex-wrap p-4 bg-white mt-4 rounded-lg max-sm:mt-4 max-sm:max-w-[450px]">
               <div className="w-full flex justify-between">
                 <div className="">หมวดหมู่</div>
                 <div className="cursor-pointer" onClick={() => setSelectedCategories([])}>
