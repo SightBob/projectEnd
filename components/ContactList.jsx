@@ -81,7 +81,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
           <h2 className="text-white text-lg">Contacts</h2>
         </div>
         <div className="flex items-end h-full cursor-pointer text-black" onClick={onClose}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" class="size-10" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" className="size-10" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/></svg>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
           </div>
         </form>
       </div>
-      <div className="border p-3 space-y-3 h-full overflow-y-auto">
+      <div className="border p-3 space-y-3 overflow-y-scroll h-[281px]">
         {filteredContacts.map((contact) => (
           <div 
             key={contact._id} 
