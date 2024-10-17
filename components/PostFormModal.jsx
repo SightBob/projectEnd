@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const PostFormModal = ({ isOpen, onClose, onSave, session }) => {
+const PostFormModal = ({ isOpen, onClose, session }) => {
   const [formData, setFormData] = useState({
     title: '',
     start_date: '',
@@ -18,8 +18,6 @@ const PostFormModal = ({ isOpen, onClose, onSave, session }) => {
     maxParticipants: '',
     member: 'no',
   });
-
-  const [activeSection, setActiveSection] = useState('info'); // Default to 'info' or 'event'
 
   const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
   const [tags, setTags] = useState([]);
@@ -66,63 +64,45 @@ const PostFormModal = ({ isOpen, onClose, onSave, session }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const postType = activeSection === 'event' ? 'event' : 'info';
-  
+    const postType = formData.member === 'yes' ? 'event' : 'info';
+
     try {
-      const res = await axios.post('/api/getdata', {
-        ...formData,
-        tags,
-        uuid: session?.user?.uuid,
-        organizer_id: session?.user?.uuid,  // Set the organizer ID from session
-        type: postType,
-        member: activeSection === 'event' ? 'yes' : formData.member,
-        maxParticipants: formData.maxParticipants
-      });
-  
-      if (res.status === 201) {
-        e.target.reset();
-        setFormData({
-          title: '',
-          start_date: '',
-          start_time: '',
-          end_date: '',
-          end_time: '',
-          location: '',
-          description: '',
-          image: null,
-          additionalLink: '',
-          tags: [],
-          maxParticipants: '',
-          member: 'no',
+        const res = await axios.post('/api/posts', {
+            ...formData,
+            tags,
+            uuid: session?.user?.uuid,
+            organizer_id: session?.user?.uuid,
+            type: postType,
         });
-        setTags([]);
-        alert('โพสต์สำเร็จแล้ว!');
-      }
+
+        if (res.status === 201) {
+            // Reset form and close modal
+            e.target.reset();
+            setFormData({
+                title: '',
+                start_date: '',
+                start_time: '',
+                end_date: '',
+                end_time: '',
+                location: '',
+                description: '',
+                image: null,
+                additionalLink: '',
+                tags: [],
+                maxParticipants: '',
+                member: 'no',
+            });
+            setTags([]);
+            alert('โพสต์สำเร็จแล้ว!');
+            onClose(); // Close the modal after successful submission
+        }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง');
+        console.error('Error submitting form:', error.response ? error.response.data : error.message);
+        alert('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง');
     }
-  };
-  
-  
+};
 
-  const fetchMyData = async () => {
-    try {
-      const res = await axios.get("/api/data/userId", { params: { Userid: session.user.uuid } });
-      console.log("res.data.getPost: ", res.data.getPost);
-      setDataByUserid(res.data.getPost);
-    } catch (error) {
-      console.log("Error fetch my data: ", error);
-    }
-  };
-
-  useEffect(() => {
-    if (activeSection === "posts" && session?.user?.uuid) {
-      fetchMyData();
-    }
-  }, [activeSection, session?.user?.uuid]);
-
-  if (!isOpen) return null; 
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">

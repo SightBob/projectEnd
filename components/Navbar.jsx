@@ -228,7 +228,14 @@ const Navbar = ({ toggleChat }) => {
               <Link className={`text-lg ${isActive("/editBot")}`} href="/editBot">
                 แชทบอท
               </Link>
+               <Link
+            className={`text-lg ${isActive("/sutevent")}`}
+            href={session?.user?.role === "admin" ? "/report" : "/sutevent"}
+          >
+            รายงาน
+          </Link>
             </>
+            
           )}
           {session?.user?.role !== "admin" && (
             <>
