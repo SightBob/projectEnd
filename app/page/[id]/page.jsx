@@ -90,7 +90,7 @@ const EventDetail = ({ params }) => {
     }
   };
 
-  const handleClick = () => {
+  const handleClickChat = () => {
     if (eventData) {
       console.log('Organizer ID:', eventData.organizer_id);
       setSelectedContactId(eventData.organizer_id);
@@ -189,12 +189,12 @@ const EventDetail = ({ params }) => {
                   {/* Message Button */}
                   <button
                     className="ml-2 flex items-center justify-center bg-transparent text-gray-600 hover:text-blue-600 focus:outline-none"
-                    onClick={handleClick}
+                    onClick={handleClickChat}
                     style={{ cursor: 'pointer' }}
                   >
                     {/* SVG Icon */}
                     <svg
-                      className="w-6 h-6 text-gray-500 dark:text-gray-400"
+                      className="w-6 h-6 text-gray-500 dark:text-gray-400 "
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"

@@ -24,6 +24,9 @@ const UserSchema = new mongoose.Schema({
   major: {
     type: String,
   },
+  gender: {
+    type: String,
+  },
   field_of_study: {
     type: String,
   },

@@ -62,10 +62,14 @@ const faculties = {
   "สำนักวิชาศาสตร์และศิลป์ดิจิทัล": ["ศาสตร์และศิลป์ดิจิทัล"]
 };
 
+const Gender = ["ชาย", "หญิง", "ไม่ระบุ"];
+
+
 const Page = () => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [view, setView] = useState('ProfileView');
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
@@ -118,6 +122,14 @@ const Page = () => {
     }));
   };
 
+  const handleGenderChange = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      gender: value, // อัปเดตค่า gender ตามที่เลือก
+    }));
+  };
+  
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -125,10 +137,10 @@ const Page = () => {
       reader.onloadend = () => {
         setFormData(prevState => ({
           ...prevState,
-          profilePicture: reader.result // ใช้ base64 string
+          profilePicture: reader.result 
         }));
       };
-      reader.readAsDataURL(file); // แปลงไฟล์เป็น base64 string
+      reader.readAsDataURL(file); 
     }
   };
   
@@ -185,7 +197,8 @@ const Page = () => {
         </div>
 
         {/* Profile Header */}
-        <div className="relative -mt-16 flex flex-col items-start mb-6 left-3 space-y-2">
+        <div className="relative -mt-16 flex flex-col items-start mb-2 left-3 space-y-2 ">
+          
           <div className="flex flex-row items-center space-x-4">
             <div className="w-32 h-32 relative z-10">
               <Image
@@ -210,7 +223,7 @@ const Page = () => {
               )}
             </div>
             <div className="mt-14 flex flex-col justify-center">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center">
                 {isEditing ? (
                   <input
                     type="text"
@@ -221,30 +234,47 @@ const Page = () => {
                   />
                 ) : (
                   <h2 className="text-xl font-semibold">{formData.username}</h2>
-                )}
-                <Image
-                  src="/assets/img_main/edit.png"
-                  alt="Edit Icon"
-                  width={20}
-                  height={20}
-                  className="cursor-pointer"
-                  onClick={handleEditToggle}
-                />
+                )}  
               </div>
               {/* <p className="text-gray-500">{formatDate(user.createdAt)}</p> */}
             </div>
           </div>
-        </div>
-
+          
+        </div>  
+        <div className="flex justify-between items-center pr-16 mb-6">
+                <div className="bg-transparent  flex space-x-3 pl-16 text-sm font-medium">
+                <p 
+              onClick={() => setView('ProfileView')} 
+              className={`cursor-pointer ${view === 'ProfileView' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-500'}`}
+            >
+              โปรไฟล์
+            </p>
+            <p 
+              onClick={() => setView('PersonaView')} 
+              className={`cursor-pointer ${view === 'PersonaView' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-500'}`}
+            >
+              ความเป็นส่วนตัว
+            </p>
+                </div>
+                {/* Edit Button */}
+                <div className=" justify-end">
+                <button 
+                    className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-blue-500'}`}
+                    onClick={handleEditToggle}
+                  >
+                    {isEditing ? 'Save' : 'Edit'}
+                  </button>
+                </div>
+                </div>
         {/* Profile Form */}
-        <div className="grid grid-cols-2 gap-4 mt-12 pl-16">
-          {['firstname', 'lastname', 'email', 'gender'].map((field) => (
+        {view === 'ProfileView' && (
+        <div id='ProfileView' className="grid grid-cols-2 gap-4 mt-1 pl-16">
+          {['firstname', 'lastname', 'email'].map((field) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700">
-                {field === 'firstname' ? 'ชื่อจริง' : 
-                 field === 'lastname' ? 'นามสกุล' : 
-                 field === 'email' ? 'อีเมล' : 
-                 'เพศ'}
+              {field === 'firstname' ? 'ชื่อจริง' : 
+              field === 'lastname' ? 'นามสกุล' : 
+              field === 'email' ? 'อีเมล' : ''}
               </label>
               <input
                 type="text"
@@ -256,6 +286,17 @@ const Page = () => {
               />
             </div>
           ))}
+          <div>
+              <label className="block text-sm font-medium text-gray-700">เพศ</label>
+              <ProfileDropdown
+                options={Gender} // เปลี่ยนเป็น Gender แทน Object.keys(Gender)
+                value={formData.gender}
+                onChange={handleGenderChange}
+                placeholder="เลือกเพศ"
+                disabled={!isEditing}
+                className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              />
+            </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">คณะ</label>
             <ProfileDropdown
@@ -279,16 +320,24 @@ const Page = () => {
             />
           </div>
         </div>
+         )}
         
-        {/* Edit Button */}
-        <div className="mt-5 flex justify-end">
-        <button 
-            className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-blue-500'}`}
-            onClick={handleEditToggle}
-          >
-            {isEditing ? 'Save' : 'Edit'}
-          </button>
+       {/* PersonaView Form */}
+       {view === 'PersonaView' && (
+       <div id='PersonaView' className="grid grid-cols-2 gap-4 mt-1 pl-16 ">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
+            <ProfileDropdown
+              options={Object.keys(faculties)}
+              value={formData.faculty}
+              onChange={handleFacultyChange}
+              placeholder="สิ่งที่คุณสนใจ"
+              disabled={!isEditing}
+              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+            />
+          </div>
         </div>
+         )}
       </div>
     </div>
   );
