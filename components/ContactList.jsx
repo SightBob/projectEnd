@@ -20,7 +20,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
     try {
       const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
       console.log(`Fetching contacts for user: ${currentUserId}`);
-      console.log('Response:', response.data);
+      // console.log('Response:', response.data);
       setContacts(response.data.contacts);
     } catch (error) {
       console.error("Error fetching contacts:", error.response || error);

@@ -23,6 +23,7 @@ export async function POST(req) {
 
         return NextResponse.json({ 
             message: "เข้าสู่ระบบสำเร็จ",
+            user
         }, { status: 200 });
 
     } catch (error) {

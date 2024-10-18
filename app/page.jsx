@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import { getSession } from 'next-auth/react';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -35,15 +36,17 @@ export default function Home() {
 
   useEffect(() => {
     const fetchData = async () => {
+      const session = await getSession();
+
+      // console.log("session: ", session);
       try {
         if (selectedDate) {
           setIsLoading(true);
           const dateToSend = getLocalDateString(selectedDate);
-          console.log('Date being sent to API:', dateToSend);
           const res = await axios.get('/api/data/date', {
             params: { date: dateToSend }
           });
-          console.log('Response:', res.data.getPost);
+          // console.log('Response:', res.data.getPost);
           setDataCaledar(res.data.getPost);
         }
       } catch (error) {
@@ -70,7 +73,7 @@ export default function Home() {
           res = await axios.get('/api/interest');
         }
 
-        console.log('setDataInterest:', res.data.getPost);
+        // console.log('setDataInterest:', res.data.getPost);
         setDataInterest(res.data.getPost);
       } catch (error) {
         console.error('Error fetching data:', error);

@@ -41,7 +41,7 @@ const Page = () => {
           username,
           password,
         });
-  
+        
         if (result.error) {
           setGeneralError(result.error);
         } else {
@@ -100,7 +100,7 @@ const Page = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <Link className="self-end text-[#EBB557] text-sm" href="/forgotPassword">ลืมรหัสผ่าน?</Link>
+          <Link className="self-end text-[#EBB557] text-sm" href="/forgot-password">ลืมรหัสผ่าน?</Link>
           <button className="bg-[#FD8D64] py-2 w-full rounded-md text-white mt-4" type="submit">ล็อคอิน</button>
           <p className="mt-2 self-end">ยังไม่มีบัญชีผู้ใช้ <Link className="text-[#EBB557]" href="register">สมัครสมาชิกที่นี่</Link></p>
         </form>

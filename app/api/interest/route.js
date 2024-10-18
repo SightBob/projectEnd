@@ -9,13 +9,9 @@ export async function POST(req) {
         
         const { uuid, interests } = await req.json();
         
-        if (!uuid || !interests) {
-            return NextResponse.json({ error: "UUID and interests are required" }, { status: 400 });
-        }
-        
         const updatedUser = await User.findOneAndUpdate(
             { _id: uuid },
-            { $set: { preferred_categories: interests } },
+            { $set: { preferred_categories: interests, verifyCategories: true } }, 
             { new: true, runValidators: true }
         );
         
@@ -25,6 +21,7 @@ export async function POST(req) {
         
         return NextResponse.json({
             message: "User interests updated successfully",
+            verify_categories: true
         }, { status: 200 });
     } catch (error) {
         console.error("Request processing error:", error);
@@ -43,12 +40,14 @@ export async function GET(req) {
 
         if (!idUser) {
             getPost = await Post.find().sort({ createdAt: -1 }).limit(8);
-            return NextResponse.json({ message: "ข้อมูลทั้งหมด",getPost });
+            return NextResponse.json({ message: "ข้อมูลทั้งหมด", getPost });
         } else {
+
             const user = await User.findById(idUser);
             if (!user) {
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
             }
+            
             getPost = await Post.find({
                 category: { $in: user.preferred_categories }
             }).sort({ createdAt: -1 }).limit(8);

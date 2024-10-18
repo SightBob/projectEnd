@@ -1,19 +1,41 @@
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server';
 import { getToken } from "next-auth/jwt";
 
 export async function middleware(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = request.nextUrl;
 
-  // รายการ path ที่ต้องการให้เฉพาะ admin เข้าถึงได้
-  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', , '/editBot'];
+  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', '/editBot'];
 
-  // ตรวจสอบว่าเป็นหน้าที่ต้องการให้เฉพาะ admin เข้าถึงได้หรือไม่
+  // ถ้าไม่มี token ให้ redirect ไปหน้า login
+  if (!token) {
+    if (pathname.startsWith('/Interest')) {
+      console.log("Redirecting to home because token is missing and pathname is /Interest");
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+    if (adminPaths.some(path => pathname.startsWith(path))) {
+      console.log("Redirecting to login because token is missing and trying to access admin path");
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  // ถ้ามี token แต่ verify_categories ยังไม่ถูกยืนยัน และไม่ใช่หน้าที่เรียก /Interest อยู่แล้ว
+  if (token && token.verifyEmail !== true && !pathname.startsWith('/checkYourEmail')) {
+    console.log("Redirecting to /checkYourEmail because verifyEmail is false");
+  
+    const redirectUrl = `/checkYourEmail?email=${token.email}`;
+    return NextResponse.redirect(new URL(redirectUrl, request.url));
+  }
+  else if (token && token.verify_categories === false && !pathname.startsWith('/Interest')) {
+    console.log("Redirecting to /Interest because verify_categories is false");
+    return NextResponse.redirect(new URL('/Interest', request.url));
+  }
+
+  // ตรวจสอบสิทธิ์การเข้าถึง admin
   if (adminPaths.some(path => pathname.startsWith(path))) {
     console.log("Checking admin access");
-    // ถ้าไม่มี token หรือ role ไม่ใช่ admin ให้ redirect ไปหน้าหลัก
-    if (!token || token.role !== 'admin') {
-      console.log("Redirecting non-admin");
+    if (token.role !== 'admin') {
+      console.log("Redirecting non-admin: ", token);
       return NextResponse.redirect(new URL('/', request.url));
     }
     console.log("Admin access granted");
@@ -23,9 +45,16 @@ export async function middleware(request) {
   return NextResponse.next();
 }
 
-// See "Matching Paths" below to learn more
+// อัปเดต matcher เพื่อให้ครอบคลุมเส้นทางที่ต้องการป้องกันทั้งหมด
 export const config = {
   matcher: [
+    '/sutevent',
+    '/',
+    '/searchgroup',
+    '/favorites',
+    '/Interest',
+    '/post',
+    '/profile/:path*',
     '/dashboard/:path*',
     '/push-notification/:path*',
     '/post-activity/:path*',

@@ -51,7 +51,6 @@ const Navbar = ({ toggleChat }) => {
     const fetchUnreadNotifications = async () => {
       if (session) {
         const url = `/api/notifications?userId=${session.user.id}`;
-        console.log('Fetching URL:', url);
   
         try {
           const response = await fetch(url);
