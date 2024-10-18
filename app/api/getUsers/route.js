@@ -6,8 +6,13 @@ export async function GET(req) {
     try {
         await dbConnect();
         
-        // ดึงข้อมูล preferred_categories ของผู้ใช้ทั้งหมด
-        const users = await User.find({}, 'preferred_categories');
+        // ดึงข้อมูล _id, username, และ preferred_categories ของผู้ใช้ทั้งหมด
+        const users = await User.find({}, '_id username preferred_categories');
+
+        // ตรวจสอบว่ามีผู้ใช้หรือไม่
+        if (users.length === 0) {
+            return NextResponse.json({ message: "No users found" }, { status: 404 });
+        }
 
         // นับจำนวนผู้ใช้ทั้งหมด
         const totalUsers = users.length;
