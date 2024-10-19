@@ -25,6 +25,18 @@ ChartJS.register(
   ArcElement,
 );
 
+const faculties = [
+  "สำนักวิชาศาสตร์และศิลป์ดิจิทัล",
+  'สำนักวิชาวิทยาศาสตร์',
+  'สำนักวิชาเทคโนโลยีสังคม',
+  'สำนักวิชาเทคโนโลยีการเกษตร',
+  'สำนักวิชาแพทยศาสตร์',
+  'สำนักวิชาพยาบาลศาสตร์',
+  'สำนักวิชาวิศวกรรมศาสตร์',
+  'สำนักวิชาทันตแพทยศาสตร์',
+  'สำนักวิชาสาธารณสุขศาสตร์',
+];
+
 const Dashboard = () => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -33,7 +45,7 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // current page state
   const itemsPerPage = 5; // number of items per page
   const popularPosts = posts.sort((a, b) => b.views - a.views).slice(0, 5); // เรียงโพสต์ตามยอด views และแสดงเพียง 5 อันดับแรก
-
+  const [facultyCounts, setFacultyCounts] = useState([]);
 
   
   useEffect(() => {
@@ -51,15 +63,62 @@ const Dashboard = () => {
         const response = await axios.get('/api/getUsers'); // Adjust the endpoint as necessary
         setUsers(response.data.users || []);
         setTotalUsers(response.data.totalUsers || 0); // Set total users from response
+
+        
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
+    const fetchFacultyData = async () => {
+      try {
+        const response = await axios.get('/api/getUsers'); // API ที่ดึงข้อมูลผู้ใช้
+        const users1 = response.data.users || [];
+        console.log("Users Data:", users1);
+        console.log("faculties Data:", faculties);
+        setUsers(users1);
+        
+        const counts = faculties.map(faculty => 
+          users1.filter(user => user.faculty === faculty).length
+        );
+        console.log("number Counts:", counts); // Debug: Log the calculated faculty counts
+    
+        setFacultyCounts(counts);
+      } catch (error) {
+        console.error('Error fetching faculty data:', error);
+      }
+    };
+    
+
+    fetchFacultyData();
     fetchPosts();
     fetchUsers();
   }, []);
 
+  const barFaculty = {
+    labels: faculties,
+    datasets: [
+      {
+        label: 'จำนวนผู้ใช้ต่อสำนักวิชา',
+        data: facultyCounts,
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+      },
+    ],
+  };
+
+  const barFacultyOptions = {
+    plugins: {
+      legend: {
+        labels: {
+          font: {
+            size: 18,
+          },
+        },
+      },
+    },
+  };
+
+  
   const totalActivities = posts.length; // Count total activities based on posts
 // Pagination Logic
 const totalPages = Math.ceil(posts.length / itemsPerPage); // Calculate total pages correctly
@@ -210,22 +269,17 @@ users.forEach(user => {
           <p className="text-4xl font-bold">{totalActivities}</p> {/* Display total activities */}
           <p className="text-sm text-gray-500 ">กิจกรรมทั้งหมดในเว็บ</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-  <h2 className="text-2xl font-semibold">กิจกรรมที่ได้รับความนิยม</h2>
-  <ul>
-    {popularPosts.map(post => (
-      <li key={post._id}>
-        <Link href={`/page/${post._id}`} >
-          <a className="text-sm ">{post.title} - {post.views} views</a> {/* เปลี่ยนจาก favorites เป็น views */}
-        </Link>
-      </li>
-      
-    ))}
-  </ul>
-  <p className="text-sm text-gray-500 pt-2">นับจากยอดผู้เข้าชม (Top 5 View)
-  </p>
-</div>
-<div className="bg-white p-6 rounded-lg shadow-md">
+
+        
+     {/* กล่อง จำนวนสำนักวิชาของผู้ใช้งาน */}
+  <div className="col-span-1 lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+    <h2 className="text-2xl font-semibold">จำนวนสำนักวิชาของผู้ใช้งาน</h2>
+    <div className="w-full h-60 md:h-80 lg:h-120 flex items-center justify-center">
+      <Bar data={barFaculty} options={barFacultyOptions} />
+    </div>
+  </div>
+
+{/* <div className="bg-white p-6 rounded-lg shadow-md">
   <h2 className="text-2xl font-semibold">กิจกรรมที่มีสมาชิกผู้เข้าร่วมสูงสุด </h2> 
   <ul >
     {posts
@@ -242,37 +296,70 @@ users.forEach(user => {
   </ul>
   <p className="text-sm text-gray-500 pt-2">นับจากจำนวนสมาชิก (Top 5 Participants
   )</p>
-</div>
-
-<div className="bg-white p-6 rounded-lg shadow-md">
+</div> */}
+  <div className="col-span-1 lg:col-span-2   grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div className="bg-white p-6 rounded-lg shadow-md ">
   <h2 className="text-2xl font-semibold">กิจกรรมที่มีการกดถูกใจมากที่สุด</h2>
   <ul>
-  {posts
-    .filter(post => post.member === 'yes') // กรองโพสต์ที่มีการเปิดรับสมาชิก
-    .sort((a, b) => b.favorites.length - a.favorites.length) // เรียงตามจำนวนผู้ที่กดถูกใจ
-    .slice(0, 5) // จำกัดผลลัพธ์แค่ 5 อันดับ
-    .map(post => (
-      <li key={post._id}>
-        <Link href={`/page/${post._id}`} className="text-sm">
-          {post.title} - กดถูกใจ {post.favorites.length} คน
-        </Link>
-      </li>
-    ))}
-</ul>
-
+    {posts
+      .filter(post => post.member === 'yes')
+      .sort((a, b) => b.favorites.length - a.favorites.length)
+      .slice(0, 5)
+      .map(post => (
+        <li key={post._id}>
+          <Link href={`/page/${post._id}`} className="text-sm">
+            {post.title} - กดถูกใจ {post.favorites.length} คน
+          </Link>
+        </li>
+      ))}
+  </ul>
   <p className="text-sm text-gray-500 pt-2">นับจากยอดการกดใจ (Top 5 Favorites)</p>
 </div>
 
-<div className="bg-white p-6 rounded-lg shadow-md">
-  <h2 className="text-2xl">จำนวนสำนักวิชาของผู้ใช้งาน</h2>
+{/* Popular Activities */}
+<div className="bg-white p-6 rounded-lg shadow-md ">
+  <h2 className="text-2xl font-semibold">กิจกรรมที่ได้รับความนิยม</h2>
+  <ul>
+    {popularPosts.map(post => (
+      <li key={post._id}>
+        <Link href={`/page/${post._id}`} className="text-sm">
+          {post.title} - {post.views} views
+        </Link>
+      </li>
+    ))}
+  </ul>
+  <p className="text-sm text-gray-500 pt-2">นับจากยอดผู้เข้าชม (Top 5 View)</p>
+</div>
+
+<div className="bg-white p-6 rounded-lg shadow-md ">
+ 
+  <h2 className="text-2xl font-semibold">กิจกรรมที่มีสมาชิกผู้เข้าร่วมสูงสุด </h2> 
+  <ul >
+    {posts
+      .filter(post =>  post.member === 'yes')
+      .sort((a, b) => b.participants.length - a.participants.length) // เรียงตามจำนวนสมาชิกใน participants
+      .slice(0, 5) // จำกัดผลลัพธ์แค่ 5 อันดับ
+      .map(post => (
+        <li  key={post._id}>
+          <Link href={`/page/${post._id}`} className="text-sm ">
+            {post.title} - สมาชิก {post.participants.length} คน 
+          </Link>
+        </li>
+      ))}
+  </ul>
+  <p className="text-sm text-gray-500 pt-2">นับจากจำนวนสมาชิก (Top 5 Participants
+  )</p>
 
 </div>
 
-
-
+<div className="bg-white p-6 rounded-lg shadow-md ">
+  <h2 className="text-2xl font-semibold">กล่องใหม่</h2>
+  
+  <p className="text-sm text-gray-500 pt-2">นับจากจำนวนผู้เข้าร่วม (Top 5 Participants)</p>
+</div>
       </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
         {/* Bar Chart */}
         <div className="bg-white p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 relative">
           <select className="absolute top-4 right-4 bg-gray-200 p-2 rounded ">
