@@ -176,7 +176,7 @@ const EventDetail = ({ params }) => {
                   className="rounded-full border-4 border-white object-cover"
                   fill
                   alt="Organizer Profile"
-                  src="/assets/img_main/Profile-cat.png"
+                  src={ name.profilePicture || "/assets/img_main/usericon.png"}
                 />
               </div>
               <div className="flex flex-col">

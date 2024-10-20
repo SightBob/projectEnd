@@ -43,7 +43,14 @@ const UserSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },  
- 
+  profilePicture: {
+    type: String,
+    trim: true
+  },
+  profileCoverPicture: {
+    type: String,
+    trim: true
+  },
 
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,

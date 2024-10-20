@@ -130,7 +130,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
           >
             <div className="relative">
               <Image
-                src={contact.profileImage || "/assets/img_main/usericon.png"}
+                src={contact.profilePicture || "/assets/img_main/usericon.png"}
                 alt={`${contact.username} avatar`}
                 width={40}
                 height={40}

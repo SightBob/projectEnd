@@ -64,6 +64,9 @@ const faculties = {
 
 const Gender = ["ชาย", "หญิง", "ไม่ระบุ"];
 
+const Interrest = ["เกม", "กีฬา", "อาหาร", "การท่องเที่ยว", "สัตว์เลี้ยง"
+  , "การศึกษา", "ชมรมนักศึกษา"
+];
 
 const Page = () => {
   const { data: session, status } = useSession();
@@ -79,6 +82,8 @@ const Page = () => {
     major: '',
     username: '',
     profilePicture: '',
+    profileCoverPicture: '',
+    preferred_categories: []
   });
 
   useEffect(() => {
@@ -114,6 +119,27 @@ const Page = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+
+  const toggleInterest = (interest) => {
+    setFormData((prevData) => {
+        console.log('Before update:', prevData.preferred_categories);
+        
+        const updatedCategories = prevData.preferred_categories.includes(interest)
+            ? prevData.preferred_categories.filter(item => item !== interest)
+            : [...prevData.preferred_categories, interest];
+        
+        console.log('Updated preferred_categories:', updatedCategories);
+        
+        return {
+            ...prevData,
+            preferred_categories: updatedCategories
+        };
+    });
+};
+
+
+
+
   const handleFacultyChange = (value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -143,10 +169,25 @@ const Page = () => {
       reader.readAsDataURL(file); 
     }
   };
+
+  const handleCoverFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prevState => ({
+          ...prevState,
+          profileCoverPicture: reader.result 
+        }));
+      };
+      reader.readAsDataURL(file); 
+    }
+  };
   
 
   const handleEditToggle = () => {
     if (isEditing) {
+      console.log('Form data before saving:มาแล้วนะ', formData);
       async function saveUserData() {
         try {
           const response = await fetch(`/api/profile?uid=${session.user.uuid}`, {
@@ -189,11 +230,25 @@ const Page = () => {
         {/* Cover Image */}
         <div className="relative w-full h-48">
           <Image
-            src="/assets/img_main/cover-cat.png" 
+            src={formData.profileCoverPicture || "/assets/img_main/SUT91.jpg" }
             alt="Cover Photo"
             layout="fill"
             className="object-cover rounded-t-lg"
           />
+          {isEditing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer">
+                  <label htmlFor="Coverfile-upload" className="cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className='size-8' viewBox="0 0 24 24"><g stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m21.28 6.4-9.54 9.54c-.95.95-3.77 1.39-4.4.76-.63-.63-.2-3.45.75-4.4l9.55-9.55a2.58 2.58 0 1 1 3.64 3.65v0Z"/><path d="M11 4H6a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h11c2.21 0 3-1.8 3-4v-5"/></g></svg>
+                  </label>
+                  <input
+                    id="Coverfile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverFileChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
         </div>
 
         {/* Profile Header */}
@@ -202,7 +257,7 @@ const Page = () => {
           <div className="flex flex-row items-center space-x-4">
             <div className="w-32 h-32 relative z-10">
               <Image
-                src={formData.profilePicture || "/assets/img_main/Profile-cat.png"}
+                src={formData.profilePicture || "/assets/img_main/usericon.png"}
                 alt="Profile"
                 layout="fill"
                 className="rounded-full object-cover border-4 border-white"
@@ -210,7 +265,7 @@ const Page = () => {
               {isEditing && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer">
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <Image src="/assets/img_main/edit.png" alt="Edit Icon" width={24} height={24} />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className='size-8' viewBox="0 0 24 24"><g stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m21.28 6.4-9.54 9.54c-.95.95-3.77 1.39-4.4.76-.63-.63-.2-3.45.75-4.4l9.55-9.55a2.58 2.58 0 1 1 3.64 3.65v0Z"/><path d="M11 4H6a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h11c2.21 0 3-1.8 3-4v-5"/></g></svg>
                   </label>
                   <input
                     id="file-upload"
@@ -224,17 +279,7 @@ const Page = () => {
             </div>
             <div className="mt-14 flex flex-col justify-center">
               <div className="flex items-center">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    className="text-xl font-semibold border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
-                  />
-                ) : (
-                  <h2 className="text-xl font-semibold">{formData.username}</h2>
-                )}  
+                  <h2 className="text-xl font-semibold">{`${formData.firstname} ${formData.lastname}`}</h2>
               </div>
               {/* <p className="text-gray-500">{formatDate(user.createdAt)}</p> */}
             </div>
@@ -259,7 +304,7 @@ const Page = () => {
                 {/* Edit Button */}
                 <div className=" justify-end">
                 <button 
-                    className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-blue-500'}`}
+                    className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-gray-500'}`}
                     onClick={handleEditToggle}
                   >
                     {isEditing ? 'Save' : 'Edit'}
@@ -323,21 +368,47 @@ const Page = () => {
          )}
         
        {/* PersonaView Form */}
-       {view === 'PersonaView' && (
-       <div id='PersonaView' className="grid grid-cols-2 gap-4 mt-1 pl-16 ">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
-            <ProfileDropdown
-              options={Object.keys(faculties)}
-              value={formData.faculty}
-              onChange={handleFacultyChange}
-              placeholder="สิ่งที่คุณสนใจ"
-              disabled={!isEditing}
-              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
-            />
-          </div>
-        </div>
-         )}
+        {view === 'PersonaView' && (
+            <div id='PersonaView' className="grid grid-cols-1 gap-4 mt-1 pl-16 pr-16">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
+                    
+                    {/* แสดงเฉพาะหมวดหมู่ที่ผู้ใช้เลือกไว้ในโหมดปกติ */}
+                    {!isEditing && (
+                        <div className="grid grid-cols-5 gap-3">
+                            {formData.preferred_categories.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="border-2 items-center flex justify-center rounded-lg bg-gray-300"
+                                >
+                                    <p>{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* แสดงรายการทั้งหมดในโหมดแก้ไข */}
+                    {isEditing && (
+                        <div className="grid grid-cols-5 gap-3">
+                            {Interrest.map((item, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => {
+                                      console.log('Clicked interest:', item);
+                                      toggleInterest(item);
+                                  }}
+                                    className={`cursor-pointer border-2 items-center flex justify-center rounded-lg ${
+                                        formData.preferred_categories.includes(item) ? 'bg-green-400' : 'bg-gray-400'
+                                    }`}
+                                >
+                                    <p>{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
       </div>
     </div>
   );
