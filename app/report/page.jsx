@@ -38,6 +38,26 @@ const AdminReports = () => {
         fetchUsers();
     }, []);
 
+    const handleDeleteReport = async (reportId) => {
+        if (confirm('คุณแน่ใจว่าต้องการลบรายงานนี้?')) {
+            try {
+                const response = await axios.delete('/api/report', { data: { reportId } });
+                if (response.data.success) {
+                    // อัปเดตสถานะหรือเรียก fetchReports เพื่อลบข้อมูลจากหน้าจอ
+                    setReports(prevReports => prevReports.filter(report => report._id !== reportId));
+                    alert('ลบรายงานสำเร็จ');
+                } else {
+                    alert('เกิดข้อผิดพลาดในการลบรายงาน');
+                }
+            } catch (error) {
+                console.error('Error deleting report:', error);
+                alert('เกิดข้อผิดพลาดในการลบรายงาน');
+            }
+        }
+    };
+    
+
+
     const truncateText = (text, maxLength) => {
         return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
     };
@@ -72,6 +92,9 @@ const AdminReports = () => {
                                                 router.push(`/page/${report.postId}`); // Redirect to post detail
                                             }}>
                                                 View
+                                            </button>
+                                            <button className="bg-red-500 text-white px-2 py-1 rounded-lg ml-2"  onClick={() => handleDeleteReport(report._id)}>
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>

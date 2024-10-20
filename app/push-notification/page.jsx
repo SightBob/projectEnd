@@ -2,12 +2,17 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { NotificationForm, Modal } from "@/components/NotificationForm"; // Correct import statement
+import { NotificationForm, Modal } from "@/components/NotificationForm";
+import EditNotificationForm from "@/components/EditNotificationForm";
 
+ 
+ 
 const PushNotification = () => {
   const [notifications, setNotifications] = useState([]);
   const [showForm, setShowForm] = useState(false); // State to control form visibility
   const [successMessage, setSuccessMessage] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false); // State for edit modal visibility
+  const [selectedNotification, setSelectedNotification] = useState(null); // State for the notification being edited
 
   // Define the truncateText function
   const truncateText = (text, maxLength) => {
@@ -97,6 +102,11 @@ const PushNotification = () => {
 
   // Delete notification function
   const deleteNotification = async (notificationId) => {
+    const confirmed = window.confirm("ยืนยันที่จะลบการแจ้งเตือนนี้ใช่ไหม?");
+    if (!confirmed) {
+      return; // If the user clicks "Cancel", exit the function
+    }
+
     try {
       const response = await axios.delete(`/api/notifications/${notificationId}`);
       if (response.status === 200) {
@@ -109,23 +119,39 @@ const PushNotification = () => {
     }
   };
 
+  // Function to open the edit modal with the selected notification
+  const handleEdit = (notification) => {
+    setSelectedNotification(notification);
+    setShowEditModal(true);
+  };
+
   // Function to edit a notification
-  const editNotification = async (id, updatedTitle, updatedMessage) => {
+  const editNotification = async (id, updatedTitle, updatedMessage, updatedScheduledTime) => {
     try {
       const response = await axios.patch(`/api/notifications/${id}/edit`, {
         title: updatedTitle,
         message: updatedMessage,
+        scheduledTime: updatedScheduledTime,
       });
       console.log("Notification updated:", response.data);
-      // Update the notification in state
       setNotifications(
         notifications.map((n) => (n._id === id ? response.data.notification : n))
       );
+      setShowEditModal(false);
     } catch (error) {
       console.error("Error updating notification:", error);
     }
   };
+  
+  
+  
+  
+  
+  
 
+
+
+  
   return (
     <div className="container mx-auto my-8 px-4">
       <h1 className="text-3xl font-bold mb-8">การเเจ้งเตือน</h1>
@@ -152,6 +178,20 @@ const PushNotification = () => {
         <NotificationForm onSubmit={sendNotification} onClose={() => setShowForm(false)} />
       </Modal>
 
+      {/* Edit Notification Modal */}
+     {/* Edit Notification Modal */}
+{selectedNotification && (
+  <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)}>
+   <EditNotificationForm
+  initialData={selectedNotification}
+  onSubmit={(data) => editNotification(selectedNotification._id, data.title, data.message, data.scheduledTime)}
+  onClose={() => setShowEditModal(false)}
+/>
+
+  </Modal>
+)}
+
+
       {/* Notification List */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
@@ -167,20 +207,14 @@ const PushNotification = () => {
             {notifications.map((notification, index) => (
               <tr key={index} className="text-center border-b">
                 <td className="px-4 py-2">{truncateText(notification.title, 50)}</td>
-                <td className="px-4 py-2">{truncateText(notification.message, 100)}</td>
+                <td className="px-4 py-2">{truncateText(notification.message, 75)}</td>
                 <td className="px-4 py-2">
                   {new Date(notification.scheduledTime).toLocaleString()}
                 </td>
                 <td className="px-4 py-2">
                   <button
                     className="bg-green-500 text-white px-2 py-1 rounded-lg"
-                    onClick={() =>
-                      editNotification(
-                        notification._id,
-                        prompt("Enter new title:", notification.title),
-                        prompt("Enter new message:", notification.message)
-                      )
-                    }
+                    onClick={() => handleEdit(notification)} // Open the edit modal
                   >
                     Edit
                   </button>
