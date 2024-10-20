@@ -234,6 +234,9 @@ const Navbar = ({ toggleChat }) => {
           >
             รายงาน
           </Link>
+          <Link className={`text-lg ${isActive("/editUser")}`} href="/editUser">
+                จัดการผู้ใช้
+              </Link>
             </>
             
           )}
@@ -304,7 +307,7 @@ const Navbar = ({ toggleChat }) => {
                 onClick={toggleChat}
               />
                {unreadPersonCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-center">
+                <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 text-center flex items-center justify-center max-[460px]:-top-1.5 max-[460px]:-right-1.5 max-[460px]:w-5 max-[460px]:h-5 max-[460px]:text-[12px]">
                   {unreadPersonCount}
                 </span>
               )}
