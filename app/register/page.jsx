@@ -182,6 +182,7 @@ const Page = () => {
               id="password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete='password'
             />
           
             <div className="flex justify-between items-end">
@@ -194,6 +195,7 @@ const Page = () => {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              autoComplete='confirmPassword'
             />
           </div>
 

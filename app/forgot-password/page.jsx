@@ -35,10 +35,9 @@ export default function ForgotPassword() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-4 sm:mx-auto sm:w-full sm:max-w-md">
         
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-
+        <div className="bg-white p-4">
         {message && (
             <div className="mt-2 bg-green-50 border-l-4 border-green-400 p-4">
               <div className="flex">

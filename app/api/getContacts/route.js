@@ -96,6 +96,6 @@ export async function GET(request) {
     // console.error("Error details:", error);
     // console.error("Error message:", error.message);
     // console.error("Error stack:", error.stack);
-    return NextResponse.json({ error: "Failed to fetch contacts" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch contacts" });
   }
 }

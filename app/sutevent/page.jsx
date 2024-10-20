@@ -32,7 +32,7 @@ const Page = ({}) => {
         setIsLoading(true);
         const res = await axios.get('/api/data/date?type=info');
         setAllEvents(res.data.getPost);
-        console.log("res.data.getPost, :", res.data.getPost);
+        // console.log("res.data.getPost, :", res.data.getPost);
         setFilteredEvents(res.data.getPost);
       } catch (error) {
         console.error('Error fetching all data:', error);
@@ -46,8 +46,8 @@ const Page = ({}) => {
 
   useEffect(() => {
     let filtered = allEvents;
-    console.log("All events:", allEvents);
-    console.log("Selected categories:", selectedCategories);
+    // console.log("All events:", allEvents);
+    // console.log("Selected categories:", selectedCategories);
   
     if (selectedDate) {
       const dateToFilter = getLocalDateString(selectedDate);
@@ -85,7 +85,7 @@ const Page = ({}) => {
       });
     }
   
-    console.log("Final filtered events:", filtered);
+    // console.log("Final filtered events:", filtered);
     setFilteredEvents(filtered);
   }, [selectedDate, selectedCategories, allEvents]);
   

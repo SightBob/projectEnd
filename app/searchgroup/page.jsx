@@ -31,7 +31,7 @@ const Page = ({}) => {
         setIsLoading(true);
         const res = await axios.get('/api/data/date?type=event');
         setAllEvents(res.data.getPost);
-        console.log("res.data.getPost, :", res.data.getPost);
+        // console.log("res.data.getPost, :", res.data.getPost);
         setFilteredEvents(res.data.getPost);
       } catch (error) {
         console.error('Error fetching all data:', error);
@@ -74,7 +74,7 @@ const Page = ({}) => {
       console.log("Events after category filtering:", filtered.length);
     }
   
-    console.log("Final filtered events:", filtered);
+    // console.log("Final filtered events:", filtered);
     setFilteredEvents(filtered);
   }, [selectedDate, selectedCategories, allEvents]);
 
