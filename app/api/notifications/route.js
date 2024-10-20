@@ -81,3 +81,32 @@ export async function DELETE(req) {
     return new Response(JSON.stringify({ error: 'Failed to delete notification' }), { status: 500 });
   }
 }
+
+
+export async function PATCH(req, { params }) {
+  const { id } = params;
+  await dbConnect();
+
+  try {
+    const { title, message, scheduledTime } = await req.json();
+    const notification = await Notification.findById(id);
+
+    if (!notification) {
+      return new Response(JSON.stringify({ error: 'Notification not found' }), { status: 404 });
+    }
+
+    // Update notification fields
+    notification.title = title;
+    notification.message = message;
+    notification.scheduledTime = scheduledTime;
+
+    // Save the updated notification
+    await notification.save();
+
+    return new Response(JSON.stringify({ success: true, notification }), { status: 200 });
+  } catch (error) {
+    console.error('Error updating notification:', error);
+    return new Response(JSON.stringify({ error: 'Failed to update notification' }), { status: 500 });
+  }
+}
+

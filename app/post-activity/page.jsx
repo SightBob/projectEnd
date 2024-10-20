@@ -16,6 +16,7 @@ const PostActivity = () => {
   const [currentPost, setCurrentPost] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -32,6 +33,13 @@ const PostActivity = () => {
 
     fetchPosts();
   }, []);
+
+  // Filter posts based on search term
+// Filter posts based on search term
+const filteredPosts = posts.filter(post => 
+  post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  post.username.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const handleCheckboxChange = (id) => {
     const updatedSelectedPosts = new Set(selectedPosts);
@@ -81,7 +89,7 @@ const PostActivity = () => {
         setPosts(posts.map(post => (post._id === updatedPost._id ? response.data : post)));
       } else {
         const response = await axios.post('/api/getdata', updatedPost);
-        setPosts([response.data, ...posts]); 
+        setPosts([response.data, ...posts]);
       }
       handleModalClose();
     } catch (error) {
@@ -114,7 +122,7 @@ const PostActivity = () => {
   // Pagination logic
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -123,9 +131,20 @@ const PostActivity = () => {
       <h1 className="text-3xl font-bold mb-8">Manage Activities</h1>
 
       <div className="flex justify-between items-center mb-4">
-        <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg">Delete</button>
-        <button onClick={handleAddNewClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Add New</button>
-      </div>
+  <input
+    type="text"
+    placeholder="Search by Event Name"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="border px-4 py-2 rounded-lg mr-2"
+  />
+   <div className="flex space-x-2">
+  <button onClick={handleAddNewClick} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Add New</button>
+  <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded-lg">Delete</button>
+</div>
+</div>
+
+
 
       <div className="overflow-x-auto bg-white p-6 rounded-lg">
         <table className="min-w-full table-auto">
@@ -176,7 +195,7 @@ const PostActivity = () => {
 
         {/* Pagination controls */}
         <div className="flex justify-center mt-4">
-          {[...Array(Math.ceil(posts.length / postsPerPage)).keys()].map(num => (
+          {[...Array(Math.ceil(filteredPosts.length / postsPerPage)).keys()].map(num => (
             <button
               key={num + 1}
               onClick={() => paginate(num + 1)}
