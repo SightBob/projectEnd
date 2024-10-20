@@ -324,7 +324,7 @@ const Navbar = ({ toggleChat }) => {
                 {isNotificationPopupOpen && (
                   <div className="absolute right-0 mt-2 w-[35rem] max-md:w-[27rem] max-sm:w-[85vw] max-[460px]:w-[92vw] max-[460px]:right-[-2.5rem] bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-4 notification-popup">
                     <h3 className="text-lg font-bold max-sm:text-[16px]">การเเจ้งเตือน</h3>
-                    <ul>
+                    <ul className="max-h-[200px] h-full overflow-y-scroll">
                       {notifications.map((notification) => (
                         <NotificationItem
                           key={notification._id}
