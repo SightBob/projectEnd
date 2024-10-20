@@ -1,19 +1,19 @@
-"use client"; // This marks the component as a Client Component
+"use client"
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation'; // Ensure correct import
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 const AdminReports = () => {
     const [reports, setReports] = useState([]);
     const [users, setUsers] = useState([]);
-    const router = useRouter(); // Initialize router
+    const router = useRouter();
 
     useEffect(() => {
         const fetchReports = async () => {
             try {
                 const reportResponse = await axios.get('/api/report'); // Your API endpoint
-                console.log('Reports fetched:', reportResponse.data);
+                console.log('Reports fetched:', reportResponse.data.reports);
                 if (reportResponse.data.success) {
                     setReports(reportResponse.data.reports);
                 } else {
@@ -23,19 +23,7 @@ const AdminReports = () => {
                 console.error('Error fetching reports:', error);
             }
         };
-
-        const fetchUsers = async () => {
-            try {
-                const userResponse = await axios.get('/api/getUsers');
-                console.log('Users fetched:', userResponse.data);
-                setUsers(userResponse.data);
-            } catch (error) {
-                console.error('Error fetching users:', error);
-            }
-        };
-
         fetchReports();
-        fetchUsers();
     }, []);
 
     const truncateText = (text, maxLength) => {
@@ -64,7 +52,7 @@ const AdminReports = () => {
                                 return (
                                     <tr key={report._id} className="text-center border-b">
                                         <td className="px-4 py-2">{report.postId}</td>
-                                        <td className="px-4 py-2">{user ? user.username : 'Unknown User'}</td>
+                                        <td className="px-4 py-2">{ report.reportedBy.username ? report.reportedBy.username : 'Unknown User'}</td>
                                         <td className="px-4 py-2">{truncateText(report.reason, 50)}</td>
                                         <td className="px-4 py-2">{new Date(report.reportedAt).toLocaleString()}</td>
                                         <td className="px-4 py-2">

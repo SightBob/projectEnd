@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import PostFormModal from '@/components/PostFormModal';
+import { useSession } from 'next-auth/react';
 
 const PostActivity = () => {
+
+  const { data: session} = useSession();
   const [posts, setPosts] = useState([]);
   const [selectedPosts, setSelectedPosts] = useState(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isAddNewModalOpen, setIsAddNewModalOpen] = useState(false); // State for Add New modal
+  const [isAddNewModalOpen, setIsAddNewModalOpen] = useState(false);
   const [currentPost, setCurrentPost] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 10;
@@ -77,8 +80,8 @@ const PostActivity = () => {
         const response = await axios.put('/api/getdata', { id: updatedPost._id, ...updatedPost });
         setPosts(posts.map(post => (post._id === updatedPost._id ? response.data : post)));
       } else {
-        const response = await axios.post('/api/getdata', updatedPost); // POST for new post
-        setPosts([response.data, ...posts]); // Add the new post to the list
+        const response = await axios.post('/api/getdata', updatedPost);
+        setPosts([response.data, ...posts]); 
       }
       handleModalClose();
     } catch (error) {
@@ -198,7 +201,7 @@ const PostActivity = () => {
         isOpen={isAddNewModalOpen} 
         onClose={handleAddNewModalClose} 
         onSave={handleAddNewSave} 
-        
+        session={session}
       />
     </div>
   );

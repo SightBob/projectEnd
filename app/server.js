@@ -18,7 +18,7 @@ wss.on('connection', function connection(ws, req) {
 
   console.log(`Client connected with userId: ${userId}`);
   
-  ws.on('message', function incoming(message) {
+ws.on('message', function incoming(message) {
     const data = JSON.parse(message);
     console.log('received:', data);
     
@@ -28,7 +28,7 @@ wss.on('connection', function connection(ws, req) {
     }
   });
 
-  ws.on('close', () => {
+ws.on('close', () => {
     clients.delete(userId);
     console.log(`Client disconnected: ${userId}`);
   });

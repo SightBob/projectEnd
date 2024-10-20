@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useSession } from 'next-auth/react';
 
 const PostFormModal = ({ isOpen, onClose, session }) => {
+
+  // const { data: session } = useSession();
+  console.log("session: ", session);
   const [formData, setFormData] = useState({
     title: '',
     start_date: '',
@@ -64,19 +68,21 @@ const PostFormModal = ({ isOpen, onClose, session }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const postType = formData.member === 'yes' ? 'event' : 'info';
-
+    // const postType = formData.member === 'yes' ? 'event' : 'info';
+    console.log('submit')
     try {
-        const res = await axios.post('/api/posts', {
+        const res = await axios.post('/api/post', {
             ...formData,
             tags,
             uuid: session?.user?.uuid,
             organizer_id: session?.user?.uuid,
-            type: postType,
+            type: 'info',
         });
 
+        console.log(res.data)
         if (res.status === 201) {
             // Reset form and close modal
+
             e.target.reset();
             setFormData({
                 title: '',
@@ -94,20 +100,20 @@ const PostFormModal = ({ isOpen, onClose, session }) => {
             });
             setTags([]);
             alert('โพสต์สำเร็จแล้ว!');
-            onClose(); // Close the modal after successful submission
+            onClose();
         }
     } catch (error) {
         console.error('Error submitting form:', error.response ? error.response.data : error.message);
         alert('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง');
     }
-};
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-3xl max-h-[80vh] overflow-y-auto mt-10">
-        <h2 className="text-xl font-bold mb-4">Add New Post</h2>
+        <h2 className="text-xl font-bold mb-4">Adsssd New Post</h2>
         <form onSubmit={handleSubmit} className="w-full">
           <div className="mb-4">
             <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
@@ -174,14 +180,12 @@ const PostFormModal = ({ isOpen, onClose, session }) => {
           </div>
           {formData.member === 'yes' && (
             <div className="mb-4">
-              <label htmlFor="maxParticipants" className="block text-gray-700 font-semibold mb-2">จำนวนสูงสุดของผู้เข้าร่วม</label>
+              <label htmlFor="maxParticipants" className="block text-gray-700 font-semibold mb-2">จำนวนผู้เข้าร่วมสูงสุด</label>
               <input type="number" id="maxParticipants" name="maxParticipants" value={formData.maxParticipants} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
             </div>
           )}
-          <div className="flex justify-between">
-            <button type="button" onClick={onClose} className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">Cancel</button>
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg">Save Post</button>
-          </div>
+          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">โพสต์</button>
+          <button type="button" className="ml-2 bg-red-500 text-white px-4 py-2 rounded-md" onClick={onClose}>ยกเลิก</button>
         </form>
       </div>
     </div>

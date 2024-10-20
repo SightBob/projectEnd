@@ -1,6 +1,7 @@
 import Report from '@/models/Report';
 import { dbConnect } from "@/lib/ConnectDB";
 import { NextResponse } from "next/server";
+import User from '@/models/User';
 
 export async function POST(request) {
     await dbConnect(); // เชื่อมต่อกับฐานข้อมูลก่อน
@@ -31,7 +32,7 @@ export async function POST(request) {
       return NextResponse.json({ 
         success: false, 
         message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 
-        error: error.message || 'ไม่มีข้อมูล' // เพิ่มการจัดการข้อผิดพลาด
+        error: error.message || 'ไม่มีข้อมูล'
       }, { status: 500 });
     }
 }
