@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import PostFormModal from '@/components/PostFormModal';
+import { useSession } from 'next-auth/react';
 
 const PostActivity = () => {
+
+  const { data: session} = useSession();
   const [posts, setPosts] = useState([]);
   const [selectedPosts, setSelectedPosts] = useState(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -217,6 +220,7 @@ const filteredPosts = posts.filter(post =>
         isOpen={isAddNewModalOpen} 
         onClose={handleAddNewModalClose} 
         onSave={handleAddNewSave} 
+        session={session}
       />
     </div>
   );

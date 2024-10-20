@@ -5,9 +5,8 @@ export async function middleware(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = request.nextUrl;
 
-  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', '/editBot'];
+  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', '/editBot', '/report', ];
 
-  // ถ้าไม่มี token ให้ redirect ไปหน้า login
   if (!token) {
     if (pathname.startsWith('/Interest')) {
       console.log("Redirecting to home because token is missing and pathname is /Interest");
@@ -19,7 +18,6 @@ export async function middleware(request) {
     }
   }
 
-  // ถ้ามี token แต่ verify_categories ยังไม่ถูกยืนยัน และไม่ใช่หน้าที่เรียก /Interest อยู่แล้ว
   if (token && token.verifyEmail !== true && !pathname.startsWith('/checkYourEmail')) {
     console.log("Redirecting to /checkYourEmail because verifyEmail is false");
   
@@ -29,6 +27,10 @@ export async function middleware(request) {
   else if (token && token.verify_categories === false && !pathname.startsWith('/Interest')) {
     console.log("Redirecting to /Interest because verify_categories is false");
     return NextResponse.redirect(new URL('/Interest', request.url));
+  }
+
+  if (token && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
+      return NextResponse.redirect(new URL('/', request.url));
   }
 
   // ตรวจสอบสิทธิ์การเข้าถึง admin
@@ -41,8 +43,6 @@ export async function middleware(request) {
     console.log("Admin access granted");
   }
 
-  // ถ้าไม่เข้าเงื่อนไขข้างบน ให้เข้าถึงหน้าที่ต้องการได้ตามปกติ
-  return NextResponse.next();
 }
 
 // อัปเดต matcher เพื่อให้ครอบคลุมเส้นทางที่ต้องการป้องกันทั้งหมด
@@ -50,6 +50,8 @@ export const config = {
   matcher: [
     '/sutevent',
     '/',
+    '/login',
+    '/register',
     '/searchgroup',
     '/favorites',
     '/Interest',

@@ -31,7 +31,6 @@ export async function GET(request) {
   }
 }
 
-
 export async function PUT(req, { params }) {
   try {
     const { searchParams } = new URL(req.url);

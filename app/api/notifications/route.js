@@ -26,6 +26,7 @@ export async function POST(req) {
       title,
       message,
       isRead: false,
+      type: "manual",
       readed: [],
       createdAt: new Date(),
       scheduledTime: new Date(scheduledTime),
