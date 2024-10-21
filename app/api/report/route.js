@@ -1,6 +1,7 @@
 import Report from '@/models/Report';
 import { dbConnect } from "@/lib/ConnectDB";
 import { NextResponse } from "next/server";
+import User from '@/models/User';
 
 export async function POST(request) {
     await dbConnect(); // เชื่อมต่อกับฐานข้อมูลก่อน
@@ -31,7 +32,7 @@ export async function POST(request) {
       return NextResponse.json({ 
         success: false, 
         message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล', 
-        error: error.message || 'ไม่มีข้อมูล' // เพิ่มการจัดการข้อผิดพลาด
+        error: error.message || 'ไม่มีข้อมูล'
       }, { status: 500 });
     }
 }
@@ -49,6 +50,31 @@ export async function GET(request) {
       return NextResponse.json({
           success: false,
           message: 'เกิดข้อผิดพลาดในการดึงข้อมูล',
+          error: error.message || 'ไม่มีข้อมูล'
+      }, { status: 500 });
+  }
+}
+
+
+export async function DELETE(request) {
+  await dbConnect(); // เชื่อมต่อกับฐานข้อมูลก่อน
+
+  try {
+      const { reportId } = await request.json(); // รับ reportId ที่ต้องการลบ
+
+      // ลบรายงานตาม ID ที่ได้รับ
+      const deletedReport = await Report.findByIdAndDelete(reportId);
+
+      if (!deletedReport) {
+          return NextResponse.json({ success: false, message: 'ไม่พบรายงานที่ต้องการลบ' }, { status: 404 });
+      }
+
+      return NextResponse.json({ success: true, message: 'ลบรายงานสำเร็จ', report: deletedReport });
+  } catch (error) {
+      console.error("เกิดข้อผิดพลาดในการลบข้อมูล:", error);
+      return NextResponse.json({
+          success: false,
+          message: 'เกิดข้อผิดพลาดในการลบข้อมูล',
           error: error.message || 'ไม่มีข้อมูล'
       }, { status: 500 });
   }

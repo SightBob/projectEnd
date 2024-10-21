@@ -50,8 +50,32 @@ const UserSchema = new mongoose.Schema({
   profileCoverPicture: {
     type: String,
     trim: true
+  },    
+  
+  resetPasswordToken: {
+    type: String,
+    default: '',
+  },
+  resetPasswordExpires: {
+    type: Date,
   },
 
+  verifyEmailToken: {
+    type: String,
+    default: '',
+  },
+  verifyEmailExpires: {
+    type: Date,
+  },
+  verifyEmail: {
+    type: Boolean, 
+    default: false 
+  },
+
+  verifyCategories: {
+    type: Boolean, 
+    default: false 
+  },
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

@@ -92,8 +92,8 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
       <div className="relative w-full h-[250px] max-[440px]:h-[200px]">
         <Image
           className="object-cover rounded-lg"
-          layout="fill"
-          objectFit="cover"
+          fill
+          style={{ objectFit: "cover" }}
           alt="image event"
           src={img ? img : "https://oreg.rmutt.ac.th/wp-content/uploads/2019/01/40275-Converted-01.png"}
         />

@@ -6,8 +6,8 @@ export async function GET(req) {
     try {
         await dbConnect();
         
-        // ดึงข้อมูล _id, username, และ preferred_categories ของผู้ใช้ทั้งหมด
-        const users = await User.find({}, '_id username preferred_categories');
+        // ดึงข้อมูล _id, username, preferred_categories, faculty, และ gender ของผู้ใช้ทั้งหมด
+        const users = await User.find({}, '_id username preferred_categories faculty gender');
 
         // ตรวจสอบว่ามีผู้ใช้หรือไม่
         if (users.length === 0) {

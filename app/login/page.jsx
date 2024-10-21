@@ -41,7 +41,7 @@ const Page = () => {
           username,
           password,
         });
-  
+        
         if (result.error) {
           setGeneralError(result.error);
         } else {
@@ -87,6 +87,7 @@ const Page = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            autoComplete="username" // Add this line
           />
                   <div className="flex justify-between items-end">
           <label className="mt-5" htmlFor="password">รหัสผ่าน</label>
@@ -99,21 +100,25 @@ const Page = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            autoComplete="current-password"
           />
-          <Link className="self-end text-[#EBB557] text-sm" href="/forgotPassword">ลืมรหัสผ่าน?</Link>
+          <Link className="self-end text-[#EBB557] text-sm" href="/forgot-password">ลืมรหัสผ่าน?</Link>
           <button className="bg-[#FD8D64] py-2 w-full rounded-md text-white mt-4" type="submit">ล็อคอิน</button>
           <p className="mt-2 self-end">ยังไม่มีบัญชีผู้ใช้ <Link className="text-[#EBB557]" href="register">สมัครสมาชิกที่นี่</Link></p>
         </form>
       </div>
       <div className="w-[50%] bg-[#FFDDD0] h-[calc(100vh_-_8rem)] max-md:hidden">
-        <div className="w-auto h-[7rem] relative top-[50%] translate-y-[-50%]">
-          <Image
-            layout="fill"
-            src="/assets/img_main/logo-full.png"
-            className="object-contain"
-            alt="Logo"
-          />
-        </div>
+      <div className="w-auto h-[7rem] relative top-[50%] translate-y-[-50%]"> 
+      <Image
+        fill
+        src="/assets/img_main/logo-full.png"
+        style={{ objectFit: 'contain' }} 
+        alt="Logo"
+        priority
+        sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+    />
+</div>
+
       </div>
     </div>
   )

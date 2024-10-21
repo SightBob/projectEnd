@@ -14,25 +14,25 @@ export const authOptions = {
 
         try {
           await dbConnect();
-
           const user = await User.findOne({ username });
 
-          if (user) {
-            const isValid = await bcrypt.compare(password, user.password);
-
-            if (isValid) {
-              return {
-                uuid: user._id,
-                name: user.username,
-                email: user.email,
-                role: user.role, 
-              };
-            } else {
-              throw new Error("Invalid password");
-            }
-          } else {
+          if (!user) {
             throw new Error("User not found");
           }
+
+          const isValid = await bcrypt.compare(password, user.password);
+          if (!isValid) {
+            throw new Error("Invalid password");
+          }
+
+          return {
+            uuid: user._id,
+            name: user.username,
+            email: user.email,
+            role: user.role,
+            verify_categories: user.verifyCategories,
+            verifyEmail: user.verifyEmail,
+          };
         } catch (error) {
           console.log("Error in authorize: ", error);
           throw new Error("Authorization failed");
@@ -41,26 +41,35 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.uuid = user.uuid;
-        token.role = user.role; 
+        token.role = user.role;
+        token.verify_categories = user.verify_categories;
+        token.verifyEmail = user.verifyEmail;
       }
+
+      if (trigger === "update" && session?.user) {
+        token.verify_categories = session.user.verify_categories;
+        token.verifyEmail = session.user.verifyEmail;
+      }
+      
       return token;
     },
     async session({ session, token }) {
-      // เพิ่ม uuid และ role ไปที่ session
       if (token) {
         session.user.uuid = token.uuid;
-        session.user.role = token.role; 
+        session.user.role = token.role;
+        session.user.verify_categories = token.verify_categories;
+        session.user.verifyEmail = token.verifyEmail;
       }
       return session;
     },
   },
+
   session: {
     strategy: "jwt",
-    maxAge: 2 * 60 * 60, 
+    maxAge: 2 * 60 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {

@@ -119,17 +119,9 @@ const Page = () => {
         const resUser = await axios.post('/api/auth/register', formData);
 
         if (resUser.status === 201 && resUser.data.newUser) {
-          const result = await signIn('credentials', {
-            id: resUser.data.newUser._id,
-            username: formData.username,
-            password: formData.password,
-            redirect: false
-          });
-          if (result.ok) {
-             Router.push('/Interest');
-          } else {
-            setErrors(prev => ({ ...prev, general: 'เข้าสู่ระบบไม่สำเร็จหลังจากลงทะเบียน กรุณาลองใหม่อีกครั้ง' }));
-          }
+
+          Router.push(`/checkYourEmail?email=${encodeURIComponent(formData.email)}`);
+
         } else {
           setErrors(prev => ({ ...prev, general: 'การลงทะเบียนไม่สำเร็จ กรุณาลองใหม่อีกครั้ง' }));
         }
@@ -190,6 +182,7 @@ const Page = () => {
               id="password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete='password'
             />
           
             <div className="flex justify-between items-end">
@@ -202,6 +195,7 @@ const Page = () => {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
+              autoComplete='confirmPassword'
             />
           </div>
 
@@ -256,7 +250,7 @@ const Page = () => {
 
         <input
           type="submit"
-          className="mt-8 bg-[#FD8D64] w-[40%] min-w-[400px] max-sm:w-[80%] max-sm:min-w-[300px] text-white py-3 rounded-md"
+          className="mt-8 cursor-pointer bg-[#FD8D64] w-[40%] min-w-[400px] max-sm:w-[80%] max-sm:min-w-[300px] text-white py-3 rounded-md"
           value="สมัครสมาชิก"
         />
       </form>

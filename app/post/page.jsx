@@ -38,7 +38,6 @@ const Page = () => {
     const [currentTag, setCurrentTag] = useState('');
     const [activeSection, setActiveSection] = useState('form');
     const [DataByUserid, setDataByUserid] = useState([]);
-    
 
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
@@ -94,21 +93,23 @@ const Page = () => {
             maxParticipants: formData.maxParticipants });
 
         if (res.status === 201) {
-            e.target.reset();
-            setFormData({
-                title: '',
-                start_date: '',
-                start_time: '',
-                end_date: '',
-                end_time: '',
-                location: '',
-                description: '',
-                image: null,
-                additionalLink: '',
-                tags: [],
-                maxParticipants: ''
-            });
-            setTags([]);
+
+            console.log("response post: ", res.data)
+            // e.target.reset();
+            // setFormData({
+            //     title: '',
+            //     start_date: '',
+            //     start_time: '',
+            //     end_date: '',
+            //     end_time: '',
+            //     location: '',
+            //     description: '',
+            //     image: null,
+            //     additionalLink: '',
+            //     tags: [],
+            //     maxParticipants: ''
+            // });
+            // setTags([]);
             alert('โพสต์สำเร็จแล้ว!');
         }
     };

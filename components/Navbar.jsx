@@ -16,6 +16,9 @@ const Navbar = ({ toggleChat }) => {
   const [expandedNotificationId, setExpandedNotificationId] = useState(null);
   const [unreadPersonCount, setUnreadPersonCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
+ 
+ 
+ 
   const toggleNotificationPopup = () => {
     setIsNotificationPopupOpen(!isNotificationPopupOpen);
   };
@@ -37,7 +40,7 @@ const Navbar = ({ toggleChat }) => {
   useEffect(() => {
     const fetchUnreadPersonCount = async () => {
       try {
-        const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
+        const response = await axios.get("/api/getContacts?userId=" + session?.user.uuid);
         setUnreadPersonCount(response.data.unreadPersonCount);
       } catch (error) {
         console.error('Error fetching unread person count:', error);
@@ -46,12 +49,10 @@ const Navbar = ({ toggleChat }) => {
       fetchUnreadPersonCount();
   }, [session]);
   
-  
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
       if (session) {
         const url = `/api/notifications?userId=${session.user.id}`;
-        console.log('Fetching URL:', url);
   
         try {
           const response = await fetch(url);
@@ -195,6 +196,7 @@ const Navbar = ({ toggleChat }) => {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt="Logo"
+              priority
             />
           </div>
           <h1 className="text-2xl max-sm:text-lg">SUT EVENTS</h1>
@@ -328,7 +330,7 @@ const Navbar = ({ toggleChat }) => {
                 {isNotificationPopupOpen && (
                   <div className="absolute right-0 mt-2 w-[35rem] max-md:w-[27rem] max-sm:w-[85vw] max-[460px]:w-[92vw] max-[460px]:right-[-2.5rem] bg-white border border-gray-200 shadow-lg rounded-lg z-50 p-4 notification-popup">
                     <h3 className="text-lg font-bold max-sm:text-[16px]">การเเจ้งเตือน</h3>
-                    <ul>
+                    <ul className="max-h-[200px] h-full overflow-y-scroll">
                       {notifications.map((notification) => (
                         <NotificationItem
                           key={notification._id}

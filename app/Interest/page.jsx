@@ -4,7 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import CartInterest from "@/components/CartInterest";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 
 const titleInterest = [
@@ -18,11 +18,10 @@ const titleInterest = [
 
 const Page = () => {
   const router = useRouter();
-  const { data: session} = useSession();
-  // console.log("interest: ", session.user.uuid);
+  const { data: session, update} = useSession();
 
   const [selectedInterests, setSelectedInterests] = useState([]);
-
+  
   const toggleInterest = (interest) => {
     setSelectedInterests(prev => 
       prev.includes(interest)
@@ -30,18 +29,30 @@ const Page = () => {
         : [...prev, interest]
     );
   };
-
+  console.log("session: ", session);
   const saveInterests = async () => {
     try {
-      const response = await axios.post('/api/interest', { uuid: session.user.uuid ,interests: selectedInterests });
-      console.log('Interests saved:', response.data);
+      const response = await axios.post('/api/interest', { 
+        uuid: session.user.uuid, 
+        interests: selectedInterests 
+      });
 
-      if(response.status === 200){
+      console.log("response.status: ", response.status);
+      
+      if (response.status === 200) {
+        await update({
+          ...session,
+          user: {
+            ...session.user,
+            verify_categories: true
+          }
+        });
+        
         router.push('/');
       }
+      router.push('/');
     } catch (error) {
       console.error('Error saving interests:', error);
-
     }
   };
 
@@ -49,7 +60,7 @@ const Page = () => {
     <div className="min-h-[calc(100vh_-_8rem)] w-full pb-[3rem]"> 
       <div className="max-w-[560px] max-sm:w-[80%] mx-auto relative flex items-center justify-center">
         <h2 className="text-center text-3xl">สิ่งที่คุณสนใจ</h2>
-        <Link href="/" className="text-gray-400 absolute right-0">ข้าม</Link>
+        <div onClick={saveInterests} className="text-gray-400 absolute right-0 cursor-pointer">ข้าม</div>
       </div>
       <div className="flex justify-center w-fit max-sm:w-[90%] mx-auto mt-4">
         <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-2">
@@ -67,8 +78,7 @@ const Page = () => {
       </div>
       <div 
         className="bg-[#FD8D64] px-12 mt-4 py-2 rounded-md w-fit mx-auto text-white cursor-pointer"
-        onClick={saveInterests}
-      >
+        onClick={saveInterests}>
         <p>ถัดไป</p>
       </div>
     </div>

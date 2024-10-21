@@ -5,11 +5,10 @@ import Message from '@/models/Message';
 import mongoose from 'mongoose';
 
 export async function GET(request) {
-  console.log('-------- API route called. Method: GET --------');
+  // console.log('-------- API route called. Method: GET --------');
 
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
-  console.log('Query parameters:', { userId });
 
   if (!userId) {
     console.log('Error: userId is required');
@@ -18,9 +17,9 @@ export async function GET(request) {
 
   try {
     await dbConnect();
-    console.log('Database connected successfully');
+    // console.log('Database connected successfully');
 
-    console.log(`Fetching user with ID: ${userId}`);
+    // console.log(`Fetching user with ID: ${userId}`);
     const user = await User.findById(userId);
 
     if (!user) {
@@ -28,13 +27,13 @@ export async function GET(request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log('-------- User Data --------');
-    console.log(`Username: ${user.username}`);
-    console.log(`User ID: ${user._id}`);
-    console.log('Raw contacts data:', JSON.stringify(user.contacts, null, 2));
-    console.log('Number of contacts:', user.contacts.length);
+    // console.log('-------- User Data --------');
+    // console.log(`Username: ${user.username}`);
+    // console.log(`User ID: ${user._id}`);
+    // console.log('Raw contacts data:', JSON.stringify(user.contacts, null, 2));
+    // console.log('Number of contacts:', user.contacts.length);
 
-    console.log('-------- Fetching Contact Details --------');
+    // console.log('-------- Fetching Contact Details --------');
     const contactIds = user.contacts.map(contact => 
       mongoose.Types.ObjectId.isValid(contact) ? new mongoose.Types.ObjectId(contact) : null
     ).filter(id => id !== null);
@@ -58,14 +57,14 @@ export async function GET(request) {
   receiver: userId,
   read: false  // เปลี่ยนจาก { $ne: true } เป็น false
 });
-      console.log(`Unread count for ${contact.username}: ${unreadCount}`);
+      // console.log(`Unread count for ${contact.username}: ${unreadCount}`);
 
       if (unreadCount > 0) {
         unreadPersonCount++;
       }
-      console.log(`Contact: ${contact.username}`);
-      console.log(`  Last Message: ${lastMessage ? lastMessage.text : 'No messages'}`);
-      console.log(`  Unread Count: ${unreadCount}`);
+      // console.log(`Contact: ${contact.username}`);
+      // console.log(`  Last Message: ${lastMessage ? lastMessage.text : 'No messages'}`);
+      // console.log(`  Unread Count: ${unreadCount}`);
 
       return {
         _id: contact._id.toString(),
@@ -85,18 +84,18 @@ export async function GET(request) {
       if (!b.lastMessageTime) return -1;
       return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
     });
-    console.log(`Total unread person count555555555555: ${unreadPersonCount}`);
-    console.log('-------- Processed Contacts --------');
-    console.log(JSON.stringify(contactsWithDetails, null, 2));
+    // console.log(`Total unread person count555555555555: ${unreadPersonCount}`);
+    // console.log('-------- Processed Contacts --------');
+    // console.log(JSON.stringify(contactsWithDetails, null, 2));
 
-    console.log('-------- API Call Completed Successfully --------');
+    // console.log('-------- API Call Completed Successfully --------');
 
     return NextResponse.json({ contacts: contactsWithDetails ,unreadPersonCount});
   } catch (error) {
-    console.error("-------- Error in API Call --------");
-    console.error("Error details:", error);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-    return NextResponse.json({ error: "Failed to fetch contacts" }, { status: 500 });
+    // console.error("-------- Error in API Call --------");
+    // console.error("Error details:", error);
+    // console.error("Error message:", error.message);
+    // console.error("Error stack:", error.stack);
+    return NextResponse.json({ error: "Failed to fetch contacts" });
   }
 }

@@ -138,7 +138,7 @@ const EditEvent = ({ params }) => {
             }
         } catch (error) {
             console.error("Error updating event: ", error);
-            console.log("Error response:", error.response?.data);
+            // console.log("Error response:", error.response?.data);
             alert('เกิดข้อผิดพลาดในการอัพเดทกิจกรรม');
         }
     };
