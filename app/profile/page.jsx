@@ -286,8 +286,8 @@ const Page = () => {
           </div>
           
         </div>  
-        <div className="flex justify-between items-center pr-16 mb-6">
-                <div className="bg-transparent  flex space-x-3 pl-16 text-sm font-medium">
+        <div className="flex justify-between items-center pr-16 mb-6 max-[750px]:pr-2">
+                <div className="bg-transparent  flex space-x-3 pl-16 text-sm font-medium max-[750px]:px-2">
                 <p 
               onClick={() => setView('ProfileView')} 
               className={`cursor-pointer ${view === 'ProfileView' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-500'}`}
@@ -313,7 +313,7 @@ const Page = () => {
                 </div>
         {/* Profile Form */}
         {view === 'ProfileView' && (
-        <div id='ProfileView' className="grid grid-cols-2 gap-4 mt-1 pl-16">
+        <div id='ProfileView' className="grid grid-cols-2 gap-4 mt-1 pl-16 max-[750px]:px-2 max-[510px]:grid-cols-1">
           {['firstname', 'lastname', 'email'].map((field) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700">
@@ -326,7 +326,7 @@ const Page = () => {
                 name={field}
                 value={formData[field]}
                 onChange={handleInputChange}
-                className={`mt-2 px-2 border rounded-md max-w-[325px] py-2 w-full ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
+                className={`mt-2 px-2 border rounded-md py-2 w-full max-[510px]:max-w-full ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
                 disabled={!isEditing}
               />
             </div>
@@ -334,7 +334,7 @@ const Page = () => {
           <div>
               <label className="block text-sm font-medium text-gray-700">เพศ</label>
               <ProfileDropdown
-                options={Gender} // เปลี่ยนเป็น Gender แทน Object.keys(Gender)
+                options={Gender} 
                 value={formData.gender}
                 onChange={handleGenderChange}
                 placeholder="เลือกเพศ"
@@ -369,13 +369,13 @@ const Page = () => {
         
        {/* PersonaView Form */}
         {view === 'PersonaView' && (
-            <div id='PersonaView' className="grid grid-cols-1 gap-4 mt-1 pl-16 pr-16">
+            <div id='PersonaView' className="grid grid-cols-1 gap-4 mt-1 px-16 max-[510px]:px-2">
                 <div>
                     <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
                     
                     {/* แสดงเฉพาะหมวดหมู่ที่ผู้ใช้เลือกไว้ในโหมดปกติ */}
                     {!isEditing && (
-                        <div className="grid grid-cols-5 gap-3">
+                        <div className="grid grid-cols-5 gap-3 max-[510px]:grid-cols-2">
                             {formData.preferred_categories.map((item, index) => (
                                 <div
                                     key={index}
@@ -389,7 +389,7 @@ const Page = () => {
 
                     {/* แสดงรายการทั้งหมดในโหมดแก้ไข */}
                     {isEditing && (
-                        <div className="grid grid-cols-5 gap-3">
+                        <div className="grid grid-cols-5 gap-3 max-[510px]:grid-cols-2">
                             {Interrest.map((item, index) => (
                                 <div
                                     key={index}

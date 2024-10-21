@@ -5,27 +5,25 @@ const UserForm = ({ onSubmit, onClose, user }) => {
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
-  const [isActive, setIsActive] = useState(true);
 
-  // If editing an existing user, populate fields with user data
   useEffect(() => {
     if (user) {
       setUsername(user.username);
       setFirstname(user.firstname);
       setLastname(user.lastname);
       setEmail(user.email);
-      setIsActive(user.isActive);
     }
   }, [user]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ username, firstname, lastname, email, isActive });
+    // Include the user ID in the submitted data
+    onSubmit({ id: user?.id, username, firstname, lastname, email });
+    // Clear the form fields
     setUsername("");
     setFirstname("");
     setLastname("");
     setEmail("");
-    setIsActive(true);
   };
 
   return (
@@ -62,14 +60,6 @@ const UserForm = ({ onSubmit, onClose, user }) => {
           placeholder="Email"
           className="border px-4 py-2 w-full mb-2"
         />
-        <select
-          value={isActive.toString()}
-          onChange={(e) => setIsActive(e.target.value === "true")}
-          className="border px-4 py-2 w-full mb-2"
-        >
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
-        </select>
         <div className="flex justify-end">
           <button
             type="submit"

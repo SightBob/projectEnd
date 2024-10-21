@@ -82,22 +82,3 @@ export async function PUT(req) {
     }
 }
 
-// DELETE: Delete a user
-export async function DELETE(req) {
-    try {
-        // Connect to the database
-        await dbConnect();
-
-        // Parse the request body to get the user ID
-        const { id } = await req.json();
-
-        // Delete the user by ID
-        await User.findByIdAndDelete(id);
-
-        // Return a success message
-        return NextResponse.json({ success: true, message: "User deleted successfully" }, { status: 200 });
-    } catch (error) {
-        console.error("Error deleting user:", error);
-        return NextResponse.json({ success: false, message: "Error deleting user" }, { status: 500 });
-    }
-}
