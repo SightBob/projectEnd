@@ -17,8 +17,6 @@ const Navbar = ({ toggleChat }) => {
   const [unreadPersonCount, setUnreadPersonCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
  
- 
- 
   const toggleNotificationPopup = () => {
     setIsNotificationPopupOpen(!isNotificationPopupOpen);
   };
