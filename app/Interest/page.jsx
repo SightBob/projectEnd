@@ -29,13 +29,15 @@ const Page = () => {
         : [...prev, interest]
     );
   };
-
+  console.log("session: ", session);
   const saveInterests = async () => {
     try {
       const response = await axios.post('/api/interest', { 
         uuid: session.user.uuid, 
         interests: selectedInterests 
       });
+
+      console.log("response.status: ", response.status);
       
       if (response.status === 200) {
         await update({
@@ -48,6 +50,7 @@ const Page = () => {
         
         router.push('/');
       }
+      router.push('/');
     } catch (error) {
       console.error('Error saving interests:', error);
     }
@@ -57,7 +60,7 @@ const Page = () => {
     <div className="min-h-[calc(100vh_-_8rem)] w-full pb-[3rem]"> 
       <div className="max-w-[560px] max-sm:w-[80%] mx-auto relative flex items-center justify-center">
         <h2 className="text-center text-3xl">สิ่งที่คุณสนใจ</h2>
-        <button onClick={saveInterests} className="text-gray-400 absolute right-0 cursor-pointer">ข้าม</button>
+        <div onClick={saveInterests} className="text-gray-400 absolute right-0 cursor-pointer">ข้าม</div>
       </div>
       <div className="flex justify-center w-fit max-sm:w-[90%] mx-auto mt-4">
         <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-2">

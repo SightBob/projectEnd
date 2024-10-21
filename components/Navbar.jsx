@@ -40,7 +40,7 @@ const Navbar = ({ toggleChat }) => {
   useEffect(() => {
     const fetchUnreadPersonCount = async () => {
       try {
-        const response = await axios.get(`/api/getContacts?userId=${currentUserId}`);
+        const response = await axios.get("/api/getContacts?userId=" + session?.user.uuid);
         setUnreadPersonCount(response.data.unreadPersonCount);
       } catch (error) {
         console.error('Error fetching unread person count:', error);
@@ -48,7 +48,6 @@ const Navbar = ({ toggleChat }) => {
     };
       fetchUnreadPersonCount();
   }, [session]);
-  
   
   useEffect(() => {
     const fetchUnreadNotifications = async () => {
@@ -197,6 +196,7 @@ const Navbar = ({ toggleChat }) => {
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               alt="Logo"
+              priority
             />
           </div>
           <h1 className="text-2xl max-sm:text-lg">SUT EVENTS</h1>

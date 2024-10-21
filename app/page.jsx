@@ -113,42 +113,50 @@ export default function Home() {
           >
             <SwiperSlide>
               <div className="relative w-full h-full">
-                <Image
-                  src="/assets/img_main/banner-1.png"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  alt="promote banner advertise"
-                />
+              <Image
+                src="/assets/img_main/banner-1.png"
+                fill // Using 'fill' 
+                style={{ objectFit: 'cover' }} 
+                alt="promote banner advertise"
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                priority 
+              />
               </div>
             </SwiperSlide>
             <SwiperSlide>
               <div className="relative w-full h-full">
-                <Image
-                  src="/assets/img_main/banner-1.png"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                   alt="promote banner advertise"
-                />
+              <Image
+                src="/assets/img_main/banner-1.png"
+                fill // Using 'fill' 
+                style={{ objectFit: 'cover' }} 
+                alt="promote banner advertise"
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                priority 
+              />
               </div>
             </SwiperSlide>
             <SwiperSlide>
               <div className="relative w-full h-full">
-                <Image
-                  src="/assets/img_main/banner-1.png"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                   alt="promote banner advertise"
-                />
+              <Image
+                src="/assets/img_main/banner-1.png"
+                fill // Using 'fill' 
+                style={{ objectFit: 'cover' }} 
+                alt="promote banner advertise"
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                priority 
+              />
               </div>
             </SwiperSlide>
             <SwiperSlide>'
               <div className="relative w-full h-full">
-                <Image
-                  src="/assets/img_main/banner-1.png"
-                  fill
-                  style={{ objectFit: 'cover' }}
-                   alt="promote banner advertise"
-                />
+              <Image
+                src="/assets/img_main/banner-1.png"
+                fill // Using 'fill' 
+                style={{ objectFit: 'cover' }} 
+                alt="promote banner advertise"
+                sizes="(max-width: 768px) 100vw, 50vw" 
+                priority 
+              />
               </div>
             </SwiperSlide>
           </Swiper>

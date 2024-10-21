@@ -13,8 +13,6 @@ export default function VerifyEmailPage() {
   const token = searchParams.get('token');
   const router = useRouter(); 
 
-  const { data: session } = useSession();
-
   const handleVerifyEmail = async () => {
     setIsLoading(true);
     try {
