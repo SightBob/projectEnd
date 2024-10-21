@@ -35,12 +35,12 @@ export async function PUT(req) {
     }
 
     const body = await req.json();
-    const { firstname, lastname, email, gender, faculty, major, username } = body;
+    const { firstname, lastname, email, gender, faculty, major, username,preferred_categories,profilePicture,profileCoverPicture } = body;
 
     await dbConnect();
     const updatedUser = await User.findByIdAndUpdate(
       uid,
-      { firstname, lastname, email, gender, faculty, major, username },
+      { firstname, lastname, email, gender, faculty, major, username , preferred_categories,profilePicture,profileCoverPicture },
       { new: true, runValidators: true }
     );
 

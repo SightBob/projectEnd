@@ -72,7 +72,7 @@ export async function GET(request) {
         firstname: contact.firstname,
         lastname: contact.lastname,
         email: contact.email,
-        profileImage: contact.profileImage,
+        profilePicture: contact.profilePicture,
         lastMessage: lastMessage ? lastMessage.text : '',
         lastMessageTime: lastMessage ? lastMessage.timestamp : null,
         unreadCount
