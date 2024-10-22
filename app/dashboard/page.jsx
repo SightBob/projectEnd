@@ -316,13 +316,9 @@ users.forEach(user => {
 
   return (
     <div className="p-8 space-y-8 bg-gray-100">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cards */}
-        <div className="bg-white p-6 rounded-lg shadow-md relative">
-          <h2 className="text-xl font-semibold">ผู้ใช้งานปัจจุบัน</h2>
-          <p className="text-4xl font-bold">0</p>
-          <p className="text-sm text-gray-500">จำนวนผู้ใช้งานออนไลน์</p>
-        </div>
+    
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold">กิจกรรมใหม่ล่าสุด</h2>
           <p className="text-4xl font-bold">{newPostsCount}</p> {/* Display new posts count */}
@@ -338,8 +334,8 @@ users.forEach(user => {
           <p className="text-4xl font-bold">{totalActivities}</p> {/* Display total activities */}
           <p className="text-sm text-gray-500 ">กิจกรรมทั้งหมดในเว็บ</p>
         </div>
-
-        
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
      {/* กล่อง จำนวนสำนักวิชาของผู้ใช้งาน */}
   <div className="col-span-1 lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
     <h2 className="text-xl font-semibold">จำนวนสำนักวิชาของผู้ใช้งาน</h2>
