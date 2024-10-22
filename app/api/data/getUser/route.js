@@ -7,8 +7,11 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('id');
     
-    await dbConnect();
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
 
+    await dbConnect();
     const user = await User.findById(userId).select('username email firstname lastname major');
     
     if (!user) {
@@ -26,6 +29,10 @@ export async function GET(req) {
 
   } catch (error) {
     console.error('Error fetching user:', error);
+    // เพิ่มการตรวจสอบประเภทของ error
+    if (error.name === 'CastError') {
+      return NextResponse.json({ error: 'Invalid user ID format' }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

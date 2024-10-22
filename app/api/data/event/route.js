@@ -1,6 +1,7 @@
 import { dbConnect } from "@/lib/ConnectDB";
 import Post from "@/models/Post";
 import { NextResponse } from "next/server";
+import Notification from "@/models/Notification";
 
 export async function POST(req) {
     try {
@@ -32,6 +33,13 @@ export async function POST(req) {
         }
 
         await event.save();
+
+        const getNotification = await Notification.findOne({ postId: eventId });
+
+        if (getNotification) {
+            getNotification.participants = event.participants;
+            await getNotification.save();
+        }
 
         return NextResponse.json({ success: true, message, action }, { status: 200 });
     } catch (error) {

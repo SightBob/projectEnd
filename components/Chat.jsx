@@ -179,7 +179,7 @@ const Chat = ({ contact, onBack, onClose }) => {
               alt={`Contact ${contact.username}`}
               width={32}
               height={32}
-              className="w-8 h-8 rounded-full"
+              className="w-8 h-8 rounded-full object-cover"
             />
             <h2 className="text-white text-lg">{contact.firstname}</h2>
           </div>

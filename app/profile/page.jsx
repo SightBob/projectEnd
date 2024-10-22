@@ -64,9 +64,7 @@ const faculties = {
 
 const Gender = ["ชาย", "หญิง", "ไม่ระบุ"];
 
-const Interrest = ["เกม", "กีฬา", "อาหาร", "การท่องเที่ยว", "สัตว์เลี้ยง"
-  , "การศึกษา", "ชมรมนักศึกษา"
-];
+const Interrest = ["เกม", "กีฬา", "อาหาร", "ท่องเที่ยว", "สัตว์เลี้ยง", "การศึกษา", "ชมรมนักศึกษา"];
 
 const Page = () => {
   const { data: session, status } = useSession();
@@ -136,9 +134,6 @@ const Page = () => {
         };
     });
 };
-
-
-
 
   const handleFacultyChange = (value) => {
     setFormData((prevData) => ({
@@ -339,7 +334,7 @@ const Page = () => {
                 onChange={handleGenderChange}
                 placeholder="เลือกเพศ"
                 disabled={!isEditing}
-                className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+                className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
               />
             </div>
           <div>
@@ -350,7 +345,7 @@ const Page = () => {
               onChange={handleFacultyChange}
               placeholder="เลือกคณะ"
               disabled={!isEditing}
-              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
             />
           </div>
           <div>
@@ -361,7 +356,7 @@ const Page = () => {
               onChange={(value) => handleInputChange({ target: { name: 'major', value } })}
               placeholder="เลือกสาขา"
               disabled={!isEditing}
-              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
             />
           </div>
         </div>

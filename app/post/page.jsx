@@ -95,21 +95,21 @@ const Page = () => {
         if (res.status === 201) {
 
             console.log("response post: ", res.data)
-            // e.target.reset();
-            // setFormData({
-            //     title: '',
-            //     start_date: '',
-            //     start_time: '',
-            //     end_date: '',
-            //     end_time: '',
-            //     location: '',
-            //     description: '',
-            //     image: null,
-            //     additionalLink: '',
-            //     tags: [],
-            //     maxParticipants: ''
-            // });
-            // setTags([]);
+            e.target.reset();
+            setFormData({
+                title: '',
+                start_date: '',
+                start_time: '',
+                end_date: '',
+                end_time: '',
+                location: '',
+                description: '',
+                image: null,
+                additionalLink: '',
+                tags: [],
+                maxParticipants: ''
+            });
+            setTags([]);
             alert('โพสต์สำเร็จแล้ว!');
         }
     };
@@ -177,11 +177,11 @@ const Page = () => {
                     <div className="flex items-center space-x-4">
                         <div className="mb-4 w-2/4">
                             <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
-                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="mb-4 w-2/4">
                             <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
-                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">

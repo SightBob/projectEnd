@@ -134,7 +134,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
                 alt={`${contact.username} avatar`}
                 width={40}
                 height={40}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
             </div>
             <div className="flex flex-col px-3 w-full">

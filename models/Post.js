@@ -16,7 +16,6 @@ const PostSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    required: true,
     trim: true
   },
   picture: {
@@ -29,11 +28,9 @@ const PostSchema = new mongoose.Schema({
   },
   start_date: {
     type: String,
-    required: true
   },
   start_time: {
     type: String,
-    required: true
   },
   end_date: {
     type: String,

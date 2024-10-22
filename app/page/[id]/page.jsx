@@ -59,7 +59,7 @@ const EventDetail = ({ params }) => {
       });
       if (res.data && res.data.post) {
         setEventData(res.data.post.getPost);
-        console.log("res.data.post.getPost: ", res.data.post.getPost);
+        // console.log("res.data.post.getPost: ", res.data.post.getPost);
         setName(res.data.post.nameOrganizer);
 
       } else {

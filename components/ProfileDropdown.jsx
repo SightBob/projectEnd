@@ -28,7 +28,7 @@ const ProfileDropdown = ({ options, value, onChange, placeholder, disabled }) =>
   return (
     <div className="relative" ref={dropdownRef}>
       <div
-        className={`mt-2 px-2 border rounded-md max-w-[325px] py-2  w-full cursor-pointer ${disabled ? 'cursor-not-allowed bg-gray-100' : 'bg-white'}`}
+        className={`mt-2 px-2 border rounded-md py-2  w-full cursor-pointer ${disabled ? 'cursor-not-allowed bg-gray-100' : 'bg-white'}`}
         onClick={toggleDropdown}
       >
         {value || placeholder}

@@ -56,19 +56,39 @@ const Navbar = ({ toggleChat }) => {
           const response = await fetch(url);
           const data = await response.json();
   
-          // Get the current time
           const now = new Date();
   
-          // Filter notifications to only include those that are scheduled to be sent
           const filteredNotifications = data.filter(notification => 
             new Date(notification.scheduledTime) <= now
           );
   
-          // Sort notifications by scheduledTime
-          setNotifications(filteredNotifications.sort((a, b) => new Date(b.scheduledTime) - new Date(a.scheduledTime)));
+          console.log("filteredNotifications:", filteredNotifications);
+          // ดึงข้อมูลการแจ้งเตือน
+          const validNotifications = filteredNotifications.filter(notification => {
+            
+            if (notification.type === 'auto') {
+              if(notification.participants.includes(session?.user?.uuid)){
+                console.log("have user:", notification.title);
+
+                // const response = await axios.get(`/api/data/getUsers?id=${session?.user?.uuid}`);
+                
+                // console.log('getUser: ',  response.data);
+                
+                return notification.participants.includes(session?.user?.uuid);
+              }
+            }
+
+            if(notification.type === 'manual') {
+              return notification;
+            }
+          });
+          console.log("validNotifications:", validNotifications);
+          
+          // จัดเรียงการแจ้งเตือนตาม scheduledTime
+          setNotifications(validNotifications.sort((a, b) => new Date(b.scheduledTime) - new Date(a.scheduledTime)));
   
-          // Calculate unread notifications based on the readed array
-          setUnreadNotifications(filteredNotifications.filter(notification => !notification.readed.includes(session.user.uuid)).length);
+          // คำนวณจำนวนการแจ้งเตือนที่ยังไม่ได้อ่าน
+          setUnreadNotifications(validNotifications.filter(notification => !notification.readed.includes(session.user.uuid)).length);
         } catch (error) {
           console.error('Error fetching notifications:', error);
         }

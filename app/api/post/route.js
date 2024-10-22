@@ -27,20 +27,16 @@ export async function POST(req) {
         });
         
 
-        if(newpost){
-            // เปลี่ยนจุดเป็นโคลอน
+        if(newpost && start_time){
+
             const formattedTime = start_time.replace(".", ":");
 
-            // รวมวันที่และเวลาในรูปแบบ UTC
             const combinedDateTimeUTC = new Date(`${start_date}T${formattedTime}:00.000Z`);
 
-            // ลดเวลา 7 ชั่วโมงเพื่อให้ได้เวลาเป็น UTC-7
             const adjustedDateTime = new Date(combinedDateTimeUTC.getTime() - 7 * 60 * 60 * 1000);
 
-            // ลดอีก 2 วัน (2 * 24 * 60 * 60 * 1000 milliseconds)
-            const finalDateTime = new Date(adjustedDateTime.getTime() - 2 * 24 * 60 * 60 * 1000);
+            const finalDateTime = new Date(adjustedDateTime.getTime() - 1 * 24 * 60 * 60 * 1000);
 
-            // แปลงเป็นรูปแบบที่ต้องการ
             const DateTimeNotification = finalDateTime.toISOString().replace("Z", "+00:00");
 
             const notificationTitle = `เชิญชวนเข้าร่วมกิจกรรม "${title}"`;
@@ -49,8 +45,9 @@ export async function POST(req) {
             const newNotification = await Notification.create({
                 title: notificationTitle,
                 message: notificationMessage,
-                type: "auto",
+                type: member === 'yes' ? "auto" : "manual",
                 isRead: false,
+                postId: newpost._id,
                 readed: [],
                 createdAt: new Date(),
                 scheduledTime: DateTimeNotification
@@ -61,6 +58,12 @@ export async function POST(req) {
                 newpost
             }, { status: 201 })
             
+        }else {
+
+            return NextResponse.json({
+                newpost
+            }, { status: 201 })
+
         }
 
     } catch (error) {
@@ -83,6 +86,12 @@ export async function DELETE(req) {
 
         if (result.deletedCount === 0) {
             return NextResponse.json({ error: "ไม่พบโพสต์ที่ต้องการลบ" }, { status: 404 });
+        }
+
+        // ลบการแจ้งเตือนที่เกี่ยวข้องกับโพสต์
+        const deleteNofi = await Notification.deleteOne({ 'postId': idPost });
+        if (deleteNofi.deletedCount === 0) {
+            console.warn("ไม่พบการแจ้งเตือนที่เกี่ยวข้องกับโพสต์นี้");
         }
 
         // ส่ง 204 No Content เมื่อลบสำเร็จ
