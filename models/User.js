@@ -24,6 +24,9 @@ const UserSchema = new mongoose.Schema({
   major: {
     type: String,
   },
+  gender: {
+    type: String,
+  },
   field_of_study: {
     type: String,
   },
@@ -39,6 +42,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },  
+  profilePicture: {
+    type: String,
+    trim: true
+  },
+  profileCoverPicture: {
+    type: String,
+    trim: true
   },    
   
   resetPasswordToken: {

@@ -51,9 +51,6 @@ const EventDetail = ({ params }) => {
       alert('เกิดข้อผิดพลาดในการรายงาน: ' + error.response?.data?.message || error.message);
     }
   };
-  
-  
-
 
   const fetchEventData = async () => {
     try {
@@ -62,8 +59,9 @@ const EventDetail = ({ params }) => {
       });
       if (res.data && res.data.post) {
         setEventData(res.data.post.getPost);
-        console.log("res.data.post.getPost: ", res.data.post.getPost);
+        // console.log("res.data.post.getPost: ", res.data.post.getPost);
         setName(res.data.post.nameOrganizer);
+
       } else {
         throw new Error("No event data in response");
       }
@@ -90,7 +88,7 @@ const EventDetail = ({ params }) => {
     }
   };
 
-  const handleClick = () => {
+  const handleClickChat = () => {
     if (eventData) {
       console.log('Organizer ID:', eventData.organizer_id);
       setSelectedContactId(eventData.organizer_id);
@@ -152,6 +150,13 @@ const EventDetail = ({ params }) => {
       </div>
     );
 
+    const currentDateTime = new Date();
+    const eventEndDateTime = new Date(`${eventData.end_date}T${eventData.end_time}`);
+
+    const isEventFull = eventData.current_participants === eventData.maxParticipants;
+    const isUserJoined = eventData.participants.includes(session?.user?.uuid);
+    const isRegistrationClosed = currentDateTime >= eventEndDateTime;
+
   return (
     <div className="container max-w-[1240px] mx-auto">
       <div className="flex">
@@ -176,7 +181,7 @@ const EventDetail = ({ params }) => {
                   className="rounded-full border-4 border-white object-cover"
                   fill
                   alt="Organizer Profile"
-                  src="/assets/img_main/Profile-cat.png"
+                  src={ name.profilePicture || "/assets/img_main/usericon.png"}
                 />
               </div>
               <div className="flex flex-col">
@@ -189,12 +194,12 @@ const EventDetail = ({ params }) => {
                   {/* Message Button */}
                   <button
                     className="ml-2 flex items-center justify-center bg-transparent text-gray-600 hover:text-blue-600 focus:outline-none"
-                    onClick={handleClick}
+                    onClick={handleClickChat}
                     style={{ cursor: 'pointer' }}
                   >
                     {/* SVG Icon */}
                     <svg
-                      className="w-6 h-6 text-gray-500 dark:text-gray-400"
+                      className="w-6 h-6 text-gray-500 dark:text-gray-400 "
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -281,13 +286,18 @@ const EventDetail = ({ params }) => {
                   <div className="flex flex-col items-center">
                     ผู้เข้าร่วม: {eventData.current_participants} / {eventData.maxParticipants}
                     <button
-                      className="bg-orange-400 text-white px-7 py-2 rounded-lg hover:bg-orange-500 mt-2"
+                      className={`bg-orange-400 text-white px-7 py-2 rounded-lg mt-2 ${
+                        isEventFull || isRegistrationClosed ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-500"
+                      }`}
                       onClick={joinEvent}
+                      disabled={isEventFull || isRegistrationClosed}
                     >
-                      {eventData.current_participants === eventData.maxParticipants
+                      {isEventFull
                         ? "คนเข้าร่วมเต็มแล้ว"
-                        : eventData.participants.includes(session?.user?.uuid)
+                        : isUserJoined
                         ? 'คุณเข้าร่วมแล้ว'
+                        : isRegistrationClosed
+                        ? 'ปิดรับสมัครแล้ว'
                         : 'เข้าร่วมกิจกรรม'}
                     </button>
                   </div>

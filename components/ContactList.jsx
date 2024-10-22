@@ -130,11 +130,11 @@ const ContactList = ({ onSelectContact, onClose }) => {
           >
             <div className="relative">
               <Image
-                src={contact.profileImage || "/assets/img_main/usericon.png"}
+                src={contact.profilePicture || "/assets/img_main/usericon.png"}
                 alt={`${contact.username} avatar`}
                 width={40}
                 height={40}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover"
               />
             </div>
             <div className="flex flex-col px-3 w-full">

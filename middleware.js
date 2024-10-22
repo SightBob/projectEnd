@@ -5,7 +5,8 @@ export async function middleware(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   const { pathname } = request.nextUrl;
 
-  const adminPaths = ['/dashboard', '/push-notification', '/post-activity', '/editBot', '/report', ];
+  // รายการ path ที่ต้องการให้เฉพาะ admin เข้าถึงได้
+  const adminPaths = ['/dashboard', '/push-notification', '/post-activity','/report','/editBot','/editUser'];
 
   if (!token) {
     if (pathname.startsWith('/Interest')) {

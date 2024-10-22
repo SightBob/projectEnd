@@ -62,10 +62,15 @@ const faculties = {
   "สำนักวิชาศาสตร์และศิลป์ดิจิทัล": ["ศาสตร์และศิลป์ดิจิทัล"]
 };
 
+const Gender = ["ชาย", "หญิง", "ไม่ระบุ"];
+
+const Interrest = ["เกม", "กีฬา", "อาหาร", "ท่องเที่ยว", "สัตว์เลี้ยง", "การศึกษา", "ชมรมนักศึกษา"];
+
 const Page = () => {
   const { data: session, status } = useSession();
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [view, setView] = useState('ProfileView');
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
@@ -75,6 +80,8 @@ const Page = () => {
     major: '',
     username: '',
     profilePicture: '',
+    profileCoverPicture: '',
+    preferred_categories: []
   });
 
   useEffect(() => {
@@ -110,6 +117,24 @@ const Page = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+
+  const toggleInterest = (interest) => {
+    setFormData((prevData) => {
+        console.log('Before update:', prevData.preferred_categories);
+        
+        const updatedCategories = prevData.preferred_categories.includes(interest)
+            ? prevData.preferred_categories.filter(item => item !== interest)
+            : [...prevData.preferred_categories, interest];
+        
+        console.log('Updated preferred_categories:', updatedCategories);
+        
+        return {
+            ...prevData,
+            preferred_categories: updatedCategories
+        };
+    });
+};
+
   const handleFacultyChange = (value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -118,6 +143,14 @@ const Page = () => {
     }));
   };
 
+  const handleGenderChange = (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      gender: value, // อัปเดตค่า gender ตามที่เลือก
+    }));
+  };
+  
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -125,16 +158,31 @@ const Page = () => {
       reader.onloadend = () => {
         setFormData(prevState => ({
           ...prevState,
-          profilePicture: reader.result // ใช้ base64 string
+          profilePicture: reader.result 
         }));
       };
-      reader.readAsDataURL(file); // แปลงไฟล์เป็น base64 string
+      reader.readAsDataURL(file); 
+    }
+  };
+
+  const handleCoverFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prevState => ({
+          ...prevState,
+          profileCoverPicture: reader.result 
+        }));
+      };
+      reader.readAsDataURL(file); 
     }
   };
   
 
   const handleEditToggle = () => {
     if (isEditing) {
+      console.log('Form data before saving:มาแล้วนะ', formData);
       async function saveUserData() {
         try {
           const response = await fetch(`/api/profile?uid=${session.user.uuid}`, {
@@ -177,19 +225,34 @@ const Page = () => {
         {/* Cover Image */}
         <div className="relative w-full h-48">
           <Image
-            src="/assets/img_main/cover-cat.png" 
+            src={formData.profileCoverPicture || "/assets/img_main/SUT91.jpg" }
             alt="Cover Photo"
             layout="fill"
             className="object-cover rounded-t-lg"
           />
+          {isEditing && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 cursor-pointer">
+                  <label htmlFor="Coverfile-upload" className="cursor-pointer">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className='size-8' viewBox="0 0 24 24"><g stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m21.28 6.4-9.54 9.54c-.95.95-3.77 1.39-4.4.76-.63-.63-.2-3.45.75-4.4l9.55-9.55a2.58 2.58 0 1 1 3.64 3.65v0Z"/><path d="M11 4H6a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h11c2.21 0 3-1.8 3-4v-5"/></g></svg>
+                  </label>
+                  <input
+                    id="Coverfile-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCoverFileChange}
+                    className="hidden"
+                  />
+                </div>
+              )}
         </div>
 
         {/* Profile Header */}
-        <div className="relative -mt-16 flex flex-col items-start mb-6 left-3 space-y-2">
+        <div className="relative -mt-16 flex flex-col items-start mb-2 left-3 space-y-2 ">
+          
           <div className="flex flex-row items-center space-x-4">
             <div className="w-32 h-32 relative z-10">
               <Image
-                src={formData.profilePicture || "/assets/img_main/Profile-cat.png"}
+                src={formData.profilePicture || "/assets/img_main/usericon.png"}
                 alt="Profile"
                 layout="fill"
                 className="rounded-full object-cover border-4 border-white"
@@ -197,7 +260,7 @@ const Page = () => {
               {isEditing && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full cursor-pointer">
                   <label htmlFor="file-upload" className="cursor-pointer">
-                    <Image src="/assets/img_main/edit.png" alt="Edit Icon" width={24} height={24} />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className='size-8' viewBox="0 0 24 24"><g stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m21.28 6.4-9.54 9.54c-.95.95-3.77 1.39-4.4.76-.63-.63-.2-3.45.75-4.4l9.55-9.55a2.58 2.58 0 1 1 3.64 3.65v0Z"/><path d="M11 4H6a4 4 0 0 0-4 4v10a4 4 0 0 0 4 4h11c2.21 0 3-1.8 3-4v-5"/></g></svg>
                   </label>
                   <input
                     id="file-upload"
@@ -210,52 +273,70 @@ const Page = () => {
               )}
             </div>
             <div className="mt-14 flex flex-col justify-center">
-              <div className="flex items-center space-x-2">
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    className="text-xl font-semibold border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
-                  />
-                ) : (
-                  <h2 className="text-xl font-semibold">{formData.username}</h2>
-                )}
-                <Image
-                  src="/assets/img_main/edit.png"
-                  alt="Edit Icon"
-                  width={20}
-                  height={20}
-                  className="cursor-pointer"
-                  onClick={handleEditToggle}
-                />
+              <div className="flex items-center">
+                  <h2 className="text-xl font-semibold">{`${formData.firstname} ${formData.lastname}`}</h2>
               </div>
               {/* <p className="text-gray-500">{formatDate(user.createdAt)}</p> */}
             </div>
           </div>
-        </div>
-
+          
+        </div>  
+        <div className="flex justify-between items-center pr-16 mb-6 max-[750px]:pr-2">
+                <div className="bg-transparent  flex space-x-3 pl-16 text-sm font-medium max-[750px]:px-2">
+                <p 
+              onClick={() => setView('ProfileView')} 
+              className={`cursor-pointer ${view === 'ProfileView' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-500'}`}
+            >
+              โปรไฟล์
+            </p>
+            <p 
+              onClick={() => setView('PersonaView')} 
+              className={`cursor-pointer ${view === 'PersonaView' ? 'font-bold text-black border-b-2 border-black' : 'text-gray-500'}`}
+            >
+              ความเป็นส่วนตัว
+            </p>
+                </div>
+                {/* Edit Button */}
+                <div className=" justify-end">
+                <button 
+                    className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-gray-500'}`}
+                    onClick={handleEditToggle}
+                  >
+                    {isEditing ? 'Save' : 'Edit'}
+                  </button>
+                </div>
+                </div>
         {/* Profile Form */}
-        <div className="grid grid-cols-2 gap-4 mt-12 pl-16">
-          {['firstname', 'lastname', 'email', 'gender'].map((field) => (
+        {view === 'ProfileView' && (
+        <div id='ProfileView' className="grid grid-cols-2 gap-4 mt-1 pl-16 max-[750px]:px-2 max-[510px]:grid-cols-1">
+          {['firstname', 'lastname', 'email'].map((field) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700">
-                {field === 'firstname' ? 'ชื่อจริง' : 
-                 field === 'lastname' ? 'นามสกุล' : 
-                 field === 'email' ? 'อีเมล' : 
-                 'เพศ'}
+              {field === 'firstname' ? 'ชื่อจริง' : 
+              field === 'lastname' ? 'นามสกุล' : 
+              field === 'email' ? 'อีเมล' : ''}
               </label>
               <input
                 type="text"
                 name={field}
                 value={formData[field]}
                 onChange={handleInputChange}
-                className={`mt-2 px-2 border rounded-md max-w-[325px] py-2 w-full ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
+                className={`mt-2 px-2 border rounded-md py-2 w-full max-[510px]:max-w-full ${isEditing ? 'bg-white' : 'bg-gray-100'}`}
                 disabled={!isEditing}
               />
             </div>
           ))}
+          <div>
+              <label className="block text-sm font-medium text-gray-700">เพศ</label>
+              <ProfileDropdown
+                options={Gender} 
+                value={formData.gender}
+                onChange={handleGenderChange}
+                placeholder="เลือกเพศ"
+                disabled={!isEditing}
+                className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              />
+            </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">คณะ</label>
             <ProfileDropdown
@@ -264,7 +345,7 @@ const Page = () => {
               onChange={handleFacultyChange}
               placeholder="เลือกคณะ"
               disabled={!isEditing}
-              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
             />
           </div>
           <div>
@@ -275,20 +356,54 @@ const Page = () => {
               onChange={(value) => handleInputChange({ target: { name: 'major', value } })}
               placeholder="เลือกสาขา"
               disabled={!isEditing}
-              className={`mt-2 px-2 border rounded-md max-w-[300px] py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
+              className={`mt-2 px-2 border rounded-md py-1 w-full ${isEditing ? 'bg-white' : 'bg-gray-200'}`}
             />
           </div>
         </div>
+         )}
         
-        {/* Edit Button */}
-        <div className="mt-5 flex justify-end">
-        <button 
-            className={`px-4 py-2 rounded-md text-white ${isEditing ? 'bg-green-500' : 'bg-blue-500'}`}
-            onClick={handleEditToggle}
-          >
-            {isEditing ? 'Save' : 'Edit'}
-          </button>
-        </div>
+       {/* PersonaView Form */}
+        {view === 'PersonaView' && (
+            <div id='PersonaView' className="grid grid-cols-1 gap-4 mt-1 px-16 max-[510px]:px-2">
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
+                    
+                    {/* แสดงเฉพาะหมวดหมู่ที่ผู้ใช้เลือกไว้ในโหมดปกติ */}
+                    {!isEditing && (
+                        <div className="grid grid-cols-5 gap-3 max-[510px]:grid-cols-2">
+                            {formData.preferred_categories.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="border-2 items-center flex justify-center rounded-lg bg-gray-300"
+                                >
+                                    <p>{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* แสดงรายการทั้งหมดในโหมดแก้ไข */}
+                    {isEditing && (
+                        <div className="grid grid-cols-5 gap-3 max-[510px]:grid-cols-2">
+                            {Interrest.map((item, index) => (
+                                <div
+                                    key={index}
+                                    onClick={() => {
+                                      console.log('Clicked interest:', item);
+                                      toggleInterest(item);
+                                  }}
+                                    className={`cursor-pointer border-2 items-center flex justify-center rounded-lg ${
+                                        formData.preferred_categories.includes(item) ? 'bg-green-400' : 'bg-gray-400'
+                                    }`}
+                                >
+                                    <p>{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        )}
       </div>
     </div>
   );

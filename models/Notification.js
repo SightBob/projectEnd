@@ -5,9 +5,18 @@ const NotificationSchema = new mongoose.Schema({
   message: String,
   isRead: Boolean,
   type: String,
-  readed: { type: [String], default: [] }, 
+  canRead: Object,
+  readed: { type: [String], default: [] },
+  participants: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  postId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Post'
+  },
   createdAt: { type: Date, default: Date.now },
-  scheduledTime: { type: Date, required: true }, 
+  scheduledTime: { type: Date, required: true },
 });
 
 export default mongoose.models.Notification || mongoose.model('Notification', NotificationSchema);
