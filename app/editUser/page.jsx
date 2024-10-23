@@ -47,7 +47,7 @@ const EditUser = () => {
 
   // Save user changes
   const saveEdit = async (updatedUser) => {
-    console.log("Updated User ID:", updatedUser.id); // This should log the correct ID
+    // console.log("Updated User ID:", updatedUser.id); // This should log the correct ID
     setIsLoading(true);
     try {
       if (!updatedUser.id) {
@@ -89,10 +89,10 @@ const handleDelete = async (userId) => {
 
       const data = await response.json();
       if (data.success) {
-          console.log(data.message); // User deleted successfully
+          // console.log(data.message); // User deleted successfully
           // Update your UI accordingly
       } else {
-          console.error(data.message); // Handle error message
+          // console.error(data.message); // Handle error message
       }
   } catch (error) {
       console.error("Error deleting user:", error);

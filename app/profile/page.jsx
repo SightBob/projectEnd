@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import ProfileDropdown from '@/components/ProfileDropdown'; 
 import LoadingSpinner from '@/components/LoadingSpinner';
+import CartEvent from '@/components/CartEvent';
 
 const faculties = {
   "สำนักวิชาวิทยาศาสตร์": [
@@ -71,6 +72,8 @@ const Page = () => {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [view, setView] = useState('ProfileView');
+  const [userActivities, setUserActivities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
@@ -101,6 +104,7 @@ const Page = () => {
         }
       }
       fetchUserData();
+      fetchUserActivity();
     }
   }, [status, session]);
 
@@ -117,16 +121,49 @@ const Page = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const fetchUserActivity = async (userId) => {
+    try {
+      setIsLoading(true);
+      
+      // console.log("กำลังเรียก API ด้วย userId:", userId);
+      
+      // แก้ไข URL ให้ตรงกับ path ที่ถูกต้อง
+      const response = await fetch(`/api/data/userActivity?uid=${session.user.uuid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch user activities');
+      }
+  
+      const data = await response.json();
+      setUserActivities(data.events);
+      return data.events;
+  
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+      setError(error.message);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
 
   const toggleInterest = (interest) => {
     setFormData((prevData) => {
-        console.log('Before update:', prevData.preferred_categories);
+        // console.log('Before update:', prevData.preferred_categories);
         
         const updatedCategories = prevData.preferred_categories.includes(interest)
             ? prevData.preferred_categories.filter(item => item !== interest)
             : [...prevData.preferred_categories, interest];
         
-        console.log('Updated preferred_categories:', updatedCategories);
+        // console.log('Updated preferred_categories:', updatedCategories);
         
         return {
             ...prevData,
@@ -182,7 +219,7 @@ const Page = () => {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      console.log('Form data before saving:มาแล้วนะ', formData);
+      // console.log('Form data before saving:มาแล้วนะ', formData);
       async function saveUserData() {
         try {
           const response = await fetch(`/api/profile?uid=${session.user.uuid}`, {
@@ -364,7 +401,8 @@ const Page = () => {
         
        {/* PersonaView Form */}
         {view === 'PersonaView' && (
-            <div id='PersonaView' className="grid grid-cols-1 gap-4 mt-1 px-16 max-[510px]:px-2">
+          <div id='PersonaView' className="flex flex-col">
+            <div className="grid grid-cols-1 gap-4 mt-1 px-16 max-[510px]:px-2">
                 <div>
                     <label className="block text-sm font-medium text-gray-700">สิ่งที่สนใจ</label>
                     
@@ -389,7 +427,7 @@ const Page = () => {
                                 <div
                                     key={index}
                                     onClick={() => {
-                                      console.log('Clicked interest:', item);
+                                      // console.log('Clicked interest:', item);
                                       toggleInterest(item);
                                   }}
                                     className={`cursor-pointer border-2 items-center flex justify-center rounded-lg ${
@@ -402,8 +440,27 @@ const Page = () => {
                         </div>
                     )}
                 </div>
+          </div>
+          <div className="px-16 max-[510px]:px-2 mt-2">
+                {/* Acivity Join */}
+        <label className="block text-sm font-medium text-gray-700">กิจกรรมที่เข้าร่วม</label>
+        <div className="w-full grid grid-cols-3 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
+          {isLoading ? (
+            <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
+              <LoadingSpinner/>
             </div>
+          ) : userActivities.length > 0 ? (
+            userActivities.map((item, index) => (
+              <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} favorites={item.favorites} views={item.views} />
+            ))
+          ) : (
+            <p>ไม่พบกิจกรรมที่ผู้ใช้เข้าร่วม</p>
+          )}
+        </div>
+        </div>
+          </div>
         )}
+        
       </div>
     </div>
   );

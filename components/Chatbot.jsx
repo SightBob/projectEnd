@@ -1,4 +1,3 @@
-// components/Chatbot.js
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
@@ -53,12 +52,40 @@ const Chatbot = ({ onSendMessage }) => {
   };
 
   const addMessage = (content, sender) => {
-    setChatMessages(prevMessages => [...prevMessages, { content, sender }]);
+    setChatMessages(prevMessages => [...prevMessages, { 
+      content: formatMessageContent(content), 
+      sender 
+    }]);
+  };
+
+  // Function to format message content
+  const formatMessageContent = (content) => {
+    if (typeof content !== 'string') return content;
+    
+    // Replace newlines with <br> tags
+    return content.split('\n').map((line, i) => (
+      <React.Fragment key={i}>
+        {line}
+        {i !== content.split('\n').length - 1 && <br />}
+      </React.Fragment>
+    ));
+  };
+
+  const renderMessage = (message) => {
+    return (
+      <div 
+        className={`whitespace-pre-wrap break-words ${
+          message.sender === 'user' ? 'max-w-[100%] ml-auto' : 'max-w-[98%]'
+        }`}
+      >
+        {message.content}
+      </div>
+    );
   };
 
   return (
-    <div className=" flex flex-col h-[100%]">
-      <div className=" overflow-y-auto p-4  ">
+    <div className="flex flex-col h-[100%]">
+      <div className="overflow-y-auto p-4">
         {chatMessages.map((message, index) => (
           <div 
             key={index} 
@@ -66,34 +93,41 @@ const Chatbot = ({ onSendMessage }) => {
           >
             <div 
               className={`inline-block p-2 rounded-lg ${
-                message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
+                message.sender === 'user' ? 
+                'bg-blue-500 text-white' : 
+                'bg-gray-200 text-black'
               }`}
             >
-              {message.content}
+              {renderMessage(message)}
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
-        <h3 className="text-lg font-semibold mb-4 text-orange-500 pt-4 max-sm:text-base">เลือกคำถามที่ต้องการถามได้เลยครับ</h3>
-      {Object.entries(questions).map(([category, categoryQuestions]) => (
-            <div key={category} className="mb-4 ">
-              <h4 className="font-medium mb-2 text-sm text-orange-400 text-center">{category}</h4>
-              <div className="flex flex-wrap gap-2">
-                {categoryQuestions.map((q) => (
-                  <button 
-                    key={q.id} 
-                    onClick={() => handleQuestionClick(q.id)} 
-                    className="bg-gray-100 text-gray-800 text-sm py-1 px-3 rounded-full hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
-                  >
-                    {q.question}
-                  </button>
-                ))}
-              </div>
+        
+        <h3 className="text-lg font-semibold mb-4 text-orange-500 pt-4 max-sm:text-base">
+          เลือกคำถามที่ต้องการถามได้เลยครับ
+        </h3>
+        
+        {Object.entries(questions).map(([category, categoryQuestions]) => (
+          <div key={category} className="mb-4">
+            <h4 className="font-medium mb-2 text-sm text-orange-400 text-center">
+              {category}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {categoryQuestions.map((q) => (
+                <button 
+                  key={q.id} 
+                  onClick={() => handleQuestionClick(q.id)} 
+                  className="bg-gray-100 text-gray-800 text-sm py-1 px-3 rounded-full hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                >
+                  {q.question}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
+        ))}
       </div>
-        </div>
-      
+    </div>
   );
 };
 

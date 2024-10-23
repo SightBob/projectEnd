@@ -48,7 +48,7 @@ const Chat = ({ contact, onBack, onClose }) => {
           receiverId: currentUserId,
           currentUserId: currentUserId
         });
-        console.log('Messages marked as read:', response.data);
+        // console.log('Messages marked as read:', response.data);
         setMessages(prevMessages => 
           prevMessages.map(msg => 
             msg.sender === contact._id ? {...msg, read: true} : msg
@@ -118,7 +118,7 @@ const Chat = ({ contact, onBack, onClose }) => {
           senderId: currentUserId,
           receiverId: contact._id
         });
-        console.log(response.data);
+        // console.log(response.data);
       } catch (error) {
         console.error("Error updating contacts:", error);
       }
@@ -161,7 +161,7 @@ const Chat = ({ contact, onBack, onClose }) => {
   };
   
   return (
-    <div className="fixed bottom-4 max-[460px]:bottom-0 right-4 max-[460px]:right-0 max-w-md w-[400px] h-[70%] max-[460px]:h-[100%] max-[460px]:w-[100%] bg-white shadow-lg rounded-lg  max-[460px]:rounded-none overflow-hidden z-[200] flex flex-col">
+    <div className="fixed bottom-4 max-[460px]:bottom-0 right-4 max-[460px]:right-0 max-w-md w-[400px] h-[70%] max-[460px]:h-[100%] max-[460px]:w-[100%] bg-white shadow-lg rounded-lg  max-[460px]:rounded-none overflow-hidden z-[250] max-[460px]:fixed flex flex-col">
       <div className="flex items-center justify-between p-4 bg-blue-500">
         <div className="flex space-x-5 items-center">
           <button onClick={onBack} className="text-white">

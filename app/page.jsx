@@ -73,7 +73,7 @@ export default function Home() {
           res = await axios.get('/api/interest');
         }
 
-        console.log('setDataInterest:', res.data.getPost);
+        // console.log('setDataInterest:', res.data.getPost);
         setDataInterest(res.data.getPost);
       } catch (error) {
         console.error('Error fetching data:', error);

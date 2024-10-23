@@ -20,7 +20,7 @@ const ChatContainer = ({ onClose, selectedContactId }) => {
         throw new Error('Failed to fetch contact');
       }
       const data = await response.json();
-      console.log("Fetched contact data:", data);
+      // console.log("Fetched contact data:", data);
       setSelectedContact(data);
       setError(null);
     } catch (err) {
