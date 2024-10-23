@@ -73,7 +73,7 @@ export default function Home() {
           res = await axios.get('/api/interest');
         }
 
-        // console.log('setDataInterest:', res.data.getPost);
+        console.log('setDataInterest:', res.data.getPost);
         setDataInterest(res.data.getPost);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -208,7 +208,7 @@ export default function Home() {
               ดูทั้งหมด <span><svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="1.5" className="size-6" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg></span>
             </Link>
           </div>
-          <div className="grid grid-cols-4 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-[660px]:grid-cols-2 max-lg:w-full max-[410px]:grid-cols-1 place-items-center">
+          <div className="grid grid-cols-4 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-[660px]:grid-cols-2 max-lg:w-full max-[435px]:grid-cols-1 place-items-center">
             {dataInterest.length > 0 ?
               (
                 dataInterest.map((item, index) => (

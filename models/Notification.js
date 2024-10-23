@@ -15,6 +15,10 @@ const NotificationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'
   },
+  sendEmail: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   createdAt: { type: Date, default: Date.now },
   scheduledTime: { type: Date, required: true },
 });
