@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import axios from 'axios';
@@ -16,7 +16,8 @@ const Navbar = ({ toggleChat }) => {
   const [expandedNotificationId, setExpandedNotificationId] = useState(null);
   const [unreadPersonCount, setUnreadPersonCount] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(null);
- 
+  const processedNotifications = useRef(new Set());
+
   const toggleNotificationPopup = () => {
     setIsNotificationPopupOpen(!isNotificationPopupOpen);
   };
@@ -48,9 +49,10 @@ const Navbar = ({ toggleChat }) => {
   }, [session]);
   
   useEffect(() => {
+
     const fetchUnreadNotifications = async () => {
       if (session) {
-        const url = `/api/notifications?userId=${session.user.id}`;
+        const url = `/api/notifications?userId=${session?.user?.uuid}`;
   
         try {
           const response = await fetch(url);
@@ -63,25 +65,51 @@ const Navbar = ({ toggleChat }) => {
           );
   
           console.log("filteredNotifications:", filteredNotifications);
-          // ดึงข้อมูลการแจ้งเตือน
-          const validNotifications = filteredNotifications.filter(notification => {
-            
-            if (notification.type === 'auto') {
-              if(notification.participants.includes(session?.user?.uuid)){
-                console.log("have user:", notification.title);
 
-                // const response = await axios.get(`/api/data/getUsers?id=${session?.user?.uuid}`);
-                
-                // console.log('getUser: ',  response.data);
-                
-                return notification.participants.includes(session?.user?.uuid);
+          let validNotifications = [];
+
+          for (const notification of filteredNotifications) {
+
+            const notificationKey = `${notification.postId}-${session.user.uuid}`;
+
+            if (notification.type === 'auto') {
+              if (notification.participants.includes(session?.user?.uuid)) {
+
+              console.log("have user:", notification);
+
+              if(!notification.sendEmail.includes(session?.user?.uuid) && !processedNotifications.current.has(notificationKey)){
+              
+              processedNotifications.current.add(notificationKey);
+
+              const userResponse = await axios.get(`/api/data/getUser?id=${session?.user?.uuid}`);
+              
+              console.log('getUser: ', userResponse.data);
+
+              // ส่งเมล
+              await fetch('/api/sendEventReminder', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: userResponse.data.email,
+                  title: notification.title,
+                  message: notification.message,
+                  userId: userResponse.data.id,
+                  postId: notification.postId,
+                }),
+              });
+              }
+
+              validNotifications.push(notification);
+
               }
             }
 
-            if(notification.type === 'manual') {
-              return notification;
+            if (notification.type === 'manual') {
+              validNotifications.push(notification);
             }
-          });
+          }
           console.log("validNotifications:", validNotifications);
           
           // จัดเรียงการแจ้งเตือนตาม scheduledTime

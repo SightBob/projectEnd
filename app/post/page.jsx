@@ -363,6 +363,7 @@ const Page = () => {
                             current_participants={item.current_participants} 
                             userId={session?.user?.uuid} 
                             favorites={item.favorites} 
+                            views={item.views}
                             onDelete={handleDelete}
                         />
                     )) : <>

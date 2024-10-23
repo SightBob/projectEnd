@@ -48,9 +48,14 @@ export async function GET(req) {
                 return NextResponse.json({ error: "User not found" }, { status: 404 });
             }
             
-            getPost = await Post.find({
-                category: { $in: user.preferred_categories }
-            }).sort({ createdAt: -1 }).limit(8);
+            // ถ้า user ไม่มี preferred_categories ให้ดึงโพสต์ทั้งหมด
+            if (user.preferred_categories.length === 0) {
+                getPost = await Post.find().sort({ createdAt: -1 }).limit(8);
+            } else {
+                getPost = await Post.find({
+                    category: { $in: user.preferred_categories }
+                }).sort({ createdAt: -1 }).limit(8);
+            }
 
             return NextResponse.json({ getPost });
         }
