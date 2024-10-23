@@ -14,7 +14,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
   useEffect(() => {
     if (session && session?.user) {
       setCurrentUserId(session.user.uuid);
-      console.log("session contact list: ", session?.user.uuid)
+      // console.log("session contact list: ", session?.user.uuid)
     }
   }, [session]);
 
@@ -23,7 +23,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
     try {
       setIsLoading(true);
       const response = await axios.get(`/api/getContacts?userId=${session?.user?.uuid}`);
-      console.log(`Fetching contacts for user: ${currentUserId}`);
+      // console.log(`Fetching contacts for user: ${currentUserId}`);
       setContacts(response.data.contacts);
     } catch (error) {
       console.error("Error fetching contacts:", error.response || error);

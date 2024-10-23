@@ -21,8 +21,8 @@ const ReportModal = ({ onClose, postId, userId }) => {
     }
   
     // ตรวจสอบค่า postId และ userId ว่ามีค่าอยู่หรือไม่
-    console.log('postId:', postId);
-    console.log('userId:', userId);
+    // console.log('postId:', postId);
+    // console.log('userId:', userId);
   
     const reportData = {
       reason: selectedReason === 'อื่นๆ' ? otherReason : selectedReason,
@@ -30,7 +30,7 @@ const ReportModal = ({ onClose, postId, userId }) => {
       userId    // รหัสผู้ใช้ที่ทำการรายงาน
     };
   
-    console.log('Sending report data:', reportData); // log ข้อมูลที่ถูกส่งไป
+    // console.log('Sending report data:', reportData); // log ข้อมูลที่ถูกส่งไป
   
     try {
       setIsSubmitting(true);

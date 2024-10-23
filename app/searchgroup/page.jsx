@@ -44,34 +44,34 @@ const Page = ({}) => {
   }, []);
 
   useEffect(() => {
-    console.log("Filtering events...");
-    console.log("Selected categories:", selectedCategories);
-    console.log("Selected date:", selectedDate);
+    // console.log("Filtering events...");
+    // console.log("Selected categories:", selectedCategories);
+    // console.log("Selected date:", selectedDate);
   
     let filtered = allEvents;
   
     if (selectedDate) {
       const dateToFilter = getLocalDateString(selectedDate);
       filtered = filtered.filter(event => event.start_date === dateToFilter);
-      console.log("Events after date filtering:", filtered.length);
+      // console.log("Events after date filtering:", filtered.length);
     }
   
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(event => {
         const eventCategories = Array.isArray(event.category) ? event.category : Object.keys(event.category).filter(key => event.category[key]);
-        console.log(`Event ${event.title} categories:`, eventCategories);
+        // console.log(`Event ${event.title} categories:`, eventCategories);
         
         const matchedCategories = selectedCategories.filter(category => 
           eventCategories.includes(category)
         );
-        console.log(`Matched categories for ${event.title}:`, matchedCategories);
+        // console.log(`Matched categories for ${event.title}:`, matchedCategories);
         
         const allCategoriesMatch = matchedCategories.length === selectedCategories.length;
-        console.log(`All categories match for ${event.title}:`, allCategoriesMatch);
+        // console.log(`All categories match for ${event.title}:`, allCategoriesMatch);
         
         return allCategoriesMatch;
       });
-      console.log("Events after category filtering:", filtered.length);
+      // console.log("Events after category filtering:", filtered.length);
     }
   
     // console.log("Final filtered events:", filtered);
@@ -83,7 +83,7 @@ const Page = ({}) => {
       const newSelected = prevSelected.includes(category)
         ? prevSelected.filter((c) => c !== category)
         : [...prevSelected, category];
-      console.log("New selected categories:", newSelected);
+      // console.log("New selected categories:", newSelected);
       return newSelected;
     });
   };

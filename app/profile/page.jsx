@@ -125,7 +125,7 @@ const Page = () => {
     try {
       setIsLoading(true);
       
-      console.log("กำลังเรียก API ด้วย userId:", userId);
+      // console.log("กำลังเรียก API ด้วย userId:", userId);
       
       // แก้ไข URL ให้ตรงกับ path ที่ถูกต้อง
       const response = await fetch(`/api/data/userActivity?uid=${session.user.uuid}`, {
@@ -157,13 +157,13 @@ const Page = () => {
 
   const toggleInterest = (interest) => {
     setFormData((prevData) => {
-        console.log('Before update:', prevData.preferred_categories);
+        // console.log('Before update:', prevData.preferred_categories);
         
         const updatedCategories = prevData.preferred_categories.includes(interest)
             ? prevData.preferred_categories.filter(item => item !== interest)
             : [...prevData.preferred_categories, interest];
         
-        console.log('Updated preferred_categories:', updatedCategories);
+        // console.log('Updated preferred_categories:', updatedCategories);
         
         return {
             ...prevData,
@@ -219,7 +219,7 @@ const Page = () => {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      console.log('Form data before saving:มาแล้วนะ', formData);
+      // console.log('Form data before saving:มาแล้วนะ', formData);
       async function saveUserData() {
         try {
           const response = await fetch(`/api/profile?uid=${session.user.uuid}`, {
@@ -427,7 +427,7 @@ const Page = () => {
                                 <div
                                     key={index}
                                     onClick={() => {
-                                      console.log('Clicked interest:', item);
+                                      // console.log('Clicked interest:', item);
                                       toggleInterest(item);
                                   }}
                                     className={`cursor-pointer border-2 items-center flex justify-center rounded-lg ${

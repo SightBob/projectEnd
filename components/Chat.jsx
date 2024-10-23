@@ -48,7 +48,7 @@ const Chat = ({ contact, onBack, onClose }) => {
           receiverId: currentUserId,
           currentUserId: currentUserId
         });
-        console.log('Messages marked as read:', response.data);
+        // console.log('Messages marked as read:', response.data);
         setMessages(prevMessages => 
           prevMessages.map(msg => 
             msg.sender === contact._id ? {...msg, read: true} : msg
@@ -118,7 +118,7 @@ const Chat = ({ contact, onBack, onClose }) => {
           senderId: currentUserId,
           receiverId: contact._id
         });
-        console.log(response.data);
+        // console.log(response.data);
       } catch (error) {
         console.error("Error updating contacts:", error);
       }
