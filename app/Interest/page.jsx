@@ -19,6 +19,7 @@ const titleInterest = [
 const Page = () => {
   const router = useRouter();
   const { data: session, update} = useSession();
+  const [isLoading, setIsLoading] = useState(false); // เพิ่ม state สำหรับ loading
 
   const [selectedInterests, setSelectedInterests] = useState([]);
   
@@ -29,14 +30,17 @@ const Page = () => {
         : [...prev, interest]
     );
   };
+
   console.log("session: ", session);
+  
   const saveInterests = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post('/api/interest', { 
         uuid: session.user.uuid, 
         interests: selectedInterests 
       });
-
+    
       console.log("response.status: ", response.status);
       
       if (response.status === 200) {
@@ -50,11 +54,14 @@ const Page = () => {
         
         router.push('/');
       }
-      router.push('/');
+    
     } catch (error) {
       console.error('Error saving interests:', error);
+      alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }; // เพิ่ม parenthesis ปิด function
 
   return (
     <div className="min-h-[calc(100vh_-_8rem)] w-full pb-[3rem]"> 
@@ -77,9 +84,9 @@ const Page = () => {
         </div>
       </div>
       <div 
-        className="bg-[#FD8D64] px-12 mt-4 py-2 rounded-md w-fit mx-auto text-white cursor-pointer"
-        onClick={saveInterests}>
-        <p>ถัดไป</p>
+        className={`bg-[#FD8D64] px-12 mt-4 py-2 rounded-md w-fit mx-auto text-white ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+        onClick={!isLoading ? saveInterests : undefined}>
+        <p>{isLoading ? 'กำลังบันทึก...' : 'ถัดไป'}</p>
       </div>
     </div>
   );
