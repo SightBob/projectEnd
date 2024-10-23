@@ -14,6 +14,8 @@ const titleInterest = [
   { name: "กีฬา", img: "sport", alt: "ไอคอนอุปกรณ์กีฬาแสดงถึงความสนใจด้านกีฬาและการออกกำลังกาย" },
   { name: "การศึกษา", img: "study", alt: "ไอคอนหนังสือหรือหมวกบัณฑิตแสดงถึงความสนใจด้านการศึกษาและวิชาการ" },
   { name: "ท่องเที่ยว", img: "travel", alt: "ไอคอนกระเป๋าเดินทางหรือลูกโลกแสดงถึงความสนใจด้านการท่องเที่ยว" },
+  { name: "ทุนการศึกษา", img: "scholarships", alt: "ไอคอนทุนการศึกษา" },
+  { name: "คอนเสิร์ต", img: "concert", alt: "ไอคอนคอนเสิร์ต" },
 ];
 
 const Page = () => {
@@ -31,7 +33,7 @@ const Page = () => {
     );
   };
 
-  console.log("session: ", session);
+  // console.log("session: ", session);
   
   const saveInterests = async () => {
     try {
@@ -54,6 +56,7 @@ const Page = () => {
         
         router.push('/');
       }
+      router.push('/');
     
     } catch (error) {
       console.error('Error saving interests:', error);
@@ -70,7 +73,7 @@ const Page = () => {
         <div onClick={saveInterests} className="text-gray-400 absolute right-0 cursor-pointer">ข้าม</div>
       </div>
       <div className="flex justify-center w-fit max-sm:w-[90%] mx-auto mt-4">
-        <div className="grid grid-cols-3 gap-3 max-sm:grid-cols-2">
+        <div className="grid grid-cols-4 gap-3 max-sm:grid-cols-2">
           {titleInterest.map((interest, index) => (
             <CartInterest 
               key={index} 

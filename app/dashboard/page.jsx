@@ -229,6 +229,8 @@ const currentPosts = posts
     { name: "กีฬา", img: "sport", alt: "ไอคอนกีฬา" },
     { name: "การศึกษา", img: "study", alt: "ไอคอนหนังสือ" },
     { name: "ท่องเที่ยว", img: "travel", alt: "ไอคอนกระเป๋าเดินทาง" },
+    { name: "ทุนการศึกษา", img: "scholarships", alt: "ไอคอนทุนการศึกษา" },
+    { name: "คอนเสิร์ต", img: "concert", alt: "ไอคอนคอนเสิร์ต" },
   ];
   
 

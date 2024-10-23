@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 const PostFormModal = ({ isOpen, onClose, session }) => {
 
   // const { data: session } = useSession();
-  console.log("session: ", session);
+  // console.log("session: ", session);
   const [formData, setFormData] = useState({
     title: '',
     start_date: '',
@@ -23,7 +23,7 @@ const PostFormModal = ({ isOpen, onClose, session }) => {
     member: 'no',
   });
 
-  const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
+  const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว', 'ทุนการศึกษา', 'คอนเสิร์ต'];
   const [tags, setTags] = useState([]);
   const [currentTag, setCurrentTag] = useState('');
 

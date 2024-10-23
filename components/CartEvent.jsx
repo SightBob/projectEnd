@@ -115,14 +115,14 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
           <div className="flex items-center space-x-2">
             <Link
               href={`/editEvent/${id}`}
-              className="bg-[#a6a6a6] px-3 py-2 rounded-md w-fit text-white cursor-pointer max-[1521px]:py-1 max-[440px]:py-2"
+              className="bg-[#a6a6a6] px-2 py-2 rounded-md w-fit text-white cursor-pointer max-[1521px]:py-1 max-[440px]:py-2"
             >
               <p>แก้ไข</p>
             </Link>
             { member === "yes" ? 
               <Link
                 href={`/viewMember/${id}`}
-                className="bg-[#a6a6a6] px-3 py-2 rounded-md w-fit text-white cursor-pointer max-[1521px]:py-1 max-[440px]:py-2"
+                className="bg-[#a6a6a6] px-2 py-2 rounded-md w-fit text-white cursor-pointer max-[1521px]:py-1 max-[440px]:py-2"
               >
                 <div className="flex items-center justify-center space-x-2">
                   <p>{current_participants} / {maxParticipants}</p>

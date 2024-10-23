@@ -50,7 +50,7 @@ export async function GET(req) {
             
             // ถ้า user ไม่มี preferred_categories ให้ดึงโพสต์ทั้งหมด
             if (user.preferred_categories.length === 0) {
-                getPost = await Post.find().sort({ createdAt: -1 }).limit(8);
+                getPost = await Post.find().sort({ createdAt: -1 }).limit(6);
             } else {
                 getPost = await Post.find({
                     category: { $in: user.preferred_categories }

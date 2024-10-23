@@ -32,7 +32,7 @@ const Page = () => {
         }
     }
 
-    const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
+    const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว', 'ทุนการศึกษา', 'คอนเสิร์ต'];
 
     const [tags, setTags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');

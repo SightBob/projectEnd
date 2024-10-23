@@ -25,7 +25,7 @@ const EditEvent = ({ params }) => {
         member: 'no'
     });
 
-    const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว'];
+    const availableTags = ['อาหาร', 'เกม', 'ชมรมนักศึกษา', 'กีฬา', 'การศึกษา', 'ท่องเที่ยว', 'ทุนการศึกษา', 'คอนเสิร์ต'];
     const [currentTag, setCurrentTag] = useState('');
 
     useEffect(() => {
@@ -180,16 +180,16 @@ const EditEvent = ({ params }) => {
                     </div>
                     <div className="mb-4">
                         <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
-                        <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                        <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md"/>
                     </div>
                     <div className="flex space-x-4 mb-4">
                         <div className="w-1/2">
                             <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
-                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                         <div className="w-1/2">
                             <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
-                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
+                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
                         </div>
                     </div>
                     <div className="flex space-x-4 mb-4">

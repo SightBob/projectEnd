@@ -254,25 +254,33 @@ const EventDetail = ({ params }) => {
             {/* Event Details */}
             <div className="flex max-sm:flex-col">
               <div className="flex-1">
+              
                 <h1 className="text-2xl font-bold mb-4">{eventData.title}</h1>
-                <p className="text-lg font-semibold">วันที่จัดกิจกรรม:</p>
+
+                {eventData.start_date ? <>
+                  <p className="text-lg font-semibold" >วันที่จัดกิจกรรม:</p>  
                 <p>
                   {formatThaiDate(eventData.start_date)}
                   {eventData.end_date && ` - ${formatThaiDate(eventData.end_date)}`}
-                </p>
-                <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
+                </p></>: "" }
+                  
+                {eventData.location ?  <>                
+                  <p className="text-lg font-semibold mt-2">สถานที่จัดกิจกรรม:</p>
+                  </> : ""}
+
                 <p>{eventData.location}</p>
                 {eventData.description ? (
                   <>
                     <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-                    <p>{eventData.description}</p>
+                    <pre>{eventData.description}</pre>
                   </>
                 ) : null}
               </div>
 
               <div className="flex flex-col items-start ml-4 max-sm:ml-0 max-sm:mt-6">
                 <div className="mb-4">
-                  <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่มเติม</p>
+                  {eventData.link_other ? <>
+                    <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่มเติม</p>
                   <QRCodeSVG
                     className="mx-auto"
                     value={eventData.link_other || "https://default-link.com"}
@@ -280,7 +288,8 @@ const EventDetail = ({ params }) => {
                     bgColor={"#ffffff"}
                     fgColor={"#000000"}
                     level={"L"}
-                  />
+                  /></> : "" }
+                  
                 </div>
                 {eventData.member === 'yes' && (
                   <div className="flex flex-col items-center">
