@@ -2,12 +2,14 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import LoadingSpinner from './LoadingSpinner';
 
 const ContactList = ({ onSelectContact, onClose }) => {
   const [contacts, setContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const { data: session } = useSession();
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (session && session?.user) {
@@ -19,12 +21,14 @@ const ContactList = ({ onSelectContact, onClose }) => {
   const fetchContacts = async () => {
     if (!currentUserId) return;
     try {
+      setIsLoading(true);
       const response = await axios.get(`/api/getContacts?userId=${session?.user?.uuid}`);
       console.log(`Fetching contacts for user: ${currentUserId}`);
       setContacts(response.data.contacts);
     } catch (error) {
       console.error("Error fetching contacts:", error.response || error);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -70,6 +74,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
   return (
     <div className="fixed bottom-4 max-[460px]:bottom-0 right-4 max-[460px]:right-0 max-w-md w-[400px] h-[70%] max-[460px]:h-[100%] max-[460px]:w-[100%]  bg-white shadow-lg rounded-lg max-[460px]:rounded-none overflow-hidden z-[200]">
       <div className="flex items-center justify-between p-4 bg-blue-500">
+        
         <div className="flex space-x-2">
           <Image
             src="/assets/img_main/Chat.png"
@@ -83,6 +88,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
         <div className="flex items-end h-full cursor-pointer text-black" onClick={onClose}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" className="size-10" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14"/></svg>
         </div>
+        
       </div>
 
        {/* เพิ่มส่วนของแชทบอท */}
@@ -122,37 +128,42 @@ const ContactList = ({ onSelectContact, onClose }) => {
         </form>
       </div>
       <div className="border p-3 space-y-3 overflow-y-scroll h-[281px]">
-        {filteredContacts.map((contact) => (
-          <div 
-            key={contact._id} 
-            className="flex flex-row items-center border-b-2 border-gray-200 pb-2 cursor-pointer"
-            onClick={() => onSelectContact(contact)}
-          >
-            <div className="relative">
-              <Image
-                src={contact.profilePicture || "/assets/img_main/usericon.png"}
-                alt={`${contact.username} avatar`}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover"
-              />
-            </div>
-            <div className="flex flex-col px-3 w-full">
-              <div className="flex justify-between items-center">
-                <span className="text-lg font-medium">{`${contact.firstname} ${contact.lastname}`}</span>
-                <span className="text-xs text-gray-400">{formatTime(contact.lastMessageTime)}</span>
-              </div>
-              <div className="text-sm text-gray-600 truncate">
-                {contact.unreadCount > 0 
-                  ? <span className="font-semibold text-blue-600">{`${contact.unreadCount}+ ข้อความใหม่`}</span>
-                  : contact.lastMessage
-                }
-              </div>
-            </div>
+  {isLoading ? (
+    <LoadingSpinner />
+  ) : (
+    filteredContacts.map((contact) => (
+      <div 
+        key={contact._id} 
+        className="flex flex-row items-center border-b-2 border-gray-200 pb-2 cursor-pointer"
+        onClick={() => onSelectContact(contact)}
+      >
+        <div className="relative">
+          <Image
+            src={contact.profilePicture || "/assets/img_main/usericon.png"}
+            alt={`${contact.username} avatar`}
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        </div>
+        <div className="flex flex-col px-3 w-full">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">{`${contact.firstname} ${contact.lastname}`}</span>
+            <span className="text-xs text-gray-400">{formatTime(contact.lastMessageTime)}</span>
           </div>
-        ))}
+          <div className="text-sm text-gray-600 truncate">
+            {contact.unreadCount > 0 ? (
+              <span className="font-semibold text-blue-600">{`${contact.unreadCount}+ ข้อความใหม่`}</span>
+            ) : (
+              contact.lastMessage
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    ))
+  )}
+</div>
+</div>
   );
 };
 
