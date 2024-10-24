@@ -67,7 +67,7 @@ const ContactList = ({ onSelectContact, onClose }) => {
       username: 'Chatbot',
       firstname: 'BOT',
       lastname: 'Assistant',
-      profileImage: '/assets/img_main/bot.png'
+      profilePicture: '/assets/img_main/bot.png'
     });
   };
 
