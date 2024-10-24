@@ -69,6 +69,7 @@ const Interrest = ["เกม", "กีฬา", "อาหาร", "ท่อง
 
 const Page = () => {
   const { data: session, status } = useSession();
+  const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [view, setView] = useState('ProfileView');
