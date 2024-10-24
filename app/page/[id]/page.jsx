@@ -272,7 +272,7 @@ const EventDetail = ({ params }) => {
                 {eventData.description ? (
                   <>
                     <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-                    <pre>{eventData.description}</pre>
+                    <p>{eventData.description}</p>
                   </>
                 ) : null}
               </div>
