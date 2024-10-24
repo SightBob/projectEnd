@@ -126,9 +126,9 @@ export default function Home() {
             <SwiperSlide>
               <div className="relative w-full h-full bg-white">
               <Image
-              src="/assets/img_main/slide-1.jpg"
+              src="/assets/img_main/slide-1.png"
               fill // Using 'fill' 
-              style={{ objectFit: 'contain' }} 
+              style={{ objectFit: 'cover' }} 
               alt="promote banner advertise"
               sizes="(max-width: 768px) 100vw, 50vw" 
               priority 
@@ -138,9 +138,9 @@ export default function Home() {
             <SwiperSlide>
               <div className="relative w-full h-full bg-white">
               <Image
-                src="/assets/img_main/slide-2.png"
+                src="/assets/img_main/slide-3.png"
                 fill // Using 'fill' 
-                style={{ objectFit: 'contain' }} 
+                style={{ objectFit: 'cover' }} 
                 alt="promote banner advertise"
                 sizes="(max-width: 768px) 100vw, 50vw" 
                 priority 
@@ -150,9 +150,9 @@ export default function Home() {
             <SwiperSlide>'
               <div className="relative w-full h-full bg-white">
               <Image
-                src="/assets/img_main/banner-1.png"
+                src="/assets/img_main/slide-2.png"
                 fill // Using 'fill' 
-                style={{ objectFit: 'cover' }} 
+                style={{ objectFit: 'contain' }} 
                 alt="promote banner advertise"
                 sizes="(max-width: 768px) 100vw, 50vw" 
                 priority 
