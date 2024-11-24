@@ -2,12 +2,19 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/ConnectDB";
 import Post from "@/models/Post";
 import Notification from "@/models/Notification";
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 export async function POST(req) {
     try {
         await dbConnect();
 
-        const { uuid, additionalLink, start_date, start_time, end_date, end_time,description, image, location, tags, title, type, member, maxParticipants } = await req.json();
+        const { uuid, additionalLink, start_date, start_time, end_date, end_time,description, image, location, tags, title, type, member, maxParticipants, public_id } = await req.json();
  
         const newpost = await Post.create({
             organizer_id: uuid,
@@ -15,6 +22,7 @@ export async function POST(req) {
             description,
             location,
             picture: image,
+            public_id,
             category: tags,
             start_date,
             start_time,
@@ -72,6 +80,7 @@ export async function POST(req) {
     }
 }
 
+
 export async function DELETE(req) {
     try {
         await dbConnect();
@@ -82,23 +91,48 @@ export async function DELETE(req) {
             return NextResponse.json({ error: "ไม่พบ ID ของโพสต์" }, { status: 400 });
         }
 
-        const result = await Post.deleteOne({ '_id': idPost });
-
-        if (result.deletedCount === 0) {
+        // ค้นหาโพสต์ก่อนลบ
+        const post = await Post.findById(idPost);
+        
+        if (!post) {
             return NextResponse.json({ error: "ไม่พบโพสต์ที่ต้องการลบ" }, { status: 404 });
         }
 
-        // ลบการแจ้งเตือนที่เกี่ยวข้องกับโพสต์
-        const deleteNofi = await Notification.deleteOne({ 'postId': idPost });
-        if (deleteNofi.deletedCount === 0) {
-            console.warn("ไม่พบการแจ้งเตือนที่เกี่ยวข้องกับโพสต์นี้");
+        // ถ้ามีรูปภาพและ public_id ให้ลบออกจาก Cloudinary
+        if (post.picture && post.public_id) {
+            try {
+                // ใช้ public_id โดยตรงจากฐานข้อมูล
+                const result = await cloudinary.uploader.destroy(post.public_id);
+                
+                if (result.result !== 'ok') {
+                    console.warn("ไม่สามารถลบรูปภาพจาก Cloudinary ได้:", result);
+                }
+            } catch (cloudinaryError) {
+                console.error("Error deleting image from Cloudinary:", cloudinaryError);
+                // ส่ง warning แต่ยังดำเนินการลบโพสต์ต่อ
+                return NextResponse.json({ 
+                    warning: "ลบโพสต์สำเร็จแต่ไม่สามารถลบรูปภาพได้",
+                    details: cloudinaryError.message 
+                }, { status: 207 }); // Status 207 Multi-Status
+            }
         }
 
-        // ส่ง 204 No Content เมื่อลบสำเร็จ
-        return new NextResponse(null, { status: 204 });
+        // ลบโพสต์และการแจ้งเตือนที่เกี่ยวข้อง
+        await Promise.all([
+            Post.deleteOne({ '_id': idPost }),
+            Notification.deleteOne({ 'postId': idPost })
+        ]);
+
+        return NextResponse.json({ 
+            message: "ลบโพสต์และรูปภาพสำเร็จ" 
+        }, { status: 200 });
+
     } catch (error) {
         console.error("เกิดข้อผิดพลาด:", error);
-        return NextResponse.json({ error: "เกิดข้อผิดพลาดในการลบโพสต์" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "เกิดข้อผิดพลาดในการลบโพสต์",
+            details: error.message 
+        }, { status: 500 });
     }
 }
 

@@ -22,6 +22,9 @@ const PostSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  public_id: {
+    type: String
+  },
   category: {
     type: Object,
     default: {},

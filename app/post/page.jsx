@@ -73,44 +73,74 @@ const Page = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        try {
+            let imageUrl = null;
+            let imagePublicId = null;
 
-        const postType = activeSection === 'event' ? 'event' : 'info';
+            // อัพโหลดรูปภาพไปยัง Cloudinary ถ้ามีการเลือกรูป
+            if (formData.image) {
+                const imageData = new FormData();
+                
+                const blob = await fetch(formData.image).then(r => r.blob());
+                const file = new File([blob], "image.jpg", { type: "image/jpeg" });
+                
+                imageData.append('file', file);
+                imageData.append('upload_preset', 'events_upload'); // สร้าง upload preset ใน Cloudinary dashboard
+    
+                const uploadResponse = await fetch(
+                    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    {
+                        method: 'POST',
+                        body: imageData
+                    }
+                );
+    
+                const uploadResult = await uploadResponse.json();
+                imageUrl = uploadResult.secure_url;
+                imagePublicId = uploadResult.public_id; // แก้เป็น public_id
 
-        console.log('Form submitted:', { 
-            ...formData, 
-            tags, 
-            uuid: session?.user?.uuid, 
-            type: postType, 
-            member: activeSection === 'event' ? "yes" : member,
-            maxParticipants: formData.maxParticipants
-        });
-
-        const res = await axios.post('/api/post/', {   ...formData, 
-            tags, 
-            uuid: session?.user?.uuid, 
-            type: postType, 
-            member: activeSection === 'event' ? "yes" : member,
-            maxParticipants: formData.maxParticipants });
-
-        if (res.status === 201) {
-
-            console.log("response post: ", res.data)
-            e.target.reset();
-            setFormData({
-                title: '',
-                start_date: '',
-                start_time: '',
-                end_date: '',
-                end_time: '',
-                location: '',
-                description: '',
-                image: null,
-                additionalLink: '',
-                tags: [],
-                maxParticipants: ''
-            });
-            setTags([]);
-            alert('โพสต์สำเร็จแล้ว!');
+                console.log("imageUrl: ", imageUrl);
+                console.log("imagePublicId: ", imagePublicId); // แสดงผล public_id
+            }
+    
+            const postType = activeSection === 'event' ? 'event' : 'info';
+            
+            const postData = {
+                ...formData,
+                picture: imageUrl,
+                public_id: imagePublicId,
+                tags,
+                uuid: session?.user?.uuid,
+                type: postType,
+                member: activeSection === 'event' ? "yes" : member,
+                maxParticipants: formData.maxParticipants
+            };
+    
+            const res = await axios.post('/api/post/', postData);
+    
+            if (res.status === 201) {
+                console.log("response post: ", res.data);
+                // e.target.reset();
+                // setFormData({
+                //     title: '',
+                //     start_date: '',
+                //     start_time: '',
+                //     end_date: '',
+                //     end_time: '',
+                //     location: '',
+                //     description: '',
+                //     image: null,
+                //     additionalLink: '',
+                //     tags: [],
+                //     maxParticipants: ''
+                // });
+                // setTags([]);
+                alert('โพสต์สำเร็จแล้ว!');
+            }
+        } catch (error) {
+            console.error('Error uploading image or creating post:', error);
+            alert('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง');
         }
     };
 
@@ -345,7 +375,7 @@ const Page = () => {
                  </form>
                 )}
                 
-                        {activeSection === 'posts' && (
+            {activeSection === 'posts' && (
                 <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3 min-h-[100vh]">
                     <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
                     { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (

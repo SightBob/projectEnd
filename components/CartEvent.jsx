@@ -5,11 +5,11 @@ import axios from 'axios';
 import Image from "next/image";
 import Link from "next/link";
 
+
 const CartEvent = ({ id, img, title, start_date, start_time, location, type="",  member="", maxParticipants="", current_participants="", userId="", favorites=[], onFavoriteToggle, onDelete, views=0}) => {
   const [isFavorited, setIsFavorited] = useState(favorites.includes(userId));
 
   const toggleFavorite = async () => {
-    // ทำให้หัวใจเป็นสีแดงทันทีที่กด
     setIsFavorited(!isFavorited); 
   
     try {
@@ -37,7 +37,7 @@ const CartEvent = ({ id, img, title, start_date, start_time, location, type="", 
     try {
       const res = await axios.delete(`/api/post/?id=${id}`);
       
-      if (res.status === 204) {
+      if (res.status === 200) {
         console.log("ลบโพสต์สำเร็จ");
         if (onDelete) {
           onDelete(id);
