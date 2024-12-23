@@ -6,6 +6,7 @@ import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Button, Input } from '@nextui-org/react';
 
 const Page = () => {
   const router = useRouter();
@@ -71,57 +72,68 @@ const Page = () => {
   };
 
   return (
-    <div className="w-full flex h-[calc(100vh_-_8rem)] ">
+    <div className="w-full flex h-[calc(100vh_-_8rem)]">
       <div className="w-[50%] bg-white flex flex-col items-center justify-center max-md:w-full">
         <h2 className="text-3xl text-center">เข้าสู่ระบบ</h2>
         
         <form onSubmit={handleSubmit} className="max-w-[300px] w-full mx-auto mt-6 flex flex-col">
           <div className="flex justify-between items-end">
-          <label htmlFor="username">ชื่อผู้ใช้ หรือ อีเมล</label>
-          {usernameError && <p className="text-red-500 mt-2">{usernameError}</p>}
+            <label htmlFor="username">ชื่อผู้ใช้ หรือ อีเมล</label>
+            {usernameError && <p className="text-red-500 mt-2">{usernameError}</p>}
           </div>
-          <input
+          <Input
             id="username"
-            className="px-3 mt-2 border rounded-md max-w-[300px] py-1 w-full"
+            aria-label="Username"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            autoComplete="username" // Add this line
+            autoComplete="username"
+            className="mt-2"
           />
-                  <div className="flex justify-between items-end">
-          <label className="mt-5" htmlFor="password">รหัสผ่าน</label>
-          {passwordError && <p className="text-red-500 mt-2">{passwordError}</p>}
+          
+          <div className="flex justify-between items-end mt-5">
+            <label htmlFor="password">รหัสผ่าน</label>
+            {passwordError && <p className="text-red-500 mt-2">{passwordError}</p>}
           </div>
-          <input
+          <Input
             id="password"
-            className="px-3 border rounded-md max-w-[300px] py-1 w-full"
+            aria-label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             autoComplete="current-password"
+            className="mt-2"
           />
-          <Link className="self-end text-[#EBB557] text-sm" href="/forgot-password">ลืมรหัสผ่าน?</Link>
-          <button className="bg-[#FD8D64] py-2 w-full rounded-md text-white mt-4" type="submit">ล็อคอิน</button>
-          <p className="mt-2 self-end">ยังไม่มีบัญชีผู้ใช้ <Link className="text-[#EBB557]" href="register">สมัครสมาชิกที่นี่</Link></p>
+
+          <Link href="/forgot-password" className="self-end text-[#EBB557] text-sm">ลืมรหัสผ่าน?</Link>
+
+          <Button type="submit" className="mt-4" color="warning" fullWidth>
+            ล็อคอิน
+          </Button>
+          
+          <p className="mt-2 self-end">
+            ยังไม่มีบัญชีผู้ใช้{' '}
+            <Link href="register" className="text-[#EBB557]">สมัครสมาชิกที่นี่</Link>
+          </p>
         </form>
       </div>
-      <div className="w-[50%] bg-[#FFDDD0] h-[calc(100vh_-_8rem)] max-md:hidden">
-      <div className="w-auto h-[7rem] relative top-[50%] translate-y-[-50%]"> 
-      <Image
-        fill
-        src="/assets/img_main/logo-full.png"
-        style={{ objectFit: 'contain' }} 
-        alt="Logo"
-        priority
-        sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
-    />
-</div>
 
+      <div className="w-[50%] bg-[#FFDDD0] h-[calc(100vh_-_8rem)] max-md:hidden">
+        <div className="w-auto h-[7rem] relative top-[50%] translate-y-[-50%]">
+          <Image
+            fill
+            src="/assets/img_main/logo-full.png"
+            style={{ objectFit: 'contain' }} 
+            alt="Logo"
+            priority
+            sizes="(max-width: 600px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Page;

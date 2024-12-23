@@ -14,14 +14,14 @@ export async function POST(req) {
     try {
         await dbConnect();
 
-        const { uuid, additionalLink, start_date, start_time, end_date, end_time,description, image, location, tags, title, type, member, maxParticipants, public_id } = await req.json();
+        const { uuid, additionalLink, start_date, start_time, end_date, end_time,description, picture, location, tags, title, type, member, maxParticipants, public_id, description_image_ids, register_start_date, register_start_time, register_end_date, register_end_time } = await req.json();
  
         const newpost = await Post.create({
             organizer_id: uuid,
             title,
             description,
             location,
-            picture: image,
+            picture,
             public_id,
             category: tags,
             start_date,
@@ -30,8 +30,13 @@ export async function POST(req) {
             end_time,
             type,
             member, 
+            description_image_ids,
             maxParticipants,
-            link_other: additionalLink
+            link_other: additionalLink,
+            register_start_date,
+            register_start_time,
+            register_end_date,
+            register_end_time
         });
         
 
@@ -81,57 +86,67 @@ export async function POST(req) {
 }
 
 
-export async function DELETE(req) {
+export async function DELETE(request) {
     try {
         await dbConnect();
+        
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+        
+        console.log("Attempting to delete post with ID:", id);
 
-        const idPost = req.nextUrl.searchParams.get('id');
-
-        if (!idPost) {
-            return NextResponse.json({ error: "ไม่พบ ID ของโพสต์" }, { status: 400 });
+        if (!id) {
+            return NextResponse.json({ 
+                error: "กรุณาระบุ ID ของโพสต์ที่ต้องการลบ" 
+            }, { status: 400 });
         }
 
-        // ค้นหาโพสต์ก่อนลบ
-        const post = await Post.findById(idPost);
+        // ลึงข้อมูลโพสต์ก่อนลบ
+        const post = await Post.findById(id);
         
         if (!post) {
-            return NextResponse.json({ error: "ไม่พบโพสต์ที่ต้องการลบ" }, { status: 404 });
+            return NextResponse.json({ 
+                error: "ไม่พบโพสต์ที่ต้องการลบ" 
+            }, { status: 404 });
         }
 
-        // ถ้ามีรูปภาพและ public_id ให้ลบออกจาก Cloudinary
-        if (post.picture && post.public_id) {
+        // ลบรูปภาพหลักจาก Cloudinary
+        if (post.public_id) {
             try {
-                // ใช้ public_id โดยตรงจากฐานข้อมูล
-                const result = await cloudinary.uploader.destroy(post.public_id);
-                
-                if (result.result !== 'ok') {
-                    console.warn("ไม่สามารถลบรูปภาพจาก Cloudinary ได้:", result);
-                }
-            } catch (cloudinaryError) {
-                console.error("Error deleting image from Cloudinary:", cloudinaryError);
-                // ส่ง warning แต่ยังดำเนินการลบโพสต์ต่อ
-                return NextResponse.json({ 
-                    warning: "ลบโพสต์สำเร็จแต่ไม่สามารถลบรูปภาพได้",
-                    details: cloudinaryError.message 
-                }, { status: 207 }); // Status 207 Multi-Status
+                await cloudinary.uploader.destroy(post.public_id);
+            } catch (error) {
+                console.error("Error deleting main image:", error);
             }
         }
 
-        // ลบโพสต์และการแจ้งเตือนที่เกี่ยวข้อง
-        await Promise.all([
-            Post.deleteOne({ '_id': idPost }),
-            Notification.deleteOne({ 'postId': idPost })
-        ]);
+        // ลบรูปภาพใน description จาก Cloudinary
+        if (post.description_image_ids?.length > 0) {
+            const deletePromises = post.description_image_ids.map(imageId => 
+                cloudinary.uploader.destroy(imageId)
+            );
+            try {
+                await Promise.all(deletePromises);
+            } catch (error) {
+                console.error("Error deleting description images:", error);
+            }
+        }
+
+        // ลบโพสต์จากฐานข้อมูล
+        const deletedPost = await Post.findByIdAndDelete(id);
+        
+        // ลบการแจ้งเตือนที่เกี่ยวข้อง
+        await Notification.deleteMany({ postId: id });
 
         return NextResponse.json({ 
-            message: "ลบโพสต์และรูปภาพสำเร็จ" 
+            message: "ลบโพสต์และรูปภาพทั้งหมดเรียบร้อยแล้ว",
+            deletedPost 
         }, { status: 200 });
 
     } catch (error) {
-        console.error("เกิดข้อผิดพลาด:", error);
-        return NextResponse.json({ 
-            error: "เกิดข้อผิดพลาดในการลบโพสต์",
-            details: error.message 
+        console.error("Error in DELETE route:", error);
+        return NextResponse.json({
+            error: "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
+            details: error.message
         }, { status: 500 });
     }
 }

@@ -7,30 +7,43 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const date = searchParams.get('date');
     const info = searchParams.get('type');
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 12;
+    const skip = (page - 1) * limit;
 
     await dbConnect();
 
-    let getPost;
-
+    let query = {};
     if (date) {
-      getPost = await Post.find({ start_date: date });
+      query.start_date = date;
+    } else if (info) {
+      query.type = info;
     }
 
-    if (!getPost || getPost.length === null) {
-      getPost = await Post.find(
-          { type: info }
-        ).sort({ start_date: -1 });
-    }
+    // หาจำนวนรายการทั้งหมด
+    const total = await Post.countDocuments(query);
+
+    // ดึงข้อมูลตาม pagination
+    let getPost = await Post.find(query)
+      .sort({ start_date: -1 })
+      .skip(skip)
+      .limit(limit);
 
     if (getPost.length === 0) {
       return NextResponse.json({
         message: "No activities found",
-        getPost: []
+        getPost: [],
+        total: 0,
+        currentPage: page,
+        totalPages: 0
       });
     }
 
     return NextResponse.json({
       getPost,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit)
     });
 
   } catch (error) {

@@ -1,28 +1,83 @@
 'use client'
-
-import React, { useState } from 'react';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
-import { th } from 'date-fns/locale';
+import React, { useState, useEffect } from 'react';
+import { Calendar } from "@nextui-org/calendar";
+import { parseDate, today } from "@internationalized/date";
+import axios from 'axios';
 
 const CalendarComponent = ({ onDateChange, selectedDate }) => {
+  const [events, setEvents] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // แปลง Date เป็น parsedDate
+  const parsedSelectedDate = selectedDate 
+    ? parseDate(
+        selectedDate.getFullYear() + "-" + 
+        String(selectedDate.getMonth() + 1).padStart(2, '0') + "-" + 
+        String(selectedDate.getDate()).padStart(2, '0')
+      )
+    : null;
+
+  // ดึงข้อมูลกิจกรรมทั้งหมด
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get('/api/post');
+        setEvents(response.data.getAllPost);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  // ฟังก์ชันตรวจสอบว่าวันที่มีกิจกรรมหรือไม่
+  const isDateUnavailable = (date) => {
+    if (!events.length) return false;
+
+    // แปลงวันที่ที่ได้รับเป็นรูปแบบ YYYY-MM-DD
+    const formattedDate = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+
+    // ตรวจสอบว่ามีกิจกรรมในวันนี้หรือไม่
+    return !events.some(event => event.start_date === formattedDate);
+  };
+
   const handleDateChange = (date) => {
-    console.log('Date selected in calendar:', date);
-    onDateChange(date);
+    const fullDate = new Date(
+      date.year, 
+      date.month - 1,
+      date.day
+    );
+    
+    onDateChange(fullDate);
   }
  
   return (
-    <div 
-      className={`p-4 mx-auto bg-white rounded-xl space-y-4 max-lg:w-[100%] max-sm:w-full max-w-[460px]`}
-
-    >
-      <Calendar
+    <div className={`p-4 mx-auto bg-white rounded-xl space-y-4 max-lg:w-[100%] max-sm:w-full max-w-[300px] flex flex-col items-center`}>
+      <Calendar 
+        aria-label="Date (Show Month and Year Picker)"
+        value={parsedSelectedDate}
         onChange={handleDateChange}
-        value={selectedDate}
+        isDateUnavailable={isDateUnavailable}
+        showMonthAndYearPickers
         className="border-none mx-auto"
-        locale={th}
+        minValue={today()} // เพิ่มเพื่อไม่ให้เลือกวันที่ผ่านมาแล้ว
+        renderDayContent={(date) => {
+          const formattedDate = `${date.year}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`;
+          const eventsOnThisDay = events.filter(event => event.start_date === formattedDate);
+          
+          return (
+            <div className="relative w-full h-full">
+              <span>{date.day}</span>
+              {eventsOnThisDay.length > 0 && (
+                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-primary"></div>
+              )}
+            </div>
+          );
+        }}
       />
-      <p className="text-center text-gray-500">Selected date: {selectedDate ? selectedDate.toDateString() : "0/0/0000"}</p>
     </div>
   );
 };

@@ -1,90 +1,98 @@
 'use client'
 
-import { Pagination, A11y, Autoplay } from 'swiper/modules';
+// Import Swiper modules
+import { Pagination, A11y, Autoplay, Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
+import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import 'swiper/css/scrollbar';
 import 'swiper/css/autoplay';
-
 import Image from 'next/image';
 import Link from 'next/link';
-
 import CartEvent from '@/components/CartEvent';
 import CalendarComponent from '@/components/Calendar';
 import CartActivity from '@/components/CartActivity';
-import axios from 'axios';
 import { useSession } from "next-auth/react";
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
-import { useState, useEffect } from 'react';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { getSession } from 'next-auth/react';
-
-export default function Home() {
-  const { data: session, status } = useSession();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dataCaledar, setDataCaledar] = useState([]);
-  const [dataInterest, setDataInterest] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  function getLocalDateString(date) {
+// Custom Hooks
+const useCalendarData = (selectedDate) => {
+  const getLocalDateString = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  }
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const session = await getSession();
+  return useQuery({
+    queryKey: ['calendar', selectedDate],
+    queryFn: async () => {
+      const dateToSend = getLocalDateString(selectedDate);
+      const res = await axios.get('/api/data/date', {
+        params: { date: dateToSend }
+      });
+      return res.data.getPost;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+};
 
-      // console.log("session: ", session);
-      try {
-        if (selectedDate) {
-          setIsLoading(true);
-          const dateToSend = getLocalDateString(selectedDate);
-          const res = await axios.get('/api/data/date', {
-            params: { date: dateToSend }
-          });
-          // console.log('Response:', res.data.getPost);
-          setDataCaledar(res.data.getPost);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load calendar data. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+const useInterestData = (session) => {
+  return useQuery({
+    queryKey: ['interests', session?.user?.uuid],
+    queryFn: async () => {
+      const res = await axios.get('/api/interest', {
+        params: session?.user?.uuid ? { user: session.user.uuid } : {}
+      });
+      return res.data.getPost;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+};
 
-    fetchData();
-  }, [selectedDate]);
+export default function Home() {
+  const { data: session } = useSession();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
 
-  useEffect(() => {
-    const fetchInterest = async () => {
-      try {
-        let res;
+  const { data: calendarData, isLoading: calendarLoading } = useCalendarData(selectedDate);
+  const { data: interestData, isLoading: interestLoading } = useInterestData(session);
 
-        if (status === "authenticated" && session?.user?.uuid) {
-          res = await axios.get('/api/interest', {
-            params: { user: session.user.uuid }
-          });
-        } else {
-          res = await axios.get('/api/interest');
-        }
+  const LoadingSpinner = () => (
+    <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
+      <div className="loading-spinner"></div>
+    </div>
+  );
 
-        // console.log('setDataInterest:', res.data.getPost);
-        setDataInterest(res.data.getPost);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-
-      }
-    };
-
-    fetchInterest();
-  }, [session]);
-
-
+  const ImageModal = ({ isOpen, onClose, imageUrl }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-[1000] flex items-center justify-center p-4">
+        <div className="relative max-w-4xl w-full">
+          <button
+            onClick={onClose}
+            className="absolute -top-10 right-0 text-white text-xl p-2"
+          >
+            ปิด ✕
+          </button>
+          <div className="relative w-full h-[80vh]">
+            <Image
+              src={imageUrl}
+              fill
+              style={{ objectFit: 'contain' }}
+              alt="modal image"
+              sizes="(max-width: 1200px) 100vw"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <main className="min-h-screen container">
@@ -107,12 +115,15 @@ export default function Home() {
               delay: 2000,
               disableOnInteraction: true,
             }}
-
             pagination={{ clickable: true }}
-
+            loop={true}
           >
             <SwiperSlide>
-              <div className="relative w-full h-full bg-white">
+              <div className="relative w-full h-full bg-white cursor-pointer"
+               onClick={() => {
+                setSelectedImage('/assets/img_main/banner-1.png');
+                setIsModalOpen(true);
+              }}>
               <Image
                 src="/assets/img_main/banner-1.png"
                 fill // Using 'fill' 
@@ -124,7 +135,11 @@ export default function Home() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="relative w-full h-full bg-white">
+              <div className="relative w-full h-full bg-white cursor-pointer"
+              onClick={() => {
+                setSelectedImage('/assets/img_main/slide-1.png');
+                setIsModalOpen(true);
+              }}>
               <Image
               src="/assets/img_main/slide-1.png"
               fill // Using 'fill' 
@@ -136,7 +151,11 @@ export default function Home() {
               </div>
             </SwiperSlide>
             <SwiperSlide>
-              <div className="relative w-full h-full bg-white">
+              <div className="relative w-full h-full bg-white cursor-pointer"
+              onClick={() => {
+                setSelectedImage('/assets/img_main/slide-3.png');
+                setIsModalOpen(true);
+              }}>
               <Image
                 src="/assets/img_main/slide-3.png"
                 fill // Using 'fill' 
@@ -148,7 +167,11 @@ export default function Home() {
               </div>
             </SwiperSlide>
             <SwiperSlide>'
-              <div className="relative w-full h-full bg-white">
+              <div className="relative w-full h-full bg-white cursor-pointer"
+              onClick={() => {
+                setSelectedImage('/assets/img_main/slide-2.png');
+                setIsModalOpen(true);
+              }}>
               <Image
                 src="/assets/img_main/slide-2.png"
                 fill // Using 'fill' 
@@ -165,10 +188,10 @@ export default function Home() {
           <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
         </div>
       </div>
-
+      
       <div className="flex lg:hidden space-x-4 mt-4 max-sm:flex-col max-sm:space-x-0 max-sm:items-center">
-         <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
-        <div className="bg-[rgba(255,102,0,0.7)] w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:w-[50%] max-sm:max-w-[450px] max-sm:w-[98%] ">
+        <CalendarComponent onDateChange={setSelectedDate} selectedDate={selectedDate} />
+        <div className="bg-[rgba(255,102,0,0.7)] w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:w-[50%] max-sm:max-w-[450px] max-sm:w-[98%]">
           <div className="flex justify-between items-center pb-1">
             <h3 className="text-2xl font-semibold text-white max-[1214px]:text-xl">กิจกรรม</h3>
             <div className="bg-white rounded-full px-2 py-1">
@@ -176,26 +199,24 @@ export default function Home() {
             </div>
           </div>
           <div className="max-h-[320px] overflow-y-scroll">
-          {isLoading ? (
-            <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
-              <div className="loading-spinner"></div>
-            </div>
-          ) : dataCaledar.length > 0 ? (
-            dataCaledar.map((item, index) => (
-              <CartActivity
-                key={index}
-                id={item._id}
-                img={item.picture}
-                title={item.title}
-                start_date={item.start_date}
-                start_time={item.start_time}
-              />
-            ))
-          ) : (
-            <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
-              ไม่พบข้อมูลกิจกรรม
-            </div>
-          )}
+            {calendarLoading ? (
+              <LoadingSpinner />
+            ) : calendarData?.length > 0 ? (
+              calendarData.map((item, index) => (
+                <CartActivity
+                  key={index}
+                  id={item._id}
+                  img={item.picture}
+                  title={item.title}
+                  start_date={item.start_date}
+                  start_time={item.start_time}
+                />
+              ))
+            ) : (
+              <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
+                ไม่พบข้อมูลกิจกรรม
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -209,15 +230,28 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-4 mt-3 max-xl:grid-cols-3 max-lg:grid-cols-3 gap-4 w-auto max-[660px]:grid-cols-2 max-lg:w-full max-[435px]:grid-cols-1 place-items-center">
-            {dataInterest.length > 0 ?
-              (
-                dataInterest.map((item, index) => (
-                  <CartEvent key={index} id={item._id} img={item.picture} title={item.title} start_date={item.start_date} start_time={item.start_time} location={item.location} userId={session?.user?.uuid} favorites={item.favorites} views={item.views} />
-                ))
-              )
-              : <><div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
+            {interestLoading ? (
+              <LoadingSpinner />
+            ) : interestData?.length > 0 ? (
+              interestData.map((item, index) => (
+                <CartEvent
+                  key={index}
+                  id={item._id}
+                  img={item.picture}
+                  title={item.title}
+                  start_date={item.start_date}
+                  start_time={item.start_time}
+                  location={item.location}
+                  userId={session?.user?.uuid}
+                  favorites={item.favorites}
+                  views={item.views}
+                />
+              ))
+            ) : (
+              <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
                 <LoadingSpinner />
-              </div></>}
+              </div>
+            )}
           </div>
         </div>
         <div className="bg-[rgba(255,102,0,0.7)] max-w-[350px] rounded-lg p-3 mt-2 h-fit max-lg:hidden">
@@ -228,29 +262,33 @@ export default function Home() {
             </div>
           </div>
           <div className="max-h-[320px] min-w-[320px] overflow-y-scroll">
-          {isLoading ? (
-            <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
-              <div className="loading-spinner"></div>
-            </div>
-          ) : dataCaledar.length > 0 ? (
-            dataCaledar.map((item, index) => (
-              <CartActivity
-                key={index}
-                id={item._id}
-                img={item.picture}
-                title={item.title}
-                start_date={item.start_date}
-                start_time={item.start_time}
-              />
-            ))
-          ) : (
-            <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
-              ไม่พบข้อมูลกิจกรรม
-            </div>
-          )}
+            {calendarLoading ? (
+              <LoadingSpinner />
+            ) : calendarData?.length > 0 ? (
+              calendarData.map((item, index) => (
+                <CartActivity
+                  key={index}
+                  id={item._id}
+                  img={item.picture}
+                  title={item.title}
+                  start_date={item.start_date}
+                  start_time={item.start_time}
+                />
+              ))
+            ) : (
+              <div className='w-full py-4 rounded-md flex justify-center items-center bg-white mt-4'>
+                ไม่พบข้อมูลกิจกรรม
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        imageUrl={selectedImage}
+      />
     </main>
   );
 }

@@ -25,6 +25,27 @@ export async function GET(req) {
   }
 }
 
+export async function POST(req) {
+  try {
+    const { public_id } = await req.json();
+
+    if (!public_id) {
+      return NextResponse.json({ error: "Public ID is required" }, { status: 400 });
+    }
+
+    const result = await cloudinary.uploader.destroy(public_id);
+
+    if (result.result === 'ok') {
+      return NextResponse.json({ message: "Image deleted successfully" }, { status: 200 });
+    } else {
+      return NextResponse.json({ error: "Failed to delete image" }, { status: 500 });
+    }
+  } catch (error) {
+    console.error("Error deleting image from Cloudinary:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
 export async function PUT(req) {
   try {
     const url = new URL(req.url);
@@ -35,12 +56,38 @@ export async function PUT(req) {
     }
 
     const body = await req.json();
-    const { firstname, lastname, email, gender, faculty, major, username,preferred_categories,profilePicture,profileCoverPicture } = body;
+    const { 
+      firstname, 
+      lastname, 
+      email, 
+      gender, 
+      faculty, 
+      major, 
+      username, 
+      preferred_categories,
+      profilePicture,
+      profilePicture_public_id,
+      profileCoverPicture,
+      profileCoverPicture_public_id 
+    } = body;
 
     await dbConnect();
     const updatedUser = await User.findByIdAndUpdate(
       uid,
-      { firstname, lastname, email, gender, faculty, major, username , preferred_categories,profilePicture,profileCoverPicture },
+      { 
+        firstname, 
+        lastname, 
+        email, 
+        gender, 
+        faculty, 
+        major, 
+        username, 
+        preferred_categories,
+        profilePicture,
+        profilePicture_public_id,
+        profileCoverPicture,
+        profileCoverPicture_public_id
+      },
       { new: true, runValidators: true }
     );
 

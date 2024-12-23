@@ -10,6 +10,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useSession } from 'next-auth/react';
 import ReportModal from '@/components/ReportModal';
+import DOMPurify from 'dompurify';
+import { Toaster, toast } from 'react-hot-toast';
 
 const EventDetail = ({ params }) => {
   const [eventData, setEventData] = useState(null);
@@ -20,11 +22,12 @@ const EventDetail = ({ params }) => {
   const { data: session } = useSession();
   const [showReportModal, setShowReportModal] = useState(false);
   const viewIncrementedRef = useRef(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
 
-
+  const cleanHTML = DOMPurify.sanitize;
   const handleReport = async (reason) => {
     if (!eventData || !session) {
-      alert("ข้อมูลไม่ครบถ้วน กรุณาลองใหม่");
+      toast.error("ข้อมูลไม่ครบถ้วน กรุณาลองใหม่");
       return;
     }
   
@@ -42,13 +45,13 @@ const EventDetail = ({ params }) => {
       });
   
       if (response.status === 200) {
-        alert('รายงานสำเร็จ');
+        toast.success('รายงานสำเร็จ');
       } else {
-        alert('ไม่สามารถรายงานได้');
+        toast.error('ไม่สามารถรายงานได้');
       }
     } catch (error) {
       console.error('Error reporting post:', error);
-      alert('เกิดข้อผิดพลาดในการรายงาน: ' + error.response?.data?.message || error.message);
+      toast.error('เกิดข้อผิดพลาดในการรายงาน: ' + error.response?.data?.message || error.message);
     }
   };
 
@@ -96,12 +99,16 @@ const EventDetail = ({ params }) => {
     }
   };
 
-  const joinEvent = async () => {
+  const handleJoinEvent = () => {
     if (!session) {
-      alert("กรุณาเข้าสู่ระบบเพื่อเข้าร่วมหรือยกเลิกการเข้าร่วมกิจกรรม");
+      toast.error("กรุณาเข้าสู่ระบบเพื่อเข้าร่วมหรือยกเลิกการเข้าร่วมกิจกรรม");
       return;
     }
+    setShowPolicyModal(true);
+  };
 
+  const confirmJoinEvent = async () => {
+    setShowPolicyModal(false);
     try {
       const response = await axios.post('/api/data/event', {
         eventId: params.id,
@@ -110,21 +117,20 @@ const EventDetail = ({ params }) => {
 
       if (response.data.success) {
         if (response.data.action === 'registered') {
-          alert("คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว");
+          toast.success("คุณได้เข้าร่วมกิจกรรมเรียบร้อยแล้ว");
         } else if (response.data.action === 'unregistered') {
-          alert("คุณได้ยกเลิกการเข้าร่วมกิจกรรมเรียบร้อยแล้ว");
+          toast.success("คุณได้ยกเลิกการเข้าร่วมกิจกรรมเรียบร้อยแล้ว");
         }
-        // Fetch updated event data
         await fetchEventData();
       } else {
-        alert(response.data.message || "ไม่สามารถดำเนินการได้");
+        toast.error(response.data.message || "ไม่สามารถดำเนินการได้");
       }
     } catch (error) {
       console.error("Error processing event registration:", error);
       if (error.response) {
-        alert(error.response.data.message || "เกิดข้อผิดพลาดในการดำเนินการ");
+        toast.error(error.response.data.message || "เกิดข้อผิดพลาดในการดำเนินการ");
       } else {
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
+        toast.error("เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์");
       }
     }
   };
@@ -159,6 +165,7 @@ const EventDetail = ({ params }) => {
 
   return (
     <div className="container max-w-[1240px] mx-auto">
+      <Toaster />
       <div className="flex">
         {/* Left Section - 75% */}
         <div className="flex-[3]">
@@ -198,26 +205,7 @@ const EventDetail = ({ params }) => {
                     style={{ cursor: 'pointer' }}
                   >
                     {/* SVG Icon */}
-                    <svg
-                      className="w-6 h-6 text-gray-500 dark:text-gray-400 "
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <g stroke="#1C274C">
-                        <path
-                          strokeWidth="1.5"
-                          d="M12 22a10 10 0 1 0-8.96-5.55..."
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M8 12h0m4 0h0m4 0h0"
-                          opacity=".5"
-                        />
-                      </g>
-                    </svg>
+                    <Image src="/assets/img_main/chatIcon.png" alt="chat" width={24} height={24} />
                   </button>
                 </div>
 
@@ -272,7 +260,7 @@ const EventDetail = ({ params }) => {
                 {eventData.description ? (
                   <>
                     <p className="text-lg font-semibold mt-2">รายละเอียด:</p>
-                    <p>{eventData.description}</p>
+                    <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(eventData.description) }}></p>
                   </>
                 ) : null}
               </div>
@@ -280,7 +268,7 @@ const EventDetail = ({ params }) => {
               <div className="flex flex-col items-start ml-4 max-sm:ml-0 max-sm:mt-6">
                 <div className="mb-4">
                   {eventData.link_other ? <>
-                    <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่มเติม</p>
+                    <p className="text-lg font-semibold mb-3">ดูรายละเอียดเพิ่ม</p>
                   <QRCodeSVG
                     className="mx-auto"
                     value={eventData.link_other || "https://default-link.com"}
@@ -298,7 +286,7 @@ const EventDetail = ({ params }) => {
                       className={`bg-orange-400 text-white px-7 py-2 rounded-lg mt-2 ${
                         isEventFull || isRegistrationClosed ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-500"
                       }`}
-                      onClick={joinEvent}
+                      onClick={handleJoinEvent}
                       disabled={isEventFull || isRegistrationClosed}
                     >
                       {isEventFull
@@ -335,6 +323,39 @@ const EventDetail = ({ params }) => {
             onClose={() => setShowChat(false)}
             selectedContactId={selectedContactId}
           />
+        </div>
+      )}
+
+      {/* Policy Modal */}
+      {showPolicyModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">นโยบายการเข้าร่วมกิจกรรม</h2>
+            <p className="mb-4">
+              ก่อนที่คุณจะเข้าร่วมกิจกรรมนี้ โปรดอ่านนโยบายต่อไปนี้:
+            </p>
+            <ul className="list-disc pl-5 mb-4">
+              <li>ผู้เข้าร่วมต้องปฏิบัติตามกฎระเบียบของกิจกรรมอย่างเคร่งครัด</li>
+              <li>ห้ามนำสิ่งของอันตรายหรือสิ่งผิดกฎหมายเข้ามาในพื้นที่จัดกิจกรรม</li>
+              <li>ผู้เข้าร่วมต้องรับผิดชอบต่อทรัพย์สินส่วนตัวของตนเอง</li>
+              <li>หากมีการยกเลิกการเข้าร่วม กรุณาแจ้งล่วงหน้าอย่างน้อย 24 ชั่วโมง</li>
+              <li>การเข้าร่วมกิจกรรมนี้ถือว่าคุณยอมรับเงื่อนไขและข้อกำหนดทั้งหมด</li>
+            </ul>
+            <div className="flex justify-end">
+              <button
+                className="bg-gray-300 text-black px-4 py-2 rounded mr-2"
+                onClick={() => setShowPolicyModal(false)}
+              >
+                ยกเลิก
+              </button>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+                onClick={confirmJoinEvent}
+              >
+                ยอมรับ
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

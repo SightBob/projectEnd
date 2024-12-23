@@ -47,7 +47,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  profilePicture_public_id: {
+    type: String,
+    trim: true
+  },
   profileCoverPicture: {
+    type: String,
+    trim: true
+  },
+  profileCoverPicture_public_id: {
     type: String,
     trim: true
   },    

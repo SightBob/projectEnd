@@ -23,7 +23,6 @@ export async function POST(request) {
         reason
       });
 
-      // บันทึกเอกสารรายงานลงในฐานข้อมูล
       await newReport.save();
   
       return NextResponse.json({ success: true, message: 'รายงานสำเร็จ', report: newReport });
@@ -39,7 +38,7 @@ export async function POST(request) {
 
 // เพิ่มฟังก์ชัน GET
 export async function GET(request) {
-  await dbConnect(); // เชื่อมต่อกับฐานข้อมูลก่อน
+  await dbConnect(); 
 
   try {
       const reports = await Report.find().populate('reportedBy'); // ค้นหารายงานทั้งหมดและ populate ฟิลด์ reportedBy ถ้ามี

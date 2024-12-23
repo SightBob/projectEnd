@@ -3,15 +3,28 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-
-import CartEvent from '@/components/CartEvent';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import '@ckeditor/ckeditor5-build-classic/build/translations/th';
+import {
+  Button,
+  Input,
+  Select,
+  SelectItem,
+  Checkbox,
+  Card,
+  Chip
+} from "@nextui-org/react";
+import CartEvent from '@/components/CartEvent';
+import { Toaster, toast } from 'react-hot-toast';
 
 const Page = () => {
     const { data: session } = useSession();
     const router = useRouter();
     const [member, setMember] = useState("no");
+    const [isPosting, setIsPosting] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         start_date: '',
@@ -23,8 +36,76 @@ const Page = () => {
         image: null,
         additionalLink: '',
         tags: [],
-        maxParticipants: ''
+        maxParticipants: '',
+        register_start_date: '',
+        register_start_time: '',
+        register_end_date: '',
+        register_end_time: ''
     });
+
+     // สร้าง Custom Upload Adapter
+     class CloudinaryUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        async upload() {
+            const file = await this.loader.file;
+            
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    resolve({
+                        default: reader.result
+                    });
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        abort() {
+            // ถ้าจำเป็น สามารถจัดการการยกเลิกการอัปโหลดได้ที่นี่
+        }
+    }
+
+    function CustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new CloudinaryUploadAdapter(loader);
+        };
+    }
+
+    const editorConfiguration = {
+        language: 'th',
+        licenseKey: 'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3MzU1MTY3OTksImp0aSI6ImRlNjY5NmIxLTI0MDMtNDA3MC1iZmUwLWRhN2Q4ZTQ1MzkwYSIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImMxMDE0ZDEyIn0.4OtXqy8mVfBpYZ85-Qxn3pzAHzuaSg0FJOQ3buiL05vxrhznyGdGNEt0n-5eHgzZFD6ef1nv0GP3cqzz2UftoA',
+        toolbar: [
+            "heading",
+            "|",
+            "bold",
+            "italic",
+            "link",
+            "bulletedList",
+            "numberedList",
+            "blockQuote",
+            "imageUpload",
+            "undo",
+            "redo",
+        ],
+        extraPlugins: [CustomUploadAdapterPlugin],
+        image: {
+            upload: {
+                types: ['jpeg', 'png', 'gif', 'jpg']
+            }
+        }
+    };
+
+    const handleEditorChange = (event, editor) => {
+        const data = editor.getData();
+        setFormData(prevState => ({
+            ...prevState,
+            description: data
+        }));
+    };
 
     const hanldeChangeMember = (e) => {
         if (e.target.name === 'type') {
@@ -41,16 +122,13 @@ const Page = () => {
 
     const handleInputChange = (e) => {
         const { name, value, files } = e.target;
-
+    
         if (name === 'image' && files.length > 0) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData(prevState => ({
-                    ...prevState,
-                    image: reader.result 
-                }));
-            };
-            reader.readAsDataURL(files[0]);
+            // เก็บไฟล์โดยตรงแทนการแปลงเป็น base64
+            setFormData(prevState => ({
+                ...prevState,
+                image: files[0]  // เก็บไฟล์จริงแทน base64
+            }));
         } else {
             setFormData(prevState => ({
                 ...prevState,
@@ -71,23 +149,75 @@ const Page = () => {
         setTags(tags.filter(tag => tag !== tagToRemove));
     };
 
+    // เพิ่มฟังก์ชันใหม่สำหรับดึงรูปภาพจาก CKEditor content
+    const extractImagesFromContent = (content) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/html');
+        const images = doc.getElementsByTagName('img');
+        return Array.from(images).map(img => img.src);
+    };
+
+    // แก้ไขฟังก์ชัน handleSubmit
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsPosting(true);
+        
+        // สร้าง loading toast
+        const loadingToast = toast.loading('กำลังโพสต์...');
         
         try {
             let imageUrl = null;
             let imagePublicId = null;
+            const descriptionImageIds = [];
 
-            // อัพโหลดรูปภาพไปยัง Cloudinary ถ้ามีการเลือกรูป
+            // 1. จัดการกับรูภาพใน description
+            let updatedDescription = formData.description;
+            const contentImages = extractImagesFromContent(formData.description);
+            
+            for (const imgSrc of contentImages) {
+                // ข้ามรูปที่อัพโหลดไป Cloudinary แล้ว
+                if (imgSrc.includes('cloudinary.com')) {
+                    const publicId = imgSrc.split('/upload/')[1].split('/')[1];
+                    if (publicId) {
+                        descriptionImageIds.push(publicId);
+                    }
+                    continue;
+                }
+
+                // อัพโหลดรูปที่เป็น base64
+                if (imgSrc.startsWith('data:image')) {
+                    try {
+                        // แปลง base64 เป็น Blob
+                        const response = await fetch(imgSrc);
+                        const blob = await response.blob();
+
+                        const imageData = new FormData();
+                        imageData.append('file', blob);
+                        imageData.append('upload_preset', 'events_upload');
+
+                        const uploadResponse = await fetch(
+                            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                            {
+                                method: 'POST',
+                                body: imageData
+                            }
+                        );
+
+                        const result = await uploadResponse.json();
+                        descriptionImageIds.push(result.public_id);
+                        updatedDescription = updatedDescription.replace(imgSrc, result.secure_url);
+                    } catch (error) {
+                        console.error('Error uploading image from description:', error);
+                    }
+                }
+            }
+
+            // 2. อัพโหลดรูปหลักของโพสต์
             if (formData.image) {
                 const imageData = new FormData();
-                
-                const blob = await fetch(formData.image).then(r => r.blob());
-                const file = new File([blob], "image.jpg", { type: "image/jpeg" });
-                
-                imageData.append('file', file);
-                imageData.append('upload_preset', 'events_upload'); // สร้าง upload preset ใน Cloudinary dashboard
-    
+                imageData.append('file', formData.image);
+                imageData.append('upload_preset', 'events_upload');
+            
                 const uploadResponse = await fetch(
                     `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
                     {
@@ -95,52 +225,56 @@ const Page = () => {
                         body: imageData
                     }
                 );
-    
+            
                 const uploadResult = await uploadResponse.json();
                 imageUrl = uploadResult.secure_url;
-                imagePublicId = uploadResult.public_id; // แก้เป็น public_id
-
-                console.log("imageUrl: ", imageUrl);
-                console.log("imagePublicId: ", imagePublicId); // แสดงผล public_id
+                imagePublicId = uploadResult.public_id;
             }
-    
+
             const postType = activeSection === 'event' ? 'event' : 'info';
             
             const postData = {
-                ...formData,
-                picture: imageUrl,
-                public_id: imagePublicId,
+                title: formData.title,
+                start_date: formData.start_date,
+                start_time: formData.start_time,
+                end_date: formData.end_date,
+                end_time: formData.end_time,
+                location: formData.location,
+                description: updatedDescription,
+                additionalLink: formData.additionalLink,
+                picture: imageUrl || '',
+                public_id: imagePublicId || '',
+                description_image_ids: descriptionImageIds,
                 tags,
                 uuid: session?.user?.uuid,
                 type: postType,
                 member: activeSection === 'event' ? "yes" : member,
-                maxParticipants: formData.maxParticipants
+                maxParticipants: formData.maxParticipants || 0,
+                register_start_date: formData.register_start_date,
+                register_start_time: formData.register_start_time,
+                register_end_date: formData.register_end_date,
+                register_end_time: formData.register_end_time
             };
-    
+
+            console.log('Sending post data:', postData); // เพิ่ม log เพื่อตรวจสอบ
+
             const res = await axios.post('/api/post/', postData);
-    
+
             if (res.status === 201) {
-                console.log("response post: ", res.data);
-                // e.target.reset();
-                // setFormData({
-                //     title: '',
-                //     start_date: '',
-                //     start_time: '',
-                //     end_date: '',
-                //     end_time: '',
-                //     location: '',
-                //     description: '',
-                //     image: null,
-                //     additionalLink: '',
-                //     tags: [],
-                //     maxParticipants: ''
-                // });
-                // setTags([]);
-                alert('โพสต์สำเร็จแล้ว!');
+                // อัพเดท toast เป็นสำเร็จ
+                toast.success('โพสต์สำเร็จแล้ว!', {
+                    id: loadingToast,
+                });
+                // รีเซ็ตฟอร์มหรือ redirect ตามต้องการ
             }
         } catch (error) {
-            console.error('Error uploading image or creating post:', error);
-            alert('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง');
+            console.error('Error:', error);
+            // อัพเดท toast เป็นข้อผิดพลาด
+            toast.error('เกิดข้อผิดพลาดในการโพสต์ กรุณาลองใหม่อีกครั้ง', {
+                id: loadingToast,
+            });
+        } finally {
+            setIsPosting(false);
         }
     };
 
@@ -160,272 +294,495 @@ const Page = () => {
         }
     }, [activeSection, session?.user?.uuid]);
 
-    const handleDelete = (deletedId) => {
-        setDataByUserid(prevData => prevData.filter(item => item._id !== deletedId));
+    const handleDelete = async (postId) => {
+        try {
+            // อัพเดท state ทันทีเพื่อลบ post จาก UI
+            setDataByUserid(prevData => prevData.filter(post => post._id !== postId));
+        } catch (error) {
+            console.error("Error handling delete:", error);
+            // ถ้าเกิดข้อผิดพลาด อาจจะต้อง fetch ข้อมูลใหม่
+            fetchMyData();
+        }
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-gray-100 p-4">
+            {/* เพิ่ม Toaster component */}
+            <Toaster 
+                position="top-right"
+                toastOptions={{
+                    // สามารถกำหนด style เพิ่มเติมได้
+                    duration: 4000,
+                    style: {
+                        background: '#333',
+                        color: '#fff',
+                    },
+                    success: {
+                        style: {
+                            background: 'green',
+                        },
+                    },
+                    error: {
+                        style: {
+                            background: 'red',
+                        },
+                    },
+                }}
+            />
+            
             {session?.user?.role ? (
-            <div className="container flex justify-between space-x-5 max-md:flex-col max-md:space-x-0">
-                <div className="min-w-[300px] h-full space-y-3 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1 max-md:gap-2 max-md:space-y-0">
-                    <div 
-                        className={`w-full py-3 rounded-md ${activeSection === 'form' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
-                        onClick={() => setActiveSection('form')}
-                    >
-                        <h2 className="text-black font-semibold">เพิ่มกิจกรรม</h2>
-                    </div>
-                    <div 
-                        className={`w-full py-3 rounded-md ${activeSection === 'event' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
-                        onClick={() => {
-                            setActiveSection('event');
-                            setMember('no');
-                        }}
-                    >
-                        <h2 className="text-black font-semibold">เพิ่มโพสต์เปิดรับสมาชิก</h2>
-                    </div>
-                    <div 
-                        className={`w-full py-3 rounded-md ${activeSection === 'posts' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-center cursor-pointer max-md:col-span-1`}
-                        onClick={() => setActiveSection('posts')}
-                    >
-                        <h2 className="text-black font-semibold">โพสต์ของฉัน</h2>
-                    </div>
-                </div>
-
-                {activeSection === 'form' && (
-                    <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
-                    <div className="flex items-center space-x-4 max-[500px]:flex-col max-[500px]:space-x-0">
-                        <div className="mb-4 w-2/4 max-[500px]:w-full">
-                            <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
-                            <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                        </div>
-                        <div className="mb-4 w-2/4 max-[500px]:w-full">
-                            <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
-                            <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <div className="mb-4 w-2/4">
-                            <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
-                            <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
-                        </div>
-                        <div className="mb-4 w-2/4">
-                            <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
-                            <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
-                        </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <div className="mb-4 w-2/4">
-                            <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
-                            <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
-                        </div>
-                        <div className="mb-4 w-2/4">
-                            <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
-                            <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
-                        </div>
-                    </div>
-                    <div className="mb-0">
-                        <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
-                        <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3"></textarea>
-                    </div>
-    
-                    <div className="mb-4">
-                        <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                            {tags.map((tag, index) => (
-                                <span key={index} className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center">
-                                    {tag}
-                                    <button type="button" onClick={() => handleRemoveTag(tag)} className="ml-1 text-red-500 font-bold">
-                                        &times;
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                        <select onChange={handleAddTag} value={currentTag} className="px-3 py-2 border rounded-md">
-                            <option value="">Select a tag</option>
-                            {availableTags.map((tag, index) => (
-                                <option key={index} value={tag}>{tag}</option>
-                            ))}
-                        </select>
-                    </div>
-    
-                    <div className="mb-6">
-                        <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">อัปโหลดภาพ</label>
-                        <input type="file" id="image" name="image" onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" accept="image/*" />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="additionalLink" className="block text-gray-700 font-semibold mb-2">ลิ้งรายละเอียดเพิ่มเติม <span className='font-light'>(แปลงลิ้งเป็นภาพ Qr code ให้ผู้สนใจแสกน)</span></label>
-                        <input type="url" id="additionalLink" name="additionalLink" value={formData.additionalLink} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
+                <div className="container mx-auto">
+                    <div className="flex gap-4 mb-6 max-md:grid max-md:grid-cols-2 max-sm:grid-cols-1">
+                        <Button
+                            className={`${activeSection === 'form' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-black`}
+                            onClick={() => setActiveSection('form')}
+                        >
+                            เพิ่มกิจกรรม
+                        </Button>
+                        <Button
+                            className={`${activeSection === 'event' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-black`}
+                            onClick={() => {
+                                setActiveSection('event');
+                                setMember('no');
+                            }}
+                        >
+                            เพิ่มโพสต์เปิดรับสมาชิก
+                        </Button>
+                        <Button
+                            className={`${activeSection === 'posts' ? 'bg-[#E6AF2E]' : 'bg-[#FADF63]'} text-black`}
+                            onClick={() => setActiveSection('posts')}
+                        >
+                            โพสต์ของฉัน
+                        </Button>
                     </div>
 
-                    <div className="mb-4">
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                name="type"
-                                onChange={hanldeChangeMember}
-                                className="mr-2"
-                            />
-                            <span className="text-gray-700">เปิดรับสมาชิก</span>
-                        </label>
-                    </div>
+                    {activeSection === 'form' && (
+                        <Card className="p-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                        label="หัวเรื่อง"
+                                        name="title"
+                                        value={formData.title}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="bordered"
+                                    />
+                                    <Input
+                                        label="สถานที่ (โปรดระบุอย่างชัดเจน)"
+                                        name="location"
+                                        value={formData.location}
+                                        onChange={handleInputChange}
+                                        required
+                                        variant="bordered"
+                                    />
+                                </div>
 
-                    {member === "yes" && (
-                        <div className="mb-4">
-                            <label htmlFor="maxParticipants" className="block text-gray-700 font-semibold mb-2">จำนวนสมาชิกสูงสุด</label>
-                            <input 
-                                type="number" 
-                                id="maxParticipants" 
-                                name="maxParticipants" 
-                                value={formData.maxParticipants} 
-                                onChange={handleInputChange} 
-                                className="w-full px-3 py-2 border rounded-md" 
-                                min="1"
-                                required={member === "yes"}
-                            />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                        type="date"
+                                        label="วันที่เริ่มงาน"
+                                        name="start_date"
+                                        value={formData.start_date}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                    />
+                                    <Input
+                                        type="time"
+                                        label="เวลาเริ่มงาน"
+                                        name="start_time"
+                                        value={formData.start_time}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <Input
+                                        type="date"
+                                        label="วันที่จบงาน"
+                                        name="end_date"
+                                        value={formData.end_date}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                    />
+                                    <Input
+                                        type="time"
+                                        label="เวลาจบงาน"
+                                        name="end_time"
+                                        value={formData.end_time}
+                                        onChange={handleInputChange}
+                                        variant="bordered"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-medium">
+                                        รายละเอียด
+                                    </label>
+                                    <CKEditor
+                                        editor={ClassicEditor}
+                                        config={editorConfiguration}
+                                        data={formData.description}
+                                        onChange={handleEditorChange}
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Select
+                                        label="เลือก Tags"
+                                        onChange={handleAddTag}
+                                        variant="bordered"
+                                    >
+                                        {availableTags.map((tag) => (
+                                            <SelectItem key={tag} value={tag}>
+                                                {tag}
+                                            </SelectItem>
+                                        ))}
+                                    </Select>
+                                    <div className="flex flex-wrap gap-2">
+                                        {tags.map((tag, index) => (
+                                            <Chip
+                                                key={index}
+                                                onClose={() => handleRemoveTag(tag)}
+                                                variant="flat"
+                                            >
+                                                {tag}
+                                            </Chip>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <Input
+                                    type="file"
+                                    label="อัปโหลดภาพ"
+                                    name="image"
+                                    onChange={handleInputChange}
+                                    accept="image/*"
+                                    variant="bordered"
+                                />
+
+                                <Input
+                                    type="url"
+                                    label="ลิ้งรายละเอียดเพิ่มเติม"
+                                    name="additionalLink"
+                                    value={formData.additionalLink}
+                                    onChange={handleInputChange}
+                                    variant="bordered"
+                                />
+
+                                <Checkbox
+                                    onChange={(e) => setMember(e.target.checked ? "yes" : "no")}
+                                >
+                                    เปิดรับสมาชิก
+                                </Checkbox>
+
+                                {member === "yes" && (
+                                    <>
+                                    <Input
+                                        type="number"
+                                        label="จำนวนสมาชิกสูงสุด"
+                                        name="maxParticipants"
+                                        value={formData.maxParticipants}
+                                        onChange={handleInputChange}
+                                        min="1"
+                                        required
+                                        variant="bordered"
+                                    />
+                                    <div className="mt-6">
+                               <h3 className="text-sm mb-4">ระยะเวลาการเปิดรับสมัคร</h3>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                   <Input
+                                       type="date"
+                                       label="วันที่เริ่มรับสมัคร"
+                                       name="register_start_date"
+                                       value={formData.register_start_date}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                                   <Input
+                                       type="time"
+                                       label="เวลาเริ่มรับสมัคร"
+                                       name="register_start_time"
+                                       value={formData.register_start_time}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                               </div>
+
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                   <Input
+                                       type="date"
+                                       label="วันที่ปิดรับสมัคร"
+                                       name="register_end_date"
+                                       value={formData.register_end_date}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                                   <Input
+                                       type="time"
+                                       label="เวลาปิดรับสมัคร"
+                                       name="register_end_time"
+                                       value={formData.register_end_time}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                               </div>
+                           </div>
+
+                                    </>
+                                )}
+                                <br />
+                                <Button
+                                    color="success"
+                                    type="submit"
+                                    className="w-full md:w-auto"
+                                >
+                                    ยืนยัน
+                                </Button>
+                            </form>
+                        </Card>
+                    )}
+
+                    {activeSection === 'event' && (
+                       <Card className="p-6">
+                       <form onSubmit={handleSubmit} className="space-y-6">
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <Input
+                                   label="หัวเรื่อง"
+                                   name="title"
+                                   value={formData.title}
+                                   onChange={handleInputChange}
+                                   required
+                                   variant="bordered"
+                               />
+                               <Input
+                                   label="สถานที่ (โปรดระบุอย่างชัดเจน)"
+                                   name="location"
+                                   value={formData.location}
+                                   onChange={handleInputChange}
+                                   required
+                                   variant="bordered"
+                               />
+                           </div>
+
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <Input
+                                   type="date"
+                                   label="วันที่เริมงาน"
+                                   name="start_date"
+                                   value={formData.start_date}
+                                   onChange={handleInputChange}
+                                   variant="bordered"
+                               />
+                               <Input
+                                   type="time"
+                                   label="เวลาเริ่มงาน"
+                                   name="start_time"
+                                   value={formData.start_time}
+                                   onChange={handleInputChange}
+                                   variant="bordered"
+                               />
+                           </div>
+
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                               <Input
+                                   type="date"
+                                   label="วันที่จบงาน"
+                                   name="end_date"
+                                   value={formData.end_date}
+                                   onChange={handleInputChange}
+                                   variant="bordered"
+                               />
+                               <Input
+                                   type="time"
+                                   label="เวลาจบงาน"
+                                   name="end_time"
+                                   value={formData.end_time}
+                                   onChange={handleInputChange}
+                                   variant="bordered"
+                               />
+                           </div>
+
+                           <div className="space-y-2">
+                               <label className="block text-sm font-medium">
+                                   รายละเอียด
+                               </label>
+                               <CKEditor
+                                   editor={ClassicEditor}
+                                   config={editorConfiguration}
+                                   data={formData.description}
+                                   onChange={handleEditorChange}
+                               />
+                           </div>
+
+                           <div className="space-y-2">
+                               <Select
+                                   label="เลือก Tags"
+                                   onChange={handleAddTag}
+                                   variant="bordered"
+                               >
+                                   {availableTags.map((tag) => (
+                                       <SelectItem key={tag} value={tag}>
+                                           {tag}
+                                       </SelectItem>
+                                   ))}
+                               </Select>
+                               <div className="flex flex-wrap gap-2">
+                                   {tags.map((tag, index) => (
+                                       <Chip
+                                           key={index}
+                                           onClose={() => handleRemoveTag(tag)}
+                                           variant="flat"
+                                       >
+                                           {tag}
+                                       </Chip>
+                                   ))}
+                               </div>
+                           </div>
+
+                           <Input
+                               type="file"
+                               label="อัปโหลดภาพ"
+                               name="image"
+                               onChange={handleInputChange}
+                               accept="image/*"
+                               variant="bordered"
+                           />
+
+                           <Input
+                               type="url"
+                               label="ลิ้งรายละเอียดเพิ่มเติม"
+                               name="additionalLink"
+                               value={formData.additionalLink}
+                               onChange={handleInputChange}
+                               variant="bordered"
+                           />
+
+                               <Input
+                                   type="number"
+                                   label="จำนวนสมาชิกสูงสุด"
+                                   name="maxParticipants"
+                                   value={formData.maxParticipants}
+                                   onChange={handleInputChange}
+                                   min="1"
+                                   required
+                                   variant="bordered"
+                               />
+                           
+                           <div className="mt-6">
+                               <h3 className="text-sm mb-4">ระยะเวลาการเปิดรับสมัคร</h3>
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                   <Input
+                                       type="date"
+                                       label="วันที่เริ่มรับสมัคร"
+                                       name="register_start_date"
+                                       value={formData.register_start_date}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                                   <Input
+                                       type="time"
+                                       label="เวลาเริ่มรับสมัคร"
+                                       name="register_start_time"
+                                       value={formData.register_start_time}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                               </div>
+
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                   <Input
+                                       type="date"
+                                       label="วันที่ปิดรับสมัคร"
+                                       name="register_end_date"
+                                       value={formData.register_end_date}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                                   <Input
+                                       type="time"
+                                       label="เวลาปิดรับสมัคร"
+                                       name="register_end_time"
+                                       value={formData.register_end_time}
+                                       onChange={handleInputChange}
+                                       variant="bordered"
+                                       required
+                                   />
+                               </div>
+                           </div>
+                           
+                           <Button
+                               color="success"
+                               type="submit"
+                               className="w-full md:w-auto"
+                           >
+                               ยืนยัน
+                           </Button>
+                       </form>
+                   </Card>
+                    )}
+
+                    {activeSection === 'posts' && (
+                        <div className="grid max-[550px]:grid-cols-1 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {DataByUserid.length > 0 ? (
+                                DataByUserid.map((item) => (
+                                    <CartEvent 
+                                    key={item._id}
+                                    id={item._id} 
+                                    img={item.picture} 
+                                    title={item.title} 
+                                    start_date={item.start_date} 
+                                    start_time={item.start_time} 
+                                    location={item.location} 
+                                    type="edit" 
+                                    member={item.member} 
+                                    maxParticipants={item.maxParticipants} 
+                                    current_participants={item.current_participants} 
+                                    userId={session?.user?.uuid} 
+                                    favorites={item.favorites} 
+                                    views={item.views}
+                                    onDelete={handleDelete}
+                                />
+                                ))
+                            ) : (
+                                <Card className="col-span-full p-8 text-center">
+                                    <p>ไม่พบโพสต์ของคุณ</p>
+                                </Card>
+                            )}
                         </div>
                     )}
-    
-                    <button type="submit" className="bg-green-500 text-white px-14 py-2 rounded-md">ยืนยัน</button>
-                </form>
-                )}
-                {activeSection === 'event' && (
-                     <form onSubmit={handleSubmit} className="w-full bg-white p-3 rounded-lg shadow-md max-md:mt-3">
-                     <div className="flex items-center space-x-4 max-[500px]:flex-col max-[500px]:space-x-0">
-                         <div className="mb-4 w-2/4 max-[500px]:w-full">
-                             <label htmlFor="title" className="block text-gray-700 font-semibold mb-2">หัวเรื่อง</label>
-                             <input type="text" id="title" name="title" value={formData.title} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                         <div className="mb-4 w-2/4 max-[500px]:w-full">
-                             <label htmlFor="location" className="block text-gray-700 font-semibold mb-2">สถานที่</label>
-                             <input type="text" id="location" name="location" value={formData.location} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                   
-                     </div>
-                     <div className="flex items-center space-x-4">
-                         <div className="mb-4 w-2/4">
-                             <label htmlFor="start_date" className="block text-gray-700 font-semibold mb-2">วันที่ (เริ่มงาน)</label>
-                             <input type="date" id="start_date" name="start_date" value={formData.start_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                         <div className="mb-4 w-2/4">
-                             <label htmlFor="start_time" className="block text-gray-700 font-semibold mb-2">เวลา (เริ่มงาน)</label>
-                             <input type="time" id="start_time" name="start_time" value={formData.start_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                     </div>
-                     <div className="flex items-center space-x-4">
-                         <div className="mb-4 w-2/4">
-                             <label htmlFor="end_date" className="block text-gray-700 font-semibold mb-2">วันที่ (จบงาน)</label>
-                             <input type="date" id="end_date" name="end_date" value={formData.end_date} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                         <div className="mb-4 w-2/4">
-                             <label htmlFor="end_time" className="block text-gray-700 font-semibold mb-2">เวลา (จบงาน)</label>
-                             <input type="time" id="end_time" name="end_time" value={formData.end_time} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" required />
-                         </div>
-                     </div>
-                     <div className="mb-0">
-                         <label htmlFor="description" className="block text-gray-700 font-semibold mb-2">รายละเอียด</label>
-                         <textarea id="description" name="description" value={formData.description} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" rows="3" required></textarea>
-                     </div>
-     
-                     <div className="mb-4">
-                         <label htmlFor="tags" className="block text-gray-700 font-semibold mb-2">Tags</label>
-                         <div className="flex flex-wrap items-center gap-2 mb-2">
-                             {tags.map((tag, index) => (
-                                 <span key={index} className="bg-gray-200 px-2 py-1 rounded-full text-sm flex items-center">
-                                     {tag}
-                                     <button type="button" onClick={() => handleRemoveTag(tag)} className="ml-1 text-red-500 font-bold">
-                                         &times;
-                                     </button>
-                                 </span>
-                             ))}
-                         </div>
-                         <select onChange={handleAddTag} value={currentTag} className="px-3 py-2 border rounded-md">
-                             <option value="">Select a tag</option>
-                             {availableTags.map((tag, index) => (
-                                 <option key={index} value={tag}>{tag}</option>
-                             ))}
-                         </select>
-                     </div>
-     
-                     <div className="mb-6">
-                         <label htmlFor="image" className="block text-gray-700 font-semibold mb-2">อัปโหลดภาพ</label>
-                         <input type="file" id="image" name="image" onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" accept="image/*" />
-                     </div>
-
-                     <div className="mb-4">
-                            <label htmlFor="maxParticipants" className="block text-gray-700 font-semibold mb-2">จำนวนสมาชิกสูงสุด</label>
-                            <input 
-                                type="number" 
-                                id="maxParticipants" 
-                                name="maxParticipants" 
-                                value={formData.maxParticipants} 
-                                onChange={handleInputChange} 
-                                className="w-full px-3 py-2 border rounded-md" 
-                                min="1"
-                                required={member === "yes"}
-                            />
-                        </div>
-
-                     <div className="mb-4">
-                         <label htmlFor="additionalLink" className="block text-gray-700 font-semibold mb-2">ลิ้งรายละเอียดเพิ่มเติม <span className='font-light'>(แปลงลิ้งเป็นภาพ Qr code ให้ผู้สนใจแสกน)</span></label>
-                         <input type="url" id="additionalLink" name="additionalLink" value={formData.additionalLink} onChange={handleInputChange} className="w-full px-3 py-2 border rounded-md" />
-                     </div>
-     
-                     <button type="submit" className="bg-green-500 text-white px-14 py-2 rounded-md">ยืนยัน</button>
-                 </form>
-                )}
-                
-            {activeSection === 'posts' && (
-                <div className="w-full bg-gray-100 p-3 rounded-lg shadow-md max-md:mt-3 min-h-[100vh]">
-                    <div className="w-full grid grid-cols-4 gap-3 max-xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-3 max-sm:grid-cols-2 max-md:mt-4 max-md:place-items-center max-sm:gap-4 max-[440px]:grid-cols-1">
-                    { DataByUserid.length > 0 ? DataByUserid.map((item, key) => (
-                        <CartEvent 
-                            key={item._id}
-                            id={item._id} 
-                            img={item.picture} 
-                            title={item.title} 
-                            start_date={item.start_date} 
-                            start_time={item.start_time} 
-                            location={item.location} 
-                            type="edit" 
-                            member={item.member} 
-                            maxParticipants={item.maxParticipants} 
-                            current_participants={item.current_participants} 
-                            userId={session?.user?.uuid} 
-                            favorites={item.favorites} 
-                            views={item.views}
-                            onDelete={handleDelete}
-                        />
-                    )) : <>
-                     <div className='grid-cols-1 h-[410px] border-2 rounded-lg w-full flex justify-center items-center bg-white'>
-                        ไม่พบโพสต์ของคุณ
-                        </div>
-                    </>}
-                    </div>
                 </div>
-            )}
-            </div>
-               ) : (
-                <div className="text-center py-10 relative top-0 left-0 right-0 bottom-0 bg-gray-300 min-h-[calc(100vh_-_8rem)] flex justify-center items-center">
-                    <div className="max-w-[350px] h-[400px] w-full bg-white flex flex-col items-center justify-center rounded-md">
-                    <div className="rounded-full overflow-hidden">
-                    <Image 
-                        src="/assets/img_main/profile.png" 
-                        layout="responsive"
-                        width={250} 
-                        height={250} 
-                        alt="Profile picture"
+            ) : (
+                <Card className="max-w-md mx-auto p-8 text-center">
+                    <Image
+                        src="/assets/img_main/profile.png"
+                        width={150}
+                        height={150}
+                        alt="Profile"
+                        className="mx-auto rounded-full"
                     />
-                    </div>
-                    <h2 className='mt-8'>กรุณาเข้าสู่ระบบเพื่อเข้าถึงหน้านี้</h2>
-                    <button onClick={() => router.push('/login')} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                    <h2 className="mt-4 text-xl font-semibold">
+                        กรุณาเข้าสู่ระบบเพื่อเข้าถึงหน้านี้
+                    </h2>
+                    <Button
+                        color="primary"
+                        onClick={() => router.push('/login')}
+                        className="mt-4"
+                    >
                         ไปยังหน้าเข้าสู่ระบบ
-                    </button>
-                    </div>
-                </div>
+                    </Button>
+                </Card>
             )}
         </div>
     );
-}
+}   
 
 export default Page;

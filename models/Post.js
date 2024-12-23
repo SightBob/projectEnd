@@ -59,6 +59,18 @@ const PostSchema = new mongoose.Schema({
     enum: ['yes', 'no'],
     default: 'no'
   },
+  register_start_date: {
+    type: String,
+  },
+  register_start_time: {
+    type: String,
+  },
+  register_end_date: {
+    type: String,
+  },
+  register_end_time: {
+    type: String,
+  },
   isRecruiting: {
     type: Boolean,
     default: false
@@ -86,7 +98,8 @@ const PostSchema = new mongoose.Schema({
   views: {
     type: Number,
     default: 0
-  }
+  },
+  description_image_ids: [String],
 }, {
   timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
   collection: 'Posts_col'
