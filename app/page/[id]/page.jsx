@@ -26,8 +26,9 @@ const EventDetail = ({ params }) => {
 
   const cleanHTML = DOMPurify.sanitize;
   const handleReport = async (reason) => {
+    
     if (!eventData || !session) {
-      toast.error("ข้อมูลไม่ครบถ้วน กรุณาลองใหม่");
+      toast.error("ข้อมูลไม่ครบถ้วนหรือทำการล็อกอินก่อนทำรายการ");
       return;
     }
   
@@ -37,7 +38,7 @@ const EventDetail = ({ params }) => {
         userId: session.user.uuid, // Ensure this is set correctly
         reason
       });
-  
+      
       const response = await axios.post('/api/report', {
         postId: eventData._id,
         userId: session.user.uuid,
@@ -92,6 +93,10 @@ const EventDetail = ({ params }) => {
   };
 
   const handleClickChat = () => {
+    if (!session) {
+      toast.error("กรุณาเข้าสู่ระบบเพื่อเริ่มการพูดคุย");
+      return;
+    }
     if (eventData) {
       console.log('Organizer ID:', eventData.organizer_id);
       setSelectedContactId(eventData.organizer_id);

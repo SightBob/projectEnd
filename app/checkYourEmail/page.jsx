@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
@@ -10,6 +10,7 @@ export default function CheckYourEmail() {
   const [notification, setNotification] = useState('');
   const { data: session } = useSession(); 
   const [hasResent, setHasResent] = useState(false); // สถานะการส่งอีเมล
+  const router = useRouter();
 
   useEffect(() => {
     const resendVerificationEmail = async () => {
@@ -75,6 +76,12 @@ export default function CheckYourEmail() {
         >
           ส่งอีเมลยืนยันอีกครั้ง
         </button>
+        <button 
+          onClick={() => router.push('/login')} 
+          className="ml-4 bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-300 transition duration-200"
+        >
+          ล็อกอิน
+        </button> 
       </div>
     </div>
   );

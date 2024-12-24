@@ -23,7 +23,7 @@ export default function Providers({ children }) {
           {children}
         </NextUIProvider>
       </SessionProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
+  {process.env.NODE_ENV === 'development2' && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   )
 }

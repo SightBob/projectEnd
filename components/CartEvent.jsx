@@ -174,8 +174,10 @@ const CartEvent = ({
          </div>
          <div className="p-4">
            <div className="text-[#FF6600]">
-             <h3 className="line-clamp-1 text-2xl max-[1521px]:text-xl w-full font-semibold">
-               {title ? title : "เปิดโลกชวนชมรมเปิดบูธกิจกรรม"}
+             <h3 className="line-clamp-1 text-2xl max-[1521px]:text-xl w-full font-semibold" >
+             <Link href={`/page/${id}`} className="hover:underline">
+                {title ? title : "เปิดโลกชวนชมรมเปิดบูธกิจกรรม"}
+            </Link>
              </h3>
              <h5 className="line-clamp-1 text-lg max-[1521px]:text-lg">
                {start_date ? start_date : "วันที่ 17-26 กรกฏาคม 2567"} เวลา{" "}

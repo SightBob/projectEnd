@@ -49,10 +49,10 @@ export async function middleware(request) {
 // อัปเดต matcher เพื่อให้ครอบคลุมเส้นทางที่ต้องการป้องกันทั้งหมด
 export const config = {
   matcher: [
-    '/sutevent',
+    // '/sutevent',
     '/',
-    '/login',
-    '/register',
+    // '/login',
+    // '/register',
     '/searchgroup',
     '/favorites',
     '/Interest',
